@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #ff5daf;
+  --color-brand-secondary: #ffd3e8;
+  --color-brand-accent: #c2185b;
+  --color-brand-background: #fff8fc;
+  --font-display: "Playfair Display", serif;
+  --font-body: "Poppins", sans-serif;
+}
+
+:root {
+  color: #2a1420;
+  background: #fff8fc;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
