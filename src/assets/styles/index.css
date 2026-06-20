@@ -1,24 +1,53 @@
+﻿@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #ff5daf;
-  --color-brand-secondary: #ffd3e8;
-  --color-brand-accent: #c2185b;
-  --color-brand-background: #fff8fc;
+  --color-brand-primary: #ff2fa8;
+  --color-brand-secondary: #ffd1ec;
+  --color-brand-accent: #d60072;
+  --color-brand-background: #fff1fa;
   --font-display: "Playfair Display", serif;
   --font-body: "Poppins", sans-serif;
+  --shadow-soft: 0 14px 36px rgb(214 0 114 / 0.14);
+  --shadow-barbie: 0 16px 42px rgb(255 47 168 / 0.22);
 }
 
 :root {
-  color: #2a1420;
-  background: #fff8fc;
+  color: #2a1020;
+  background: #fff1fa;
   font-family: "Poppins", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, rgb(255 47 168 / 0.16), transparent 28rem),
+    radial-gradient(circle at 82% 0%, rgb(255 178 221 / 0.44), transparent 24rem),
+    linear-gradient(135deg, #fff1fa 0%, #fff8fd 48%, #ffe2f4 100%);
+}
+
+body::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.38;
+  background-image: radial-gradient(#ff7cc9 0.75px, transparent 0.75px);
+  background-size: 18px 18px;
 }
 
 button,
@@ -26,4 +55,112 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgb(255 159 214 / 0.86);
+  background: rgb(255 255 255 / 0.9);
+  padding: 0.68rem 0.9rem;
+  color: #2a1020;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.78);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.input-field:focus {
+  border-color: #ff2fa8;
+  box-shadow: 0 0 0 4px rgb(255 47 168 / 0.15), inset 0 1px 0 rgb(255 255 255 / 0.78);
+  transform: translateY(-1px);
+}
+
+textarea.input-field {
+  min-height: 7rem;
+  border-radius: 1rem;
+  resize: vertical;
+}
+
+.section-shell {
+  margin-inline: auto;
+  max-width: 76rem;
+  padding: 2.75rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .section-shell {
+    padding-block: 4rem;
+  }
+}
+
+@keyframes scroll-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-pop {
+  animation: toast-pop 180ms ease-out both;
+}
+
+.section-shell,
+article,
+details,
+.scroll-reveal {
+  animation: scroll-rise both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 26%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .section-shell,
+  article,
+  details,
+  .scroll-reveal,
+  .toast-pop {
+    animation: none;
+  }
+}
+
+input[type="range"].barbie-slider {
+  accent-color: #ff2fa8;
+  cursor: pointer;
 }

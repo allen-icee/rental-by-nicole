@@ -1,4 +1,5 @@
-import type { RouteObject } from "react-router-dom";
+﻿import type { RouteObject } from "react-router-dom";
+import { ProtectedAdminRoute } from "@/features/auth/ProtectedAdminRoute";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 
@@ -9,6 +10,10 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     path: "/admin",
-    element: <AdminDashboardPage />
+    element: (
+      <ProtectedAdminRoute>
+        <AdminDashboardPage />
+      </ProtectedAdminRoute>
+    )
   }
 ];
