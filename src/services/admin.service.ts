@@ -1,4 +1,4 @@
-﻿import { catalogueItems } from "@/data/site-content";
+import { catalogueItems } from "@/data/site-content";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
 
@@ -67,46 +67,43 @@ export async function getAdminStats(): Promise<AdminStats> {
   }
 }
 
-export async function getAdminData() {
-  const [
-    categories,
-    tags,
-    catalogItems,
-    availability,
-    guides,
-    faqs,
-    reviews,
-    inquiries,
-    settings
-  ] = await Promise.all([
-    supabase.from("categories").select("*").order("sort_order"),
-    supabase.from("tags").select("*").order("sort_order"),
-    supabase.from("catalog_items").select("*").order("sort_order"),
-    supabase.from("availability_ranges").select("*").order("created_at", { ascending: false }),
-    supabase.from("rental_guides").select("*").order("sort_order"),
-    supabase.from("faqs").select("*").order("sort_order"),
-    supabase.from("customer_reviews").select("*").order("created_at", { ascending: false }),
-    supabase.from("inquiries").select("*").order("created_at", { ascending: false }),
-    supabase.from("settings").select("*").limit(1).maybeSingle()
-  ]);
+// Data Fetching Helpers
+export async function getPaginatedData<T extends keyof Tables>(
+  table: T,
+  page: number,
+  pageSize: number,
+  orderBy: string,
+  ascending: boolean = true
+): Promise<{ data: Tables[T]["Row"][]; count: number }> {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  const error = categories.error ?? tags.error ?? catalogItems.error ?? availability.error ?? guides.error ?? faqs.error ?? reviews.error ?? inquiries.error ?? settings.error;
+  const { data, count, error } = await supabase
+    .from(table)
+    .select("*", { count: "exact" })
+    .order(orderBy, { ascending })
+    .range(from, to);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+  return { data: data as any, count: count || 0 };
+}
 
-  return {
-    categories: categories.data ?? [],
-    tags: tags.data ?? [],
-    catalogItems: catalogItems.data ?? [],
-    availability: availability.data ?? [],
-    guides: guides.data ?? [],
-    faqs: faqs.data ?? [],
-    reviews: reviews.data ?? [],
-    inquiries: inquiries.data ?? [],
-    settings: settings.data
-  };
+export async function getAllCategories() {
+  const { data, error } = await supabase.from("categories").select("*").order("sort_order");
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllCatalogItems() {
+  const { data, error } = await supabase.from("catalog_items").select("id, name").order("sort_order");
+  if (error) throw error;
+  return data;
+}
+
+export async function getSettings() {
+  const { data, error } = await supabase.from("settings").select("*").limit(1).maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
 export function slugify(value: string) {
@@ -117,6 +114,7 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+// Mutations
 export async function saveCategory(input: { id?: string; name: string; slug: string; description?: string; sort_order: number; is_active: boolean }) {
   const payload = {
     name: input.name,
