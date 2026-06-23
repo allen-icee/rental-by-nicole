@@ -1,7 +1,8 @@
-﻿import type { ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import { NavLink, Link } from "react-router-dom";
 import { siteConfig } from "@/config/site";
+import { AdminLoginModal } from "@/components/admin/AdminLoginModal";
 
 const links = [
   { to: "/", label: "Home" },
@@ -17,25 +18,59 @@ type PublicLayoutProps = {
 };
 
 export function PublicLayout({ children }: PublicLayoutProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Secret Admin Access State
+  const [clickCount, setClickCount] = useState(0);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogoClick = () => {
+    setIsMobileMenuOpen(false);
+    
+    setClickCount((prev) => {
+      const newCount = prev + 1;
+      if (newCount >= 5) {
+        setIsAdminModalOpen(true);
+        return 0;
+      }
+      return newCount;
+    });
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+    
+    clickTimeoutRef.current = setTimeout(() => {
+      setClickCount(0);
+    }, 1000); // reset if clicks aren't fast enough
+  };
+
   return (
-    <div className="min-h-screen bg-brand-background text-pink-950">
-      <header className="sticky top-0 z-40 border-b border-pink-200/70 bg-brand-background/92 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <NavLink to="/" className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-full bg-brand-primary text-white shadow-soft">
-              <Icon icon="mdi:hanger" className="size-6" />
+    <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
+      <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
+          {/* Logo Section */}
+          <NavLink 
+            to="/" 
+            onClick={handleLogoClick}
+            className="flex items-center gap-3 group"
+          >
+            <span className="grid size-10 md:size-12 place-items-center rounded-full bg-gradient-to-tr from-brand-accent via-brand-primary to-pink-300 text-white shadow-barbie transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+              <Icon icon="mdi:hanger" className="size-5 md:size-6" />
             </span>
-            <span>
-              <span className="block font-display text-2xl font-semibold text-brand-accent">
+            <div className="flex flex-col">
+              <span className="block font-display text-xl md:text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none tracking-tight">
                 {siteConfig.name}
               </span>
-              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-pink-900/60">
+              <span className="block text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] text-pink-500/80 mt-1">
                 {siteConfig.tagline}
               </span>
-            </span>
+            </div>
           </NavLink>
 
-          <nav className="flex gap-2 overflow-x-auto pb-1 md:pb-0">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-3">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -43,10 +78,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 end={link.to === "/"}
                 className={({ isActive }) =>
                   [
-                    "whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition",
+                    "whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300",
                     isActive
                       ? "bg-brand-accent text-white shadow-soft"
-                      : "text-pink-950/70 hover:bg-brand-secondary/70 hover:text-brand-accent"
+                      : "text-pink-950/70 hover:bg-pink-100 hover:text-brand-accent active:scale-95"
                   ].join(" ")
                 }
               >
@@ -54,50 +89,97 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               </NavLink>
             ))}
           </nav>
+
+          {/* Mobile Hamburger Toggle */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden relative grid size-10 place-items-center rounded-full bg-white/80 border border-pink-100 text-brand-primary shadow-soft hover:bg-pink-50 transition-colors focus:outline-none"
+            aria-label="Toggle Menu"
+          >
+            <Icon 
+              icon={isMobileMenuOpen ? "mdi:close" : "mdi:menu"} 
+              className="size-6 transition-transform duration-300" 
+            />
+          </button>
+        </div>
+
+        {/* Mobile Navigation Dropdown */}
+        <div
+          className={[
+            "absolute inset-x-0 top-full flex flex-col bg-white/95 backdrop-blur-xl border-b border-pink-100 px-5 py-6 gap-2 shadow-barbie transition-all duration-500 ease-in-out md:hidden z-40",
+            isMobileMenuOpen 
+              ? "translate-y-0 opacity-100 pointer-events-auto visible" 
+              : "-translate-y-8 opacity-0 pointer-events-none invisible"
+          ].join(" ")}
+        >
+          {links.map((link, index) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === "/"}
+              onClick={() => setIsMobileMenuOpen(false)}
+              style={{ transitionDelay: `${isMobileMenuOpen ? index * 40 : 0}ms` }}
+              className={({ isActive }) =>
+                [
+                  "flex items-center px-4 py-3.5 rounded-2xl text-base font-semibold transition-all duration-300",
+                  isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0",
+                  isActive
+                    ? "bg-gradient-to-r from-pink-50 to-transparent text-brand-accent border-l-4 border-brand-primary shadow-sm"
+                    : "text-pink-900/70 hover:bg-pink-50/50 hover:text-brand-accent border-l-4 border-transparent"
+                ].join(" ")
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
         </div>
       </header>
 
-      {children}
+      <main className="flex-1 flex flex-col relative z-0">
+        {children}
+      </main>
 
-      <footer className="border-t border-pink-200 bg-white/70">
-        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 md:grid-cols-[1.3fr_1fr_1fr]">
-          <div>
-            <p className="font-display text-2xl font-semibold text-brand-accent">
-              {siteConfig.name}
-            </p>
-            <p className="mt-3 max-w-md text-sm leading-6 text-pink-950/70">
-              Fashion rental catalogue and inquiry management for dresses,
-              gowns, Filipiniana pieces, boleros, and accessories.
-            </p>
+      <footer className="border-t border-pink-100 bg-white/90 backdrop-blur-md mt-auto relative z-10 py-10 md:py-12">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-8">
+            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-full bg-brand-background text-brand-primary shadow-soft">
+                  <Icon icon="mdi:hanger" className="size-5" />
+                </span>
+                <div>
+                  <p className="font-display text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none">
+                    {siteConfig.name}
+                  </p>
+                  <p className="mt-1 text-[10px] font-bold text-brand-primary uppercase tracking-[0.2em]">
+                    {siteConfig.tagline}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center gap-4">
+              <a href="mailto:hello@rental-by-nicole.com" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Email Us">
+                <Icon icon="mdi:email-outline" className="size-5" />
+              </a>
+              <a href="#" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Instagram">
+                <Icon icon="mdi:instagram" className="size-5" />
+              </a>
+              <a href="#" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Facebook">
+                <Icon icon="mdi:facebook" className="size-5" />
+              </a>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-accent">
-              Service Areas
+          
+          <div className="mt-10 border-t border-pink-100 pt-6 text-center">
+            <p className="text-xs font-semibold text-pink-950/40">
+              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
             </p>
-            <p className="mt-3 text-sm text-pink-950/70">
-              {siteConfig.serviceAreas.join(", ")}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-accent">
-              Manual Reservations
-            </p>
-            <p className="mt-3 text-sm text-pink-950/70">
-              No online payments, accounts, or automatic bookings.
-            </p>
-            <Link
-              to="/admin/login"
-              className="mt-4 inline-grid size-9 place-items-center rounded-full border border-pink-200 text-pink-950/35 transition hover:border-brand-accent hover:text-brand-accent"
-              aria-label="Owner admin login"
-              title="Owner admin"
-            >
-              <Icon icon="mdi:shield-key-outline" className="size-5" />
-            </Link>
           </div>
         </div>
       </footer>
+
+      <AdminLoginModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
     </div>
   );
 }
-
-
