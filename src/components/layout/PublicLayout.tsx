@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { AdminLoginModal } from "@/components/admin/AdminLoginModal";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const links = [
   { to: "/", label: "Home" },
@@ -19,14 +20,15 @@ type PublicLayoutProps = {
 
 export function PublicLayout({ children }: PublicLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
   const [clickCount, setClickCount] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
+  const { settings } = useSettings();
 
   const handleLogoClick = () => {
     setIsMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     
     setClickCount((prev) => {
       const newCount = prev + 1;
@@ -46,6 +48,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     }, 1000); // reset if clicks aren't fast enough
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
@@ -56,9 +62,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             onClick={handleLogoClick}
             className="flex items-center gap-3 group"
           >
-            <span className="grid size-10 md:size-12 place-items-center rounded-full bg-gradient-to-tr from-brand-accent via-brand-primary to-pink-300 text-white shadow-barbie transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-              <Icon icon="mdi:hanger" className="size-5 md:size-6" />
-            </span>
+            <div className="size-10 md:size-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
+              <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="w-full h-full object-contain" />
+            </div>
             <div className="flex flex-col">
               <span className="block font-display text-xl md:text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none tracking-tight">
                 {siteConfig.name}
@@ -76,6 +82,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 key={link.to}
                 to={link.to}
                 end={link.to === "/"}
+                onClick={() => {
+                  if (location.pathname === link.to) {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className={({ isActive }) =>
                   [
                     "whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300",
@@ -117,7 +128,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               key={link.to}
               to={link.to}
               end={link.to === "/"}
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                if (location.pathname === link.to) {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               style={{ transitionDelay: `${isMobileMenuOpen ? index * 40 : 0}ms` }}
               className={({ isActive }) =>
                 [
@@ -144,36 +160,42 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-8">
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-full bg-brand-background text-brand-primary shadow-soft">
-                  <Icon icon="mdi:hanger" className="size-5" />
-                </span>
+                <div className="size-10 drop-shadow-sm">
+                  <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="w-full h-full object-contain" />
+                </div>
                 <div>
                   <p className="font-display text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none">
-                    {siteConfig.name}
+                    {settings?.business_name || siteConfig.name}
                   </p>
                   <p className="mt-1 text-[10px] font-bold text-brand-primary uppercase tracking-[0.2em]">
-                    {siteConfig.tagline}
+                    {settings?.tagline || siteConfig.tagline}
                   </p>
                 </div>
               </div>
             </div>
             
             <div className="flex justify-center gap-4">
-              <a href="mailto:hello@rental-by-nicole.com" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Email Us">
-                <Icon icon="mdi:email-outline" className="size-5" />
-              </a>
-              <a href="#" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Instagram">
-                <Icon icon="mdi:instagram" className="size-5" />
-              </a>
-              <a href="#" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Facebook">
-                <Icon icon="mdi:facebook" className="size-5" />
-              </a>
+              {settings?.email && (
+                <a href={`mailto:${settings.email}`} className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Email Us">
+                  <Icon icon="mdi:email-outline" className="size-5" />
+                </a>
+              )}
+              {settings?.instagram_url && (
+                <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Instagram">
+                  <Icon icon="mdi:instagram" className="size-5" />
+                </a>
+              )}
+              {settings?.facebook_url && (
+                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Facebook">
+                  <Icon icon="mdi:facebook" className="size-5" />
+                </a>
+              )}
             </div>
           </div>
           
           <div className="mt-10 border-t border-pink-100 pt-6 text-center">
             <p className="text-xs font-semibold text-pink-950/40">
-              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+              © {new Date().getFullYear()} {settings?.business_name || siteConfig.name}. All rights reserved.
             </p>
           </div>
         </div>

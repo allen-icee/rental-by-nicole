@@ -1,4 +1,4 @@
-﻿export type CatalogItemStatus = "draft" | "published" | "archived";
+export type CatalogItemStatus = "draft" | "published" | "archived";
 
 export type AvailabilityStatus = "available" | "reserved" | "unavailable";
 
@@ -12,6 +12,7 @@ export type CatalogItem = {
   status: CatalogItemStatus;
   availabilityStatus: AvailabilityStatus;
   featured: boolean;
+  isNewArrival: boolean;
   priceDisplay: string;
   instagramReelUrl?: string;
   images: string[];

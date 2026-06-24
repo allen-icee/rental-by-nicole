@@ -31,10 +31,13 @@ export type CatalogFormInput = {
   status: CatalogRow["status"];
   availability_status: CatalogRow["availability_status"];
   featured: boolean;
+  is_new_arrival: boolean;
   price_display: string;
   instagram_reel_url: string | null;
   sort_order: number;
 };
+
+
 
 export async function getAdminStats(): Promise<AdminStats> {
   try {
@@ -73,14 +76,23 @@ export async function getPaginatedData<T extends keyof Tables>(
   page: number,
   pageSize: number,
   orderBy: string,
-  ascending: boolean = true
+  ascending: boolean = true,
+  searchQuery?: string,
+  searchColumns?: string[]
 ): Promise<{ data: Tables[T]["Row"][]; count: number }> {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, count, error } = await supabase
+  let query = supabase
     .from(table)
-    .select("*", { count: "exact" })
+    .select("*", { count: "exact" });
+
+  if (searchQuery && searchColumns && searchColumns.length > 0) {
+    const orFilter = searchColumns.map(col => `${col}.ilike.%${searchQuery}%`).join(',');
+    query = query.or(orFilter);
+  }
+
+  const { data, count, error } = await query
     .order(orderBy, { ascending })
     .range(from, to);
 
@@ -129,6 +141,10 @@ export async function saveCategory(input: { id?: string; name: string; slug: str
     : supabase.from("categories").insert(payload);
 }
 
+export async function deleteCategory(id: string) {
+  return supabase.from("categories").delete().eq("id", id);
+}
+
 export async function saveTag(input: { id?: string; name: string; slug: string; sort_order: number; is_active: boolean }) {
   const payload = {
     name: input.name,
@@ -142,6 +158,10 @@ export async function saveTag(input: { id?: string; name: string; slug: string; 
     : supabase.from("tags").insert(payload);
 }
 
+export async function deleteTag(id: string) {
+  return supabase.from("tags").delete().eq("id", id);
+}
+
 export async function saveCatalogItem(input: CatalogFormInput) {
   const payload = {
     category_id: input.category_id,
@@ -151,6 +171,7 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     status: input.status,
     availability_status: input.availability_status,
     featured: input.featured,
+    is_new_arrival: input.is_new_arrival,
     price_display: input.price_display,
     instagram_reel_url: input.instagram_reel_url || null,
     sort_order: input.sort_order,
@@ -162,6 +183,10 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     : supabase.from("catalog_items").insert(payload);
 }
 
+export async function deleteCatalogItem(id: string) {
+  return supabase.from("catalog_items").delete().eq("id", id);
+}
+
 export async function updateCatalogStatus(id: string, status: CatalogRow["status"]) {
   return supabase
     .from("catalog_items")
@@ -169,14 +194,17 @@ export async function updateCatalogStatus(id: string, status: CatalogRow["status
     .eq("id", id);
 }
 
-export async function saveAvailability(input: { catalog_item_id: string; start_date: string; end_date: string; label?: string; notes?: string }) {
-  return supabase.from("availability_ranges").insert({
+export async function saveAvailability(input: { id?: string; catalog_item_id: string; start_date: string; end_date: string; label?: string; notes?: string }) {
+  const payload = {
     catalog_item_id: input.catalog_item_id,
     start_date: input.start_date || null,
     end_date: input.end_date || null,
     label: input.label || null,
-    notes: input.notes || null
-  });
+    notes: input.notes || null,
+  };
+  return input.id
+    ? supabase.from("availability_ranges").update(payload).eq("id", input.id)
+    : supabase.from("availability_ranges").insert(payload);
 }
 
 export async function deleteAvailability(id: string) {
@@ -196,6 +224,10 @@ export async function saveGuide(input: { id?: string; title: string; body: strin
     : supabase.from("rental_guides").insert(payload);
 }
 
+export async function deleteGuide(id: string) {
+  return supabase.from("rental_guides").delete().eq("id", id);
+}
+
 export async function saveFaq(input: { id?: string; category?: string; question: string; answer: string; sort_order: number; is_published: boolean }) {
   const payload = {
     category: input.category || null,
@@ -208,6 +240,10 @@ export async function saveFaq(input: { id?: string; category?: string; question:
   return input.id
     ? supabase.from("faqs").update(payload).eq("id", input.id)
     : supabase.from("faqs").insert(payload);
+}
+
+export async function deleteFaq(id: string) {
+  return supabase.from("faqs").delete().eq("id", id);
 }
 
 export async function updateReviewStatus(id: string, status: ReviewRow["status"]) {
@@ -223,25 +259,33 @@ export async function saveSettings(input: {
   business_name: string;
   tagline: string;
   phone?: string;
+  secondary_phone?: string;
   email?: string;
+  secondary_email?: string;
   facebook_url?: string;
   instagram_url?: string;
   business_hours?: string;
   service_areas: string[];
   seo_title?: string;
   seo_description?: string;
+  announcement_text?: string;
+  announcement_is_active?: boolean;
 }) {
   const payload = {
     business_name: input.business_name,
     tagline: input.tagline,
     phone: input.phone || null,
+    secondary_phone: input.secondary_phone || null,
     email: input.email || null,
+    secondary_email: input.secondary_email || null,
     facebook_url: input.facebook_url || null,
     instagram_url: input.instagram_url || null,
     business_hours: input.business_hours || null,
     service_areas: input.service_areas,
     seo_title: input.seo_title || null,
-    seo_description: input.seo_description || null
+    seo_description: input.seo_description || null,
+    announcement_text: input.announcement_text || null,
+    announcement_is_active: input.announcement_is_active ?? false
   };
 
   return input.id

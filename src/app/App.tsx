@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { adminRoutes } from "@/routes/admin-routes";
 import { publicRoutes } from "@/routes/public-routes";
 
@@ -24,9 +25,11 @@ export function App() {
   }, []);
 
   return (
-    <ToastProvider>
-      <RouterProvider router={router} />
-    </ToastProvider>
+    <SettingsProvider>
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
+    </SettingsProvider>
   );
 }
 

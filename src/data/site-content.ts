@@ -1,4 +1,4 @@
-﻿import type { CatalogItem } from "@/features/catalogue/types/catalogue";
+import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 
 export const categories = ["Dress", "Gown", "Filipiniana", "Bolero", "Accessory"];
 
@@ -38,6 +38,7 @@ export const catalogueItems: CatalogItem[] = [
     status: "published",
     availabilityStatus: "available",
     featured: true,
+    isNewArrival: false,
     priceDisplay: "PHP 1,499 / 3 Days",
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.roseGown, itemImages.ivoryGown],
@@ -65,6 +66,7 @@ export const catalogueItems: CatalogItem[] = [
     status: "published",
     availabilityStatus: "reserved",
     featured: true,
+    isNewArrival: false,
     priceDisplay: "PHP 599 / 2 Days",
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.satinDress, itemImages.roseGown],
@@ -91,6 +93,7 @@ export const catalogueItems: CatalogItem[] = [
     status: "published",
     availabilityStatus: "available",
     featured: false,
+    isNewArrival: false,
     priceDisplay: "Price Upon Inquiry",
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.filipiniana, itemImages.bolero],
@@ -118,6 +121,7 @@ export const catalogueItems: CatalogItem[] = [
     status: "published",
     availabilityStatus: "available",
     featured: false,
+    isNewArrival: false,
     priceDisplay: "PHP 299 / 2 Days",
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.bolero, itemImages.filipiniana],
@@ -145,6 +149,7 @@ export const catalogueItems: CatalogItem[] = [
     availabilityStatus: "available",
     priceDisplay: "PHP 199 / 2 Days",
     featured: false,
+    isNewArrival: false,
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.clutch, itemImages.satinDress],
     sizes: ["One Size"],
@@ -170,6 +175,7 @@ export const catalogueItems: CatalogItem[] = [
     status: "published",
     availabilityStatus: "unavailable",
     featured: true,
+    isNewArrival: false,
     priceDisplay: "PHP 1,299 / 3 Days",
     instagramReelUrl: "https://www.instagram.com/",
     images: [itemImages.ivoryGown, itemImages.roseGown],

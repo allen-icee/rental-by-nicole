@@ -1,4 +1,4 @@
-﻿import { catalogueItems as fallbackItems, categories as fallbackCategories, tags as fallbackTags } from "@/data/site-content";
+import { catalogueItems as fallbackItems, categories as fallbackCategories, tags as fallbackTags } from "@/data/site-content";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 import { supabase } from "@/lib/supabase/client";
 
@@ -47,7 +47,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase.from("tags").select("id,name").eq("is_active", true).order("sort_order"),
       supabase
         .from("catalog_items")
-        .select("id,category_id,name,slug,description,status,availability_status,featured,price_display,instagram_reel_url")
+        .select("id,category_id,name,slug,description,status,availability_status,featured,is_new_arrival,price_display,instagram_reel_url")
         .eq("status", "published")
         .order("sort_order")
     ]);
@@ -128,6 +128,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
           status: item.status,
           availabilityStatus: item.availability_status,
           featured: item.featured,
+          isNewArrival: item.is_new_arrival,
           priceDisplay: item.price_display,
           instagramReelUrl: item.instagram_reel_url ?? undefined,
           images: images.filter((image) => image.catalog_item_id === item.id).map((image) => image.image_url).concat(placeholderImage).slice(0, 4),
@@ -166,3 +167,37 @@ function formatDateRange(startDate: string | null, endDate: string | null) {
 
   return `${startDate} - ${endDate}`;
 }
+
+export async function getTestimonials() {
+  try {
+    const { data, error } = await supabase.from("customer_reviews").select("*").eq("status", "approved").order("created_at", { ascending: false });
+    if (error) throw error;
+    if (data && data.length > 0) return data;
+  } catch (error) {
+    console.warn("Using fallback testimonials", error);
+  }
+  return import("@/data/site-content").then(m => m.testimonials);
+}
+
+export async function getFaqs() {
+  try {
+    const { data, error } = await supabase.from("faqs").select("*").eq("is_published", true).order("sort_order", { ascending: true });
+    if (error) throw error;
+    if (data && data.length > 0) return data;
+  } catch (error) {
+    console.warn("Using fallback faqs", error);
+  }
+  return import("@/data/site-content").then(m => m.faqs);
+}
+
+export async function getRentalGuides() {
+  try {
+    const { data, error } = await supabase.from("rental_guides").select("*").eq("is_published", true).order("sort_order", { ascending: true });
+    if (error) throw error;
+    if (data && data.length > 0) return data;
+  } catch (error) {
+    console.warn("Using fallback rental guides", error);
+  }
+  return import("@/data/site-content").then(m => m.rentalGuideSections);
+}
+

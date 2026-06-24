@@ -36,7 +36,7 @@ export function AdminDashboardPage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Stat label="Published Items" value={stats.publishedItems.toString()} icon="mdi:hanger" />
+        <Stat label="Published Items" value={stats.publishedItems.toString()} icon="RN-Logo" />
         <Stat label="New Inquiries" value={stats.newInquiries.toString()} icon="mdi:email-alert-outline" />
         <Stat label="Pending Reviews" value={stats.pendingReviews.toString()} icon="mdi:star-clock-outline" />
         <Stat label="Storage Buckets" value={stats.storageBuckets.toString()} icon="mdi:database-outline" />
@@ -57,8 +57,12 @@ export function AdminDashboardPage() {
 function Stat({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
     <div className="rounded-2xl bg-white/90 p-4 shadow-soft">
-      <Icon icon={icon} className="size-7 text-brand-primary" />
-      <p className="mt-4 text-3xl font-bold text-brand-accent">{value}</p>
+      {icon === "RN-Logo" ? (
+        <img src="/assets/RN-Logo-Pink.png" alt="" className="size-7 object-contain opacity-80" />
+      ) : (
+        <Icon icon={icon} className="size-7 text-brand-primary" />
+      )}
+      <p className="mt-4 text-3xl font-display font-semibold text-brand-accent">{value}</p>
       <p className="mt-1 text-sm font-semibold text-pink-950/65">{label}</p>
     </div>
   );

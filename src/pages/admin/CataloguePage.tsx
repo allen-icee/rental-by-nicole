@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, getAllCategories, saveCatalogItem, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
+import { getPaginatedData, getAllCategories, saveCatalogItem, deleteCatalogItem, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
-import { AdminModal } from "@/components/admin/AdminModal";
+import { AdminModal, ConfirmModal } from "@/components/admin/AdminModal";
 import { useToast } from "@/components/ui/toast-context";
+import { FormInput } from "@/components/ui/forms/FormInput";
+import { FormTextarea } from "@/components/ui/forms/FormTextarea";
+import { FormSelect } from "@/components/ui/forms/FormSelect";
+import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
+import { FormToggle } from "@/components/ui/forms/FormToggle";
 
 export function CataloguePage() {
   const { showToast } = useToast();
@@ -14,6 +19,7 @@ export function CataloguePage() {
   const [totalItems, setTotalItems] = useState(0);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -21,18 +27,31 @@ export function CataloguePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogRow | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CatalogFormInput>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  const { control, register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
+    mode: "onChange"
+  });
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   async function fetchData() {
     setIsLoading(true);
     try {
       const [paginated, allCategories] = await Promise.all([
-        getPaginatedData("catalog_items", currentPage, pageSize, "sort_order", true),
+        getPaginatedData(
+          "catalog_items",
+          currentPage,
+          pageSize,
+          "sort_order",
+          true,
+          searchQuery,
+          ["name", "slug"]
+        ),
         getAllCategories()
       ]);
       
@@ -64,6 +83,7 @@ export function CataloguePage() {
         status: item.status,
         availability_status: item.availability_status,
         featured: item.featured,
+        is_new_arrival: item.is_new_arrival,
         price_display: item.price_display || "",
         instagram_reel_url: item.instagram_reel_url || "",
         sort_order: item.sort_order,
@@ -78,9 +98,10 @@ export function CataloguePage() {
         status: "draft",
         availability_status: "available",
         featured: false,
+        is_new_arrival: false,
         price_display: "",
         instagram_reel_url: "",
-        sort_order: totalItems * 10,
+        sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
       });
     }
     setIsModalOpen(true);
@@ -95,6 +116,25 @@ export function CataloguePage() {
     } catch (error) {
       console.error(error);
       showToast({ tone: "error", title: "Error", message: "Failed to save catalogue item." });
+    }
+  }
+
+  function confirmDelete(id: string) {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!itemToDelete) return;
+    try {
+      await deleteCatalogItem(itemToDelete);
+      showToast({ tone: "success", title: "Deleted", message: "Catalogue item removed." });
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      showToast({ tone: "error", title: "Error", message: "Failed to delete item." });
     }
   }
 
@@ -149,12 +189,20 @@ export function CataloguePage() {
     {
       header: "Actions",
       cell: (row) => (
-        <button
-          onClick={() => handleOpenModal(row)}
-          className="text-brand-primary hover:text-brand-accent transition-colors"
-        >
-          <Icon icon="mdi:pencil" className="size-5" />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleOpenModal(row)}
+            className="text-brand-primary hover:text-brand-accent transition-colors"
+          >
+            <Icon icon="mdi:pencil" className="size-5" />
+          </button>
+          <button
+            onClick={() => confirmDelete(row.id)}
+            className="text-red-600 hover:text-red-800 transition-colors"
+          >
+            <Icon icon="mdi:trash-can-outline" className="size-5" />
+          </button>
+        </div>
       ),
     },
   ];
@@ -162,11 +210,28 @@ export function CataloguePage() {
   return (
     <div>
       <AdminPageHeader
-        title="Catalogue Items"
-        description="Manage your dresses, accessories, and other rental items."
+        title="Catalogue"
+        description="Manage your rental inventory, pricing, and availability."
         actionLabel="Add Item"
         onAction={() => handleOpenModal()}
-      />
+      >
+        <div className="relative w-full max-w-sm">
+          <Icon
+            icon="mdi:magnify"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-950/40 size-5"
+          />
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="h-11 w-full rounded-full border-2 border-pink-100 bg-white pl-11 pr-4 text-sm text-pink-950 shadow-sm outline-none transition-all focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10"
+          />
+        </div>
+      </AdminPageHeader>
 
       <AdminTable
         data={data}
@@ -189,134 +254,133 @@ export function CataloguePage() {
         title={editingItem ? "Edit Catalogue Item" : "Add Catalogue Item"}
         maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Name</label>
-              <input
-                {...register("name", { required: "Name is required" })}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormInput
+              name="name"
+              control={control}
+              label="Name"
+              required
+              maxLength={100}
+              placeholder="e.g. Barbie Dream Dress"
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Category</label>
-              <select
-                {...register("category_id")}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent bg-white"
-              >
-                <option value="">Select a category...</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Price Display</label>
-              <input
-                {...register("price_display")}
-                placeholder="e.g. $50/day"
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Slug (optional)</label>
-              <input
-                {...register("slug")}
-                placeholder="Leave blank to auto-generate"
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Description</label>
-            <textarea
-              {...register("description")}
-              rows={4}
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
+            <FormSelect
+              name="category_id"
+              control={control}
+              label="Category"
+              options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+              placeholder="Select a category..."
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Instagram Reel URL</label>
-            <input
-              type="url"
-              {...register("instagram_reel_url")}
-              placeholder="https://instagram.com/reel/..."
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormInput
+              name="price_display"
+              control={control}
+              label="Price Display"
+              placeholder="e.g. $50/day"
+            />
+            <FormInput
+              name="slug"
+              control={control}
+              label="Slug (optional)"
+              placeholder="Leave blank to auto-generate"
+              helperText="The URL friendly version of the name."
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-pink-100 pt-4">
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Status</label>
-              <select
-                {...register("status")}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent bg-white"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
+          <FormTextarea
+            name="description"
+            control={control}
+            label="Description"
+            maxLength={1000}
+            rows={4}
+            placeholder="Detailed description of the item..."
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Availability</label>
-              <select
-                {...register("availability_status")}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent bg-white"
-              >
-                <option value="available">Available</option>
-                <option value="reserved">Reserved</option>
-                <option value="unavailable">Unavailable</option>
-              </select>
-            </div>
+          <FormInput
+            name="instagram_reel_url"
+            control={control}
+            type="url"
+            label="Instagram Reel URL"
+            placeholder="https://instagram.com/reel/..."
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Sort Order</label>
-              <input
-                type="number"
-                {...register("sort_order", { valueAsNumber: true })}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-pink-100 pt-6">
+            <FormSelect
+              name="status"
+              control={control}
+              label="Status"
+              searchable={false}
+              options={[
+                { value: "draft", label: "Draft" },
+                { value: "published", label: "Published" },
+                { value: "archived", label: "Archived" }
+              ]}
+            />
+
+            <FormSelect
+              name="availability_status"
+              control={control}
+              label="Availability"
+              searchable={false}
+              options={[
+                { value: "available", label: "Available" },
+                { value: "reserved", label: "Reserved" },
+                { value: "unavailable", label: "Unavailable" }
+              ]}
+            />
+
+            <FormInput
+              name="sort_order"
+              control={control}
+              type="number"
+              label="Sort Order"
+              min={0}
+              helperText="Lower numbers appear first."
+              rules={{ valueAsNumber: true }}
+            />
           </div>
 
-          <div className="pt-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                {...register("featured")}
-                className="rounded border-pink-300 text-brand-accent focus:ring-brand-accent size-5 cursor-pointer"
-              />
-              <span className="text-sm font-medium text-pink-950">Featured Item</span>
-            </label>
-            <p className="text-xs text-pink-950/60 mt-1 pl-7">Featured items are highlighted on the home page.</p>
+          <div className="pt-2 flex flex-col gap-4 sm:flex-row sm:gap-8">
+            <FormToggle
+              name="featured"
+              control={control}
+              label="Featured Item"
+            />
+            <FormToggle
+              name="is_new_arrival"
+              control={control}
+              label="New Arrival"
+            />
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-pink-100 pt-5">
+          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-pink-950/70 hover:bg-pink-50 transition-colors"
+              className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-brand-accent px-6 py-2 text-sm font-semibold text-white shadow-soft hover:-translate-y-0.5 transition-transform disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : "Save Item"}
-            </button>
+            <FormSubmitButton 
+              isDirty={isDirty} 
+              isValid={isValid} 
+              isSubmitting={isSubmitting} 
+              isSubmitSuccessful={isSubmitSuccessful} 
+            />
           </div>
         </form>
       </AdminModal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this item? All images, sizes, and availability ranges will be lost. This cannot be undone."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

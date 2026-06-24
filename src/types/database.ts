@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -32,13 +32,18 @@ export type Database = {
         hero_banner_url: string | null;
         footer_text: string | null;
         phone: string | null;
+        secondary_phone: string | null;
         email: string | null;
+        secondary_email: string | null;
         facebook_url: string | null;
         instagram_url: string | null;
         business_hours: string | null;
         service_areas: string[];
         seo_title: string | null;
         seo_description: string | null;
+        announcement_text: string | null;
+        announcement_is_active: boolean;
+        curated_collection_text: string;
         created_at: string;
         updated_at: string;
       }>;
@@ -70,6 +75,7 @@ export type Database = {
         status: "draft" | "published" | "archived";
         availability_status: "available" | "reserved" | "unavailable";
         featured: boolean;
+        is_new_arrival: boolean;
         price_display: string;
         instagram_reel_url: string | null;
         sort_order: number;

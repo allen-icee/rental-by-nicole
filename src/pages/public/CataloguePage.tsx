@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { useToast } from "@/components/ui/toast-context";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
@@ -26,15 +26,25 @@ const initialCatalogueData: CatalogueData = {
 
 export function CataloguePage() {
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tagParam = searchParams.get("tag");
+  const categoryParam = searchParams.get("category");
+  const itemParam = searchParams.get("item");
+
   const [catalogueData, setCatalogueData] = useState<CatalogueData>(initialCatalogueData);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
-  const [tag, setTag] = useState("All");
+  const [category, setCategory] = useState(categoryParam || "All");
+  const [tag, setTag] = useState(tagParam || "All");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tagParam) setTag(tagParam);
+    if (categoryParam) setCategory(categoryParam);
+  }, [tagParam, categoryParam]);
 
   useEffect(() => {
     let mounted = true;
@@ -43,6 +53,18 @@ export function CataloguePage() {
       if (mounted) {
         setCatalogueData(data);
         setLoading(false);
+        
+        if (itemParam) {
+          const item = data.items.find((i) => i.id === itemParam);
+          if (item) {
+            setSelectedItem(item);
+            // Remove item from URL so it doesn't re-open on refresh or navigation
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("item");
+            setSearchParams(newParams, { replace: true });
+          }
+        }
+
         if (data.source === "fallback") {
           showToast({
             tone: "info",
@@ -56,7 +78,7 @@ export function CataloguePage() {
     return () => {
       mounted = false;
     };
-  }, [showToast]);
+  }, [showToast, itemParam, searchParams, setSearchParams]);
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -97,12 +119,37 @@ export function CataloguePage() {
     setCategory("All");
     setTag("All");
     setPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("category");
+    newParams.delete("tag");
+    setSearchParams(newParams, { replace: true });
   }
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        if (fullscreenImage) closeFullscreen();
+        else if (selectedItem) setSelectedItem(null);
+      }
+    }
+
+    if (selectedItem || fullscreenImage) {
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", handleKeyDown);
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedItem, fullscreenImage]);
 
   return (
     <PublicLayout>
       <main>
-        <ScrollReveal as="section" className="section-shell pb-8">
+        <ScrollReveal as="section" className="section-shell pb-8 relative z-50">
           <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-accent">
@@ -112,8 +159,8 @@ export function CataloguePage() {
                 Browse rental pieces
               </h1>
               <p className="mt-3 leading-7 text-pink-950/70">
-                Search by occasion, filter by admin-managed categories and
-                tags, then open an item to view availability and measurements.
+                Explore the collection using categories, tags, and style filters.
+                Open any item to view measurements and availability.
               </p>
               {catalogueData.source === "fallback" && !loading ? (
                 <p className="mt-4 rounded-2xl bg-white p-4 text-sm font-semibold text-brand-accent shadow-soft">
@@ -122,7 +169,7 @@ export function CataloguePage() {
                 </p>
               ) : null}
             </div>
-            <div className="rounded-2xl bg-white/90 p-3 shadow-barbie">
+            <div className="relative z-20 rounded-2xl bg-white/90 p-3 shadow-barbie">
               <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
                 <div className="relative">
                   <input
@@ -142,6 +189,10 @@ export function CataloguePage() {
                     onChange={(val) => {
                       setCategory(val);
                       setPage(1);
+                      const newParams = new URLSearchParams(searchParams);
+                      if (val !== "All") newParams.set("category", val);
+                      else newParams.delete("category");
+                      setSearchParams(newParams, { replace: true });
                     }}
                     options={["All", ...catalogueData.categories]}
                   />
@@ -152,6 +203,10 @@ export function CataloguePage() {
                     onChange={(val) => {
                       setTag(val);
                       setPage(1);
+                      const newParams = new URLSearchParams(searchParams);
+                      if (val !== "All") newParams.set("tag", val);
+                      else newParams.delete("tag");
+                      setSearchParams(newParams, { replace: true });
                     }}
                     options={["All", ...catalogueData.tags]}
                   />
@@ -229,8 +284,15 @@ export function CataloguePage() {
         </section>
 
         {selectedItem ? (
-          <div className="fixed inset-0 z-[70] overflow-y-auto bg-pink-950/55 p-4 backdrop-blur-sm">
-            <div className="mx-auto my-4 max-w-5xl rounded-2xl bg-brand-background shadow-barbie">
+          <div
+            className="fixed inset-0 z-[70] overflow-y-auto bg-pink-950/55 p-4 backdrop-blur-sm"
+            onClick={() => setSelectedItem(null)}
+            data-lenis-prevent="true"
+          >
+            <div
+              className="mx-auto my-4 max-w-5xl rounded-2xl bg-brand-background shadow-barbie"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5">
                 <div>
                   <div className="relative">

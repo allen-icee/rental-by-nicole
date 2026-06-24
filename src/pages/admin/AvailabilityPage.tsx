@@ -7,8 +7,13 @@ import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { useToast } from "@/components/ui/toast-context";
+import { FormInput } from "@/components/ui/forms/FormInput";
+import { FormSelect } from "@/components/ui/forms/FormSelect";
+import { FormTextarea } from "@/components/ui/forms/FormTextarea";
+import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 
 type AvailabilityFormData = {
+  id?: string;
   catalog_item_id: string;
   start_date: string;
   end_date: string;
@@ -27,6 +32,7 @@ export function AvailabilityPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [catalogItems, setCatalogItems] = useState<BasicCatalogItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -35,18 +41,28 @@ export function AvailabilityPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<AvailabilityFormData>();
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<AvailabilityFormData>({
+    mode: "onChange"
+  });
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   async function fetchData() {
     setIsLoading(true);
     try {
       const [paginated, allItems] = await Promise.all([
-        getPaginatedData("availability_ranges", currentPage, pageSize, "created_at", false),
+        getPaginatedData(
+          "availability_ranges",
+          currentPage,
+          pageSize,
+          "created_at",
+          false,
+          searchQuery,
+          ["label", "notes"]
+        ),
         getAllCatalogItems()
       ]);
 
@@ -66,14 +82,25 @@ export function AvailabilityPage() {
     }
   }
 
-  function handleOpenModal() {
-    reset({
-      catalog_item_id: "",
-      start_date: "",
-      end_date: "",
-      label: "",
-      notes: "",
-    });
+  function handleOpenModal(row?: AvailabilityRow) {
+    if (row) {
+      reset({
+        id: row.id,
+        catalog_item_id: row.catalog_item_id,
+        start_date: row.start_date || "",
+        end_date: row.end_date || "",
+        label: row.label || "",
+        notes: row.notes || "",
+      });
+    } else {
+      reset({
+        catalog_item_id: "",
+        start_date: "",
+        end_date: "",
+        label: "",
+        notes: "",
+      });
+    }
     setIsModalOpen(true);
   }
 
@@ -128,12 +155,22 @@ export function AvailabilityPage() {
     {
       header: "Actions",
       cell: (row) => (
-        <button
-          onClick={() => confirmDelete(row.id)}
-          className="text-red-600 hover:text-red-800 transition-colors"
-        >
-          <Icon icon="mdi:trash-can-outline" className="size-5" />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleOpenModal(row)}
+            className="text-brand-primary hover:text-brand-accent transition-colors"
+            title="Edit"
+          >
+            <Icon icon="mdi:pencil-outline" className="size-5" />
+          </button>
+          <button
+            onClick={() => confirmDelete(row.id)}
+            className="text-red-600 hover:text-red-800 transition-colors"
+            title="Delete"
+          >
+            <Icon icon="mdi:trash-can-outline" className="size-5" />
+          </button>
+        </div>
       ),
     },
   ];
@@ -144,8 +181,25 @@ export function AvailabilityPage() {
         title="Availability Management"
         description="Block out dates for items when they are rented, in for cleaning, or unavailable."
         actionLabel="Block Dates"
-        onAction={handleOpenModal}
-      />
+        onAction={() => handleOpenModal()}
+      >
+        <div className="relative w-full max-w-sm">
+          <Icon
+            icon="mdi:magnify"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-950/40 size-5"
+          />
+          <input
+            type="text"
+            placeholder="Search availability blocks..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="h-11 w-full rounded-full border-2 border-pink-100 bg-white pl-11 pr-4 text-sm text-pink-950 shadow-sm outline-none transition-all focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10"
+          />
+        </div>
+      </AdminPageHeader>
 
       <AdminTable
         data={data}
@@ -167,76 +221,67 @@ export function AvailabilityPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Block Availability"
+        maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Catalog Item</label>
-            <select
-              {...register("catalog_item_id", { required: "Item is required" })}
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent bg-white"
-            >
-              <option value="">Select an item...</option>
-              {catalogItems.map((item) => (
-                <option key={item.id} value={item.id}>{item.name}</option>
-              ))}
-            </select>
-            {errors.catalog_item_id && <p className="mt-1 text-sm text-red-600">{errors.catalog_item_id.message}</p>}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <FormSelect
+            name="catalog_item_id"
+            control={control}
+            label="Catalog Item"
+            required
+            searchable
+            options={catalogItems.map((item) => ({ value: item.id, label: item.name }))}
+            placeholder="Select an item..."
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Start Date</label>
-              <input
-                type="date"
-                {...register("start_date", { required: "Start date is required" })}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-              {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">End Date</label>
-              <input
-                type="date"
-                {...register("end_date", { required: "End date is required" })}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-              {errors.end_date && <p className="mt-1 text-sm text-red-600">{errors.end_date.message}</p>}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Label (Optional)</label>
-            <input
-              {...register("label")}
-              placeholder="e.g. Rented, Cleaning"
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
+            <FormInput
+              name="start_date"
+              control={control}
+              type="date"
+              label="Start Date"
+              required
+              helperText="First day of unavailability."
+            />
+            <FormInput
+              name="end_date"
+              control={control}
+              type="date"
+              label="End Date"
+              required
+              helperText="Last day of unavailability."
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Notes (Optional)</label>
-            <textarea
-              {...register("notes")}
-              rows={3}
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-            />
-          </div>
+          <FormInput
+            name="label"
+            control={control}
+            label="Label (Optional)"
+            placeholder="e.g. Rented, Cleaning"
+          />
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-pink-100 pt-5">
+          <FormTextarea
+            name="notes"
+            control={control}
+            label="Notes (Optional)"
+            rows={3}
+          />
+
+          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-pink-950/70 hover:bg-pink-50 transition-colors"
+              className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-brand-accent px-6 py-2 text-sm font-semibold text-white shadow-soft hover:-translate-y-0.5 transition-transform disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : "Save Block"}
-            </button>
+            <FormSubmitButton 
+              isDirty={isDirty} 
+              isValid={isValid} 
+              isSubmitting={isSubmitting} 
+              isSubmitSuccessful={isSubmitSuccessful} 
+              defaultText="Save Block"
+            />
           </div>
         </form>
       </AdminModal>

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, saveTag, type TagRow } from "@/services/admin.service";
+import { getPaginatedData, saveTag, deleteTag, type TagRow } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
-import { AdminModal } from "@/components/admin/AdminModal";
+import { AdminModal, ConfirmModal } from "@/components/admin/AdminModal";
 import { useToast } from "@/components/ui/toast-context";
+import { FormInput } from "@/components/ui/forms/FormInput";
+import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
+import { FormToggle } from "@/components/ui/forms/FormToggle";
 
 type TagFormData = {
   id?: string;
@@ -21,6 +24,7 @@ export function TagsPage() {
   const [data, setData] = useState<TagRow[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -28,17 +32,30 @@ export function TagsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TagRow | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<TagFormData>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  const { control, register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<TagFormData>({
+    mode: "onChange"
+  });
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   async function fetchData() {
     setIsLoading(true);
     try {
-      const { data: items, count } = await getPaginatedData("tags", currentPage, pageSize, "sort_order", true);
+      const { data: items, count } = await getPaginatedData(
+        "tags",
+        currentPage,
+        pageSize,
+        "sort_order",
+        true,
+        searchQuery,
+        ["name", "slug"]
+      );
       setData(items);
       setTotalItems(count);
 
@@ -69,7 +86,7 @@ export function TagsPage() {
       reset({
         name: "",
         slug: "",
-        sort_order: totalItems * 10,
+        sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         is_active: true,
       });
     }
@@ -85,6 +102,25 @@ export function TagsPage() {
     } catch (error) {
       console.error(error);
       showToast({ tone: "error", title: "Error", message: "Failed to save tag." });
+    }
+  }
+
+  function confirmDelete(id: string) {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!itemToDelete) return;
+    try {
+      await deleteTag(itemToDelete);
+      showToast({ tone: "success", title: "Deleted", message: "Tag removed." });
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      showToast({ tone: "error", title: "Error", message: "Failed to delete tag." });
     }
   }
 
@@ -107,12 +143,20 @@ export function TagsPage() {
     {
       header: "Actions",
       cell: (row) => (
-        <button
-          onClick={() => handleOpenModal(row)}
-          className="text-brand-primary hover:text-brand-accent transition-colors"
-        >
-          <Icon icon="mdi:pencil" className="size-5" />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleOpenModal(row)}
+            className="text-brand-primary hover:text-brand-accent transition-colors"
+          >
+            <Icon icon="mdi:pencil" className="size-5" />
+          </button>
+          <button
+            onClick={() => confirmDelete(row.id!)}
+            className="text-red-600 hover:text-red-800 transition-colors"
+          >
+            <Icon icon="mdi:trash-can-outline" className="size-5" />
+          </button>
+        </div>
       ),
     },
   ];
@@ -124,7 +168,24 @@ export function TagsPage() {
         description="Manage the tags associated with your catalogue items."
         actionLabel="Add Tag"
         onAction={() => handleOpenModal()}
-      />
+      >
+        <div className="relative w-full max-w-sm">
+          <Icon
+            icon="mdi:magnify"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-950/40 size-5"
+          />
+          <input
+            type="text"
+            placeholder="Search tags..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="h-11 w-full rounded-full border-2 border-pink-100 bg-white pl-11 pr-4 text-sm text-pink-950 shadow-sm outline-none transition-all focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10"
+          />
+        </div>
+      </AdminPageHeader>
 
       <AdminTable
         data={data}
@@ -145,67 +206,68 @@ export function TagsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingItem ? "Edit Tag" : "Add Tag"}
+        maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Name</label>
-            <input
-              {...register("name", { required: "Name is required" })}
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              placeholder="e.g. Vintage"
-            />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <FormInput
+            name="name"
+            control={control}
+            label="Name"
+            required
+            maxLength={50}
+            placeholder="e.g. Vintage"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-pink-950 mb-1">Slug (optional)</label>
-            <input
-              {...register("slug")}
-              className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              placeholder="Leave blank to auto-generate"
-            />
-          </div>
+          <FormInput
+            name="slug"
+            control={control}
+            label="Slug (optional)"
+            placeholder="Leave blank to auto-generate"
+            helperText="The URL friendly version of the name."
+          />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-pink-950 mb-1">Sort Order</label>
-              <input
-                type="number"
-                {...register("sort_order", { valueAsNumber: true })}
-                className="w-full rounded-lg border-pink-200 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
-              />
-            </div>
+          <FormInput
+            name="sort_order"
+            control={control}
+            type="number"
+            label="Sort Order"
+            min={0}
+            helperText="Lower numbers appear first."
+            rules={{ valueAsNumber: true }}
+          />
 
-            <div className="flex items-center pt-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("is_active")}
-                  className="rounded border-pink-300 text-brand-accent focus:ring-brand-accent size-5 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-pink-950">Active</span>
-              </label>
-            </div>
-          </div>
+          <FormToggle
+            name="is_active"
+            control={control}
+            label="Active Tag"
+            description="Inactive tags are hidden from customers."
+          />
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-pink-100 pt-5">
+          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-pink-950/70 hover:bg-pink-50 transition-colors"
+              className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-brand-accent px-6 py-2 text-sm font-semibold text-white shadow-soft hover:-translate-y-0.5 transition-transform disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : "Save Tag"}
-            </button>
+            <FormSubmitButton 
+              isDirty={isDirty} 
+              isValid={isValid} 
+              isSubmitting={isSubmitting} 
+              isSubmitSuccessful={isSubmitSuccessful} 
+            />
           </div>
         </form>
       </AdminModal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this tag? Ensure no catalogue items are using it."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

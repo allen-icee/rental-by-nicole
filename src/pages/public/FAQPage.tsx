@@ -1,12 +1,17 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { faqs } from "@/data/site-content";
+import { getFaqs } from "@/services/catalogue.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function FAQPage() {
+  const [faqs, setFaqs] = useState<any[]>([]);
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+
+  useEffect(() => {
+    getFaqs().then(data => setFaqs(data));
+  }, []);
 
   const filteredFaqs = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -18,7 +23,7 @@ export function FAQPage() {
     return faqs.filter((faq) =>
       [faq.category, faq.question, faq.answer].join(" ").toLowerCase().includes(normalizedQuery)
     );
-  }, [query]);
+  }, [query, faqs]);
 
   return (
     <PublicLayout>
@@ -33,7 +38,7 @@ export function FAQPage() {
             </h1>
             <p className="mt-3 text-sm md:text-base leading-relaxed text-pink-950/70 max-w-2xl mx-auto">
               Find everything you need to know about our rental process, availability, fittings, and more.
-              Search below or browse our curated categories.
+              Search below or browse.
             </p>
 
             {/* Premium Search Bar */}

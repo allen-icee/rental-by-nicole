@@ -1,21 +1,102 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/toast-context";
 import { signOutOwner } from "@/services/auth.service";
 import { useState } from "react";
 
-const navItems = [
+type NavItem = { path: string; label: string; icon: string; exact?: boolean; subItems?: NavItem[] };
+
+const navItems: NavItem[] = [
   { path: "/admin", label: "Dashboard", icon: "mdi:view-dashboard-outline", exact: true },
-  { path: "/admin/catalogue", label: "Catalogue Items", icon: "mdi:hanger" },
-  { path: "/admin/categories", label: "Categories", icon: "mdi:shape-outline" },
-  { path: "/admin/tags", label: "Tags", icon: "mdi:tag-outline" },
-  { path: "/admin/availability", label: "Availability", icon: "mdi:calendar-clock-outline" },
+  {
+    path: "#",
+    label: "Catalogue Management",
+    icon: "mdi:folder-outline",
+    subItems: [
+      { path: "/admin/catalogue", label: "Items", icon: "mdi:hanger" },
+      { path: "/admin/categories", label: "Categories", icon: "mdi:shape-outline" },
+      { path: "/admin/tags", label: "Tags", icon: "mdi:tag-outline" },
+      { path: "/admin/availability", label: "Availability", icon: "mdi:calendar-clock-outline" },
+    ]
+  },
   { path: "/admin/guides", label: "Rental Guides", icon: "mdi:book-open-page-variant-outline" },
   { path: "/admin/faqs", label: "FAQs", icon: "mdi:frequently-asked-questions" },
   { path: "/admin/reviews", label: "Reviews", icon: "mdi:star-outline" },
   { path: "/admin/inquiries", label: "Inquiries", icon: "mdi:email-outline" },
   { path: "/admin/settings", label: "Website Settings", icon: "mdi:cog-outline" },
 ];
+
+function NavGroup({ item, closeMobileMenu }: { item: NavItem, closeMobileMenu: () => void }) {
+  const location = useLocation();
+  const isActiveGroup = item.subItems?.some(sub => location.pathname.startsWith(sub.path));
+  const [isOpen, setIsOpen] = useState(isActiveGroup || false);
+
+  if (!item.subItems) {
+    return (
+      <NavLink
+        to={item.path}
+        end={item.exact}
+        onClick={closeMobileMenu}
+        className={({ isActive }) =>
+          `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+            isActive
+              ? "bg-brand-accent text-white shadow-md"
+              : "text-pink-950/70 hover:bg-pink-50 hover:text-brand-accent"
+          }`
+        }
+      >
+        {({ isActive }) => (
+          <>
+            <Icon icon={item.icon} className="size-5 shrink-0" />
+            {item.label}
+          </>
+        )}
+      </NavLink>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+          isActiveGroup
+            ? "bg-brand-accent/10 text-brand-accent"
+            : "text-pink-950/70 hover:bg-pink-50 hover:text-brand-accent"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <Icon icon={item.icon} className="size-5 shrink-0" />
+          {item.label}
+        </div>
+        <Icon icon={isOpen ? "mdi:chevron-down" : "mdi:chevron-right"} className="size-5" />
+      </button>
+      
+      {isOpen && (
+        <div className="pl-6 pr-2 py-1 space-y-1">
+          {item.subItems.map(sub => (
+            <NavLink
+              key={sub.path}
+              to={sub.path}
+              end={sub.exact}
+              onClick={closeMobileMenu}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "bg-brand-accent text-white shadow-md"
+                    : "text-pink-950/70 hover:bg-pink-50 hover:text-brand-accent"
+                }`
+              }
+            >
+              <Icon icon={sub.icon} className="size-4 shrink-0" />
+              {sub.label}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AdminLayout() {
   const { showToast } = useToast();
@@ -25,7 +106,7 @@ export function AdminLayout() {
   async function handleSignOut() {
     await signOutOwner();
     showToast({ tone: "info", title: "Signed out", message: "Owner session ended." });
-    navigate("/admin/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -43,7 +124,7 @@ export function AdminLayout() {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-soft transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-soft transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -52,24 +133,9 @@ export function AdminLayout() {
             <span className="font-display text-2xl font-bold text-brand-accent text-center">Rental by Nicole</span>
           </div>
 
-          <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+          <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto" data-lenis-prevent="true">
             {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.exact}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
-                    isActive
-                      ? "bg-brand-accent text-white shadow-md"
-                      : "text-pink-950/70 hover:bg-pink-50 hover:text-brand-accent"
-                  }`
-                }
-              >
-                <Icon icon={item.icon} className="size-5 shrink-0" />
-                {item.label}
-              </NavLink>
+              <NavGroup key={item.label} item={item} closeMobileMenu={() => setIsMobileMenuOpen(false)} />
             ))}
           </nav>
 

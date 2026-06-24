@@ -193,3 +193,12 @@ input[type="range"].barbie-slider {
   scrollbar-width: thin;
   scrollbar-color: #ff7cc9 #ffe2f4;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

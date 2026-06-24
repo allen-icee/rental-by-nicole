@@ -1,14 +1,15 @@
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { rentalGuideSections } from "@/data/site-content";
+import { getRentalGuides } from "@/services/catalogue.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const journeySteps = [
   {
     title: "Browse Dresses",
     description: "Explore our curated catalogue and find the perfect piece for your special event.",
-    icon: "mdi:hanger"
+    icon: "RN-Logo-Pink"
   },
   {
     title: "Check Availability",
@@ -36,8 +37,13 @@ const journeySteps = [
     icon: "mdi:sparkles"
   }
 ];
-
 export function RentalGuidePage() {
+  const [guides, setGuides] = useState<any[]>([]);
+
+  useEffect(() => {
+    getRentalGuides().then(data => setGuides(data));
+  }, []);
+
   return (
     <PublicLayout>
       <main className="relative min-h-screen pb-24 bg-gradient-to-b from-brand-background via-white to-brand-background/30">
@@ -101,7 +107,11 @@ export function RentalGuidePage() {
                   {/* Step Card */}
                   <div className="group relative w-full rounded-3xl bg-white/80 backdrop-blur-sm p-6 md:p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-barbie border border-pink-50 overflow-hidden flex-1 flex flex-col">
                     <div className="absolute -top-4 -right-4 text-brand-secondary/5 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/10">
-                      <Icon icon={step.icon} className="size-32" />
+                      {step.icon === "RN-Logo-Pink" ? (
+                        <img src="/assets/RN-Logo-Pink.png" alt="" className="size-32 object-contain opacity-10" />
+                      ) : (
+                        <Icon icon={step.icon} className="size-32" />
+                      )}
                     </div>
                     <div className="relative z-10 flex flex-col items-center flex-1">
                       <span className="inline-flex h-6 items-center justify-center rounded-full bg-brand-background px-3 text-[9px] font-bold tracking-widest text-brand-primary mb-4 border border-pink-100 shadow-sm">
@@ -124,7 +134,7 @@ export function RentalGuidePage() {
             <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">Things to Know</h2>
           </div>
           <div className="grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {rentalGuideSections.slice(2).map((section, index) => (
+            {guides.map((section, index) => (
               <ScrollReveal as="article" key={section.title} delay={index * 100} className="rounded-3xl bg-white/60 backdrop-blur-md p-6 shadow-sm hover:shadow-soft transition-shadow border border-pink-50 flex flex-col items-center text-center">
                 <span className="grid size-12 place-items-center rounded-full bg-brand-background text-brand-primary shadow-sm mb-4 border border-pink-100">
                   <Icon icon="mdi:information-variant" className="size-6" />
@@ -143,10 +153,10 @@ export function RentalGuidePage() {
             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
 
             <div className="relative z-10">
-              <Icon icon="mdi:hanger" className="size-14 mx-auto mb-5 text-white/90 drop-shadow-sm" />
-              <h2 className="font-display text-3xl md:text-4xl font-bold">Ready to find your piece?</h2>
+              <img src="/assets/RN-Logo-White.png" alt="" className="size-14 mx-auto mb-5 object-contain drop-shadow-sm" />
+              <h2 className="font-display text-3xl md:text-4xl font-bold">Ready to find what you love?</h2>
               <p className="mt-4 text-base md:text-lg text-white/90 max-w-xl mx-auto leading-relaxed">
-                Send us the item name, your event date, and fitting preference. We'll personally get back to you with all the details.
+                Browse to our catalogue and send an inquiry to begin your rental.
               </p>
 
               <div className="mt-8">
@@ -154,7 +164,7 @@ export function RentalGuidePage() {
                   to="/catalogue"
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold tracking-widest uppercase text-brand-accent shadow-lg transition-transform hover:scale-105"
                 >
-                  Browse Dresses
+                  Browse Catalogue
                   <Icon icon="mdi:arrow-right" className="text-xl" />
                 </Link>
               </div>

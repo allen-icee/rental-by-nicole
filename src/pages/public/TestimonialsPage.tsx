@@ -1,18 +1,18 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { testimonials as fallbackTestimonials } from "@/data/site-content";
+import { getTestimonials } from "@/services/catalogue.service";
 import { useToast } from "@/components/ui/toast-context";
 import { submitReview } from "@/services/forms.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-type Testimonial = typeof fallbackTestimonials[0];
-
 export function TestimonialsPage() {
   const { showToast } = useToast();
-  const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [selectedTestimonial, setSelectedTestimonial] = useState<any | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  
+
   // Interactive star rating state
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -27,6 +27,10 @@ export function TestimonialsPage() {
     }
   };
 
+  useEffect(() => {
+    getTestimonials().then(data => setTestimonials(data));
+  }, []);
+
   const getInitials = (name: string) => {
     if (!name) return "RN";
     return name
@@ -37,27 +41,36 @@ export function TestimonialsPage() {
       .toUpperCase();
   };
 
+  type ReviewFormInputs = {
+    name: string;
+    comment: string;
+    photoUrl: string;
+  };
+
+  const { register, handleSubmit, reset, formState: { errors, isValid } } = useForm<ReviewFormInputs>({
+    mode: "onChange"
+  });
+
   const resetReviewForm = () => {
     setRating(5);
     setHoverRating(0);
+    reset();
   };
 
-  async function handleReviewSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function onReviewSubmit(data: ReviewFormInputs) {
     setIsSubmittingReview(true);
 
-    const formData = new FormData(event.currentTarget);
     const response = await submitReview({
-      name: String(formData.get("name") ?? ""),
+      name: data.name,
       rating: rating,
-      comment: String(formData.get("comment") ?? ""),
-      photoUrl: String(formData.get("photoUrl") ?? "")
+      comment: data.comment,
+      photoUrl: data.photoUrl
     });
 
     setIsSubmittingReview(false);
-    
+
     const successMsg = "Thank you so much for your feedback! We deeply appreciate you sharing your experience.";
-    
+
     showToast({
       tone: response.ok ? "success" : "error",
       title: response.ok ? "Review received" : "Oops! Something went wrong.",
@@ -65,7 +78,6 @@ export function TestimonialsPage() {
     });
 
     if (response.ok) {
-      event.currentTarget.reset();
       resetReviewForm();
       setIsReviewModalOpen(false);
     }
@@ -85,10 +97,10 @@ export function TestimonialsPage() {
                   Customer Feedback
                 </p>
                 <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-brand-accent sm:text-5xl lg:text-6xl">
-                  Loved by our clients
+                  Loved by Clients
                 </h1>
                 <p className="mt-3 text-base font-medium text-pink-950/70 sm:text-lg">
-                  We pride ourselves on offering exquisite pieces and personalized service that makes every event unforgettable. See what our beautiful clients have to say.
+                  See how exceptional pieces and dedicated service have helped clients feel their best.
                 </p>
               </div>
 
@@ -108,12 +120,12 @@ export function TestimonialsPage() {
               </button>
             </div>
 
-            <div className="relative">
+            <div className="relative -mx-5 md:mx-0">
               <div
                 ref={carouselRef}
-                className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-8 pt-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-12 pt-4 px-5 md:px-4 md:-mx-4 hide-scrollbar"
               >
-                {fallbackTestimonials.map((item, index) => (
+                {testimonials.map((item, index) => (
                   <button
                     key={item.name + index}
                     type="button"
@@ -194,6 +206,7 @@ export function TestimonialsPage() {
           <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-pink-950/40 p-4 backdrop-blur-sm"
             onClick={() => setSelectedTestimonial(null)}
+            data-lenis-prevent="true"
           >
             <div
               onClick={(e) => e.stopPropagation()}
@@ -217,7 +230,7 @@ export function TestimonialsPage() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-10 bg-white">
+              <div className="overflow-y-auto p-5 sm:p-10 bg-white" data-lenis-prevent="true">
                 <div className="mb-6 flex gap-1 text-brand-primary">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Icon
@@ -287,9 +300,9 @@ export function TestimonialsPage() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-8 bg-white">
-                <form className="flex flex-col gap-6" onSubmit={handleReviewSubmit}>
-                  
+              <div className="overflow-y-auto p-5 sm:p-8 bg-white hide-scrollbar" data-lenis-prevent="true">
+                <form className="flex flex-col gap-6" onSubmit={handleSubmit(onReviewSubmit)}>
+
                   <div className="flex flex-col items-center justify-center p-5 md:p-6 rounded-2xl bg-brand-background/30 border border-pink-100 shadow-soft">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent mb-4">
                       How was your experience?
@@ -306,9 +319,8 @@ export function TestimonialsPage() {
                         >
                           <Icon
                             icon="mdi:star"
-                            className={`size-8 md:size-10 transition-colors duration-300 ${
-                              star <= (hoverRating || rating) ? "text-brand-primary drop-shadow-sm" : "text-pink-100"
-                            }`}
+                            className={`size-8 md:size-10 transition-colors duration-300 ${star <= (hoverRating || rating) ? "text-brand-primary drop-shadow-sm" : "text-pink-100"
+                              }`}
                           />
                         </button>
                       ))}
@@ -320,9 +332,7 @@ export function TestimonialsPage() {
                       Your Name
                     </label>
                     <input
-                      name="name"
-                      required
-                      minLength={2}
+                      {...register("name", { required: true, minLength: 2 })}
                       type="text"
                       placeholder="e.g. Maria Theresa"
                       className="w-full rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
@@ -334,9 +344,7 @@ export function TestimonialsPage() {
                       Your Feedback
                     </label>
                     <textarea
-                      name="comment"
-                      required
-                      minLength={10}
+                      {...register("comment", { required: true, minLength: 10 })}
                       rows={4}
                       placeholder="Tell us about your event and how you felt in your rental..."
                       className="w-full resize-none rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
@@ -348,7 +356,7 @@ export function TestimonialsPage() {
                       Photo Link (Optional)
                     </label>
                     <input
-                      name="photoUrl"
+                      {...register("photoUrl")}
                       type="url"
                       placeholder="https://..."
                       className="w-full rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
@@ -357,8 +365,8 @@ export function TestimonialsPage() {
 
                   <button
                     type="submit"
-                    disabled={isSubmittingReview}
-                    className="mt-2 md:mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-6 md:px-8 py-3.5 md:py-4 text-sm font-bold tracking-widest uppercase text-white shadow-barbie transition hover:scale-[1.02] disabled:opacity-60"
+                    disabled={!isValid || isSubmittingReview}
+                    className="mt-2 md:mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-6 md:px-8 py-3.5 md:py-4 text-sm font-bold tracking-widest uppercase text-white shadow-barbie transition hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
                   >
                     {isSubmittingReview ? "Submitting..." : "Submit Review"}
                     <Icon icon="mdi:heart" className="text-lg" />

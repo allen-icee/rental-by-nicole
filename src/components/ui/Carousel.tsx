@@ -60,7 +60,7 @@ export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
       <div 
         ref={scrollContainerRef}
         onScroll={checkScrollState}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-8 pt-4 px-5 md:px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-8 pt-4 px-5 md:px-4 hide-scrollbar"
       >
         {children}
       </div>

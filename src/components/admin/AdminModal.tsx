@@ -6,7 +6,7 @@ interface AdminModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
 }
 
 export function AdminModal({
@@ -14,7 +14,7 @@ export function AdminModal({
   onClose,
   title,
   children,
-  maxWidth = "md",
+  maxWidth = "xl",
 }: AdminModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -35,6 +35,9 @@ export function AdminModal({
     lg: "max-w-lg",
     xl: "max-w-xl",
     "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    "4xl": "max-w-4xl",
+    "5xl": "max-w-5xl",
   }[maxWidth];
 
   return (
@@ -59,10 +62,52 @@ export function AdminModal({
           </button>
         </div>
 
-        <div className="overflow-y-auto p-5">
+        <div className="overflow-y-auto p-5 hide-scrollbar" data-lenis-prevent="true">
           {children}
         </div>
       </div>
     </div>
+  );
+}
+
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  onConfirm: () => void;
+}
+
+export function ConfirmModal({
+  isOpen,
+  onClose,
+  title,
+  message,
+  confirmText = "Delete",
+  onConfirm,
+}: ConfirmModalProps) {
+  return (
+    <AdminModal isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm">
+      <div className="space-y-4">
+        <p className="text-pink-950/70">{message}</p>
+        <div className="flex justify-end gap-3 border-t border-pink-100 pt-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-pink-950/70 hover:bg-pink-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="rounded-lg bg-red-600 px-6 py-2 text-sm font-semibold text-white shadow-soft hover:-translate-y-0.5 transition-transform"
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </AdminModal>
   );
 }
