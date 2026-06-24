@@ -1,6 +1,9 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { Carousel } from "@/components/ui/Carousel";
+import { useParallax } from "@/hooks/useParallax";
 import { catalogueItems, faqs, testimonials } from "@/data/site-content";
 import { siteConfig } from "@/config/site";
 
@@ -19,22 +22,36 @@ const processSteps = [
 ];
 
 export function HomePage() {
-  const featuredItems = catalogueItems.filter((item) => item.featured).slice(0, 3);
+  const featuredItems = catalogueItems.filter((item) => item.featured).slice(0, 6);
+  const heroImageRef = useParallax<HTMLImageElement>(0.35);
+
+  const getInitials = (name: string) => {
+    if (!name) return "RN";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   return (
     <PublicLayout>
       <main>
         {/* Left-Aligned Hero Section */}
         <section className="relative isolate overflow-hidden bg-white min-h-[85vh] flex items-center">
-          <img
-            src="/assets/boutique-hero.png"
-            alt="Elegant rack of gowns and boutique accessories for fashion rental"
-            className="absolute inset-0 h-full w-full object-cover object-top blur-[2px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
-          <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 z-0">
+            <img
+              ref={heroImageRef}
+              src="/assets/boutique-hero.png"
+              alt="Elegant rack of gowns and boutique accessories for fashion rental"
+              className="h-[120%] w-full object-cover object-top blur-[2px] origin-top will-change-transform"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent z-0" />
+          <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] z-0" />
           
-          <div className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10">
+          <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10">
             <div className="max-w-2xl text-left">
               <p className="text-sm font-bold uppercase tracking-[0.35em] text-brand-primary">
                 {siteConfig.name}
@@ -65,29 +82,32 @@ export function HomePage() {
                 </Link>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* New Arrivals with Mobile Carousel */}
-        <section className="section-shell bg-brand-background/30 overflow-hidden">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between px-5 md:px-0">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-primary">
-                New Arrivals
-              </p>
-              <h2 className="mt-3 font-display text-4xl font-semibold text-brand-accent">
-                Fresh looks ready for your next event
-              </h2>
+        <section className="bg-brand-background/30 overflow-hidden py-16 md:py-24">
+          <ScrollReveal className="mx-auto max-w-7xl px-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">
+                  New Arrivals
+                </p>
+                <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold text-brand-accent">
+                  Fresh looks ready for your next event
+                </h2>
+              </div>
+              <Link to="/catalogue" className="hidden md:inline-flex group items-center gap-1 font-semibold text-brand-accent transition-colors hover:text-brand-primary">
+                View all items
+                <Icon icon="mdi:chevron-right" className="size-5 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
-            <Link to="/catalogue" className="hidden md:inline-flex group items-center gap-1 font-semibold text-brand-accent transition-colors hover:text-brand-primary">
-              View all items
-              <Icon icon="mdi:chevron-right" className="size-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
+          </ScrollReveal>
 
-          <div className="mt-10 grid grid-cols-1 gap-8 px-5 md:px-0 md:grid-cols-3">
-            {featuredItems.map((item) => (
-              <Link key={item.id} to={`/catalogue?item=${item.id}`} className="group flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
+          <ScrollReveal delay={150} className="mx-auto max-w-7xl mt-10">
+            <Carousel autoScrollDelay={3500}>
+              {featuredItems.map((item) => (
+                <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
                 <div className="overflow-hidden h-80 relative">
                   <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -106,34 +126,38 @@ export function HomePage() {
                 </div>
               </Link>
             ))}
-          </div>
+          </Carousel>
+        </ScrollReveal>
           
-          <div className="mt-8 px-5 text-center">
+          <ScrollReveal delay={200} className="mt-8 px-5 text-center md:hidden">
             <Link to="/catalogue" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 font-bold text-brand-accent shadow-sm border border-pink-100 transition hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
               See More Arrivals
               <Icon icon="mdi:arrow-right" className="size-5 transition-transform group-hover:translate-x-1" />
             </Link>
-          </div>
+          </ScrollReveal>
         </section>
 
-        {/* Curated Collections with Mobile Carousel */}
-        <section className="bg-white py-20 overflow-hidden">
-          <div className="section-shell">
-            <div className="text-center max-w-2xl mx-auto px-5 md:px-0">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+        {/* Curated Collections */}
+        <section className="bg-white py-16 md:py-24 overflow-hidden">
+          <div className="mx-auto max-w-7xl px-5">
+            <ScrollReveal className="text-center max-w-2xl mx-auto">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
                 Curated Collections
               </p>
-              <h2 className="mt-4 font-display text-4xl font-semibold text-brand-accent md:text-5xl leading-tight">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl leading-tight">
                 Shop by occasion
               </h2>
-            </div>
+            </ScrollReveal>
             
-            <div className="mt-16 grid grid-cols-2 md:flex md:justify-center gap-4 md:gap-8 px-5 md:px-0">
-              {collections.map((collection) => (
-                <Link
+            <div className="mt-12 md:mt-16 grid grid-cols-2 md:flex md:justify-center gap-4 md:gap-8">
+              {collections.map((collection, index) => (
+                <ScrollReveal
                   key={collection}
-                  to="/catalogue"
+                  delay={index * 100}
                   className="group relative flex flex-col items-center justify-center p-6 md:p-8 md:w-[220px] bg-gradient-to-br from-brand-accent to-pink-600 rounded-[2rem] shadow-soft transition-all duration-300 hover:-translate-y-2 hover:shadow-barbie aspect-[1/1] md:aspect-[1/1.2] overflow-hidden"
+                  as={Link}
+                  // @ts-ignore Link props bypass generic
+                  to="/catalogue"
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="relative z-10 flex flex-col items-center text-center">
@@ -147,49 +171,57 @@ export function HomePage() {
                       Explore <Icon icon="mdi:arrow-right" className="size-3 md:size-4 transition-transform group-hover:translate-x-1" />
                     </p>
                   </div>
-                </Link>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
         {/* Rental Process */}
-        <section className="bg-pink-50/60 py-24">
-          <div className="section-shell text-center">
-            <div className="max-w-2xl mx-auto px-5 md:px-0">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+        <section className="bg-pink-50/60 py-16 md:py-24">
+          <div className="mx-auto max-w-7xl px-5 text-center">
+            <ScrollReveal className="max-w-2xl mx-auto">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
                 Rental Process
               </p>
-              <h2 className="mt-4 font-display text-4xl font-semibold text-brand-accent md:text-5xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl">
                 Simple inquiry, personal confirmation
               </h2>
-            </div>
-            <div className="mt-20 relative px-5 md:px-0">
+            </ScrollReveal>
+            
+            <div className="mt-16 md:mt-20 relative">
               <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-brand-background via-brand-primary/30 to-brand-background" />
               <div className="md:hidden absolute top-10 bottom-10 left-[48px] w-[2px] bg-gradient-to-b from-brand-background via-brand-primary/30 to-brand-background" />
               
               <div className="grid gap-10 md:gap-6 md:grid-cols-4 relative z-10">
                 {processSteps.map((step, index) => (
-                  <div key={step.title} className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center gap-6 md:gap-0">
+                  <ScrollReveal key={step.title} delay={index * 150} className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center gap-6 md:gap-0">
                     <span className="shrink-0 grid size-16 md:size-20 place-items-center rounded-full bg-white border-4 border-pink-50 shadow-soft font-sans font-medium text-2xl md:text-3xl text-brand-primary transition-all duration-500 group-hover:scale-110 group-hover:border-brand-primary group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-barbie">
                       {index + 1}
                     </span>
                     <div className="mt-1 md:mt-6">
                       <h3 className="font-bold text-xl text-brand-accent md:px-2">{step.title}</h3>
-                      <p className="mt-2 text-sm text-pink-950/70 md:px-4 leading-relaxed">{step.desc}</p>
+                      <p className="mt-1 md:mt-2 text-xs md:text-sm text-pink-950/70 md:px-4 leading-relaxed">{step.desc}</p>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-12 text-center relative z-10">
+              <Link to="/rental-guide" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-bold uppercase tracking-widest text-xs text-brand-accent shadow-sm border border-pink-100 transition hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
+                Explore Full Rental Guide
+                <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Customer Feedback */}
-        <section className="bg-white py-24">
-          <div className="section-shell grid gap-12 lg:grid-cols-[1fr_1.5fr] items-center px-5 md:px-0">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-primary">
+        <section className="bg-white py-16 md:py-24">
+          <div className="mx-auto max-w-7xl px-5 grid gap-12 lg:grid-cols-[1fr_1.5fr] items-center">
+            <ScrollReveal>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">
                 Customer Feedback
               </p>
               <h2 className="mt-3 font-display text-4xl font-semibold text-brand-accent leading-tight">
@@ -207,40 +239,50 @@ export function HomePage() {
                   <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
-            </div>
+            </ScrollReveal>
             <div className="grid gap-6 sm:grid-cols-2">
-              {testimonials.slice(0, 2).map((review) => (
-                <article key={review.name} className="relative rounded-3xl bg-white p-10 shadow-soft border border-pink-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
-                  <div className="absolute top-8 right-8 text-brand-secondary/30">
-                    <Icon icon="mdi:format-quote-open" className="size-12" />
+              {testimonials.slice(0, 2).map((item, index) => (
+                <ScrollReveal key={item.name} delay={index * 200} className="group relative flex flex-col justify-between overflow-hidden rounded-[2.5rem] border border-pink-100 bg-white/60 p-8 text-left shadow-soft backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-barbie">
+                  <Icon icon="mdi:format-quote-open" className="absolute right-6 top-6 text-5xl text-brand-secondary/20 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/40" />
+                  
+                  <div>
+                    <div className="mb-6 flex gap-1 text-brand-primary">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Icon key={i} icon={i < item.rating ? "mdi:star" : "mdi:star-outline"} className="text-lg" />
+                      ))}
+                    </div>
+                    <p className="text-lg italic leading-relaxed text-pink-950/80 line-clamp-4">"{item.comment}"</p>
                   </div>
-                  <div className="flex gap-1 text-brand-primary">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Icon key={i} icon="mdi:star" className="size-4" />
-                    ))}
+                  
+                  <div className="mt-8 flex items-center gap-4 border-t border-pink-50 pt-6">
+                    <div className="grid size-12 shrink-0 place-items-center rounded-full bg-pink-50 text-sm font-bold text-brand-accent shadow-sm border border-pink-100">
+                      {getInitials(item.name)}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-pink-950">{item.name}</h4>
+                      <p className="text-xs font-bold uppercase tracking-widest text-pink-950/50 mt-1">{item.date}</p>
+                    </div>
                   </div>
-                  <p className="mt-6 text-base italic leading-relaxed text-pink-950/80 relative z-10">"{review.comment}"</p>
-                  <p className="mt-8 font-bold tracking-widest uppercase text-xs text-brand-accent">— {review.name}</p>
-                </article>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
         {/* FAQ Preview - Redesigned Cards */}
-        <section className="bg-brand-background/30 py-24">
-          <div className="section-shell px-5 md:px-0">
-            <div className="text-center max-w-2xl mx-auto">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+        <section className="bg-brand-background/30 py-16 md:py-24">
+          <div className="mx-auto max-w-7xl px-5">
+            <ScrollReveal className="text-center max-w-2xl mx-auto">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
                 FAQ Preview
               </p>
-              <h2 className="mt-4 font-display text-4xl font-semibold text-brand-accent md:text-5xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl">
                 Quick answers
               </h2>
-            </div>
-            <div className="mt-16 max-w-3xl mx-auto space-y-4">
-              {faqs.slice(0, 4).map((faq) => (
-                <details key={faq.question} className="group rounded-3xl bg-white border border-pink-100 p-6 md:p-8 shadow-[0_4px_20px_rgba(255,47,168,0.03)] transition-all duration-300 hover:border-brand-primary/40 hover:shadow-barbie [&_summary::-webkit-details-marker]:hidden overflow-hidden relative">
+            </ScrollReveal>
+            <div className="mt-12 md:mt-16 max-w-3xl mx-auto space-y-4">
+              {faqs.slice(0, 2).map((faq, index) => (
+                <ScrollReveal key={faq.question} delay={index * 150} as="details" className="group rounded-3xl bg-white border border-pink-100 p-6 md:p-8 shadow-[0_4px_20px_rgba(255,47,168,0.03)] transition-all duration-300 hover:border-brand-primary/40 hover:shadow-barbie [&_summary::-webkit-details-marker]:hidden overflow-hidden relative">
                   <summary className="relative z-10 flex cursor-pointer items-center justify-between font-bold text-brand-accent text-lg md:text-xl outline-none">
                     {faq.question}
                     <span className="ml-4 flex size-10 items-center justify-center shrink-0 rounded-full bg-pink-50 text-brand-primary transition-all duration-500 group-open:rotate-180 group-open:bg-brand-primary group-open:text-white group-hover:scale-110">
@@ -251,7 +293,7 @@ export function HomePage() {
                     <p>{faq.answer}</p>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-pink-50/30 opacity-0 transition-opacity duration-300 group-open:opacity-100 pointer-events-none" />
-                </details>
+                </ScrollReveal>
               ))}
             </div>
             <div className="mt-12 text-center">

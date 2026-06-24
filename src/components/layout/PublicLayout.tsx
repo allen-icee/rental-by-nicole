@@ -1,6 +1,6 @@
-import { useState, useRef, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { AdminLoginModal } from "@/components/admin/AdminLoginModal";
 
@@ -20,10 +20,10 @@ type PublicLayoutProps = {
 export function PublicLayout({ children }: PublicLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Secret Admin Access State
   const [clickCount, setClickCount] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const location = useLocation();
 
   const handleLogoClick = () => {
     setIsMobileMenuOpen(false);
@@ -135,7 +135,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col relative z-0">
+      <main className="flex-1 flex flex-col relative">
         {children}
       </main>
 

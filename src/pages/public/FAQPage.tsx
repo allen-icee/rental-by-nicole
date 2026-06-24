@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { faqs } from "@/data/site-content";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function FAQPage() {
   const [query, setQuery] = useState("");
@@ -23,31 +24,26 @@ export function FAQPage() {
     <PublicLayout>
       <main className="min-h-[90vh] bg-brand-background/30 pb-32">
         {/* Hero & Search Section */}
-        <section className="relative overflow-hidden bg-white py-12 md:py-16 shadow-sm border-b border-pink-100">
+        <ScrollReveal as="section" className="relative overflow-hidden bg-white py-8 md:py-12 shadow-sm border-b border-pink-100">
           <div className="absolute inset-0 bg-gradient-to-b from-brand-background/60 to-transparent" />
           <div className="relative mx-auto max-w-4xl px-5 text-center">
-            <span className="inline-grid size-12 place-items-center rounded-full bg-white text-brand-primary shadow-soft mb-3 border border-pink-50">
-              <Icon icon="mdi:help" className="size-6" />
-            </span>
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">
-              Support & Information
-            </p>
-            <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-brand-accent md:text-5xl">
+
+            <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-brand-accent md:text-4xl">
               Frequently Asked Questions
             </h1>
-            <p className="mt-3 text-base md:text-lg leading-relaxed text-pink-950/70 max-w-2xl mx-auto">
-              Find everything you need to know about our rental process, availability, fittings, and more. 
+            <p className="mt-3 text-sm md:text-base leading-relaxed text-pink-950/70 max-w-2xl mx-auto">
+              Find everything you need to know about our rental process, availability, fittings, and more.
               Search below or browse our curated categories.
             </p>
 
             {/* Premium Search Bar */}
-            <div className="mt-8 mx-auto max-w-2xl relative group">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none text-brand-primary">
-                <Icon icon="mdi:magnify" className="size-7 transition-transform duration-300 group-focus-within:scale-110 group-focus-within:text-brand-accent" />
+            <div className="mt-6 mx-auto max-w-2xl relative group">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-brand-primary">
+                <Icon icon="mdi:magnify" className="size-6 transition-transform duration-300 group-focus-within:scale-110 group-focus-within:text-brand-accent" />
               </div>
               <input
                 type="text"
-                className="w-full rounded-full border-2 border-pink-100 bg-white py-5 pl-16 pr-14 text-lg font-medium text-brand-accent shadow-soft transition-all duration-300 placeholder:text-pink-950/40 focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 hover:shadow-barbie"
+                className="w-full rounded-full border-2 border-pink-100 bg-white py-3 pl-12 pr-12 text-base font-medium text-brand-accent shadow-soft transition-all duration-300 placeholder:text-pink-950/40 focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 hover:shadow-barbie"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search for answers..."
@@ -55,72 +51,70 @@ export function FAQPage() {
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute inset-y-0 right-0 flex items-center pr-6 text-pink-950/40 hover:text-brand-primary transition-colors focus:outline-none"
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-pink-950/40 hover:text-brand-primary transition-colors focus:outline-none"
                   aria-label="Clear search"
                 >
-                  <Icon icon="mdi:close-circle" className="size-6" />
+                  <Icon icon="mdi:close-circle" className="size-5" />
                 </button>
               )}
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
         {/* Interactive FAQ Cards */}
-        <section className="mx-auto mt-16 max-w-3xl px-5 relative z-10">
+        <section className="mx-auto mt-8 max-w-3xl px-5 relative z-10">
           <div className="space-y-6">
             {filteredFaqs.length > 0 ? (
-              filteredFaqs.map((faq) => {
+              filteredFaqs.map((faq, index) => {
                 const isOpen = openId === faq.question;
                 return (
-                  <div
+                  <ScrollReveal
                     key={faq.question}
-                    className={`group relative overflow-hidden rounded-[2rem] border transition-all duration-500 ${
-                      isOpen 
-                        ? "bg-white border-brand-primary/30 shadow-barbie" 
-                        : "bg-white/70 backdrop-blur-sm border-white shadow-soft hover:border-brand-primary/40 hover:shadow-barbie hover:-translate-y-1 hover:bg-white"
-                    }`}
+                    delay={Math.min(index * 50, 500)} // max 500ms delay to prevent excessive waiting
+                    className={`group relative overflow-hidden rounded-[2rem] border transition-all duration-500 ${isOpen
+                      ? "bg-white border-brand-primary/30 shadow-barbie"
+                      : "bg-white/70 backdrop-blur-sm border-white shadow-soft hover:border-brand-primary/40 hover:shadow-barbie hover:-translate-y-1 hover:bg-white"
+                      }`}
                   >
                     {isOpen && (
                       <div className="absolute inset-0 bg-gradient-to-b from-brand-background/40 to-transparent pointer-events-none" />
                     )}
                     <button
                       onClick={() => setOpenId(isOpen ? null : faq.question)}
-                      className="relative z-10 w-full text-left px-6 py-8 md:px-10 flex items-start md:items-center justify-between gap-6 outline-none"
+                      className="relative z-10 w-full text-left px-5 py-5 md:px-6 flex items-start md:items-center justify-between gap-6 outline-none"
                     >
                       <div className="flex-1">
-                        <span className="inline-block rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-primary border border-pink-100 mb-3 transition-colors duration-300 group-hover:bg-brand-background group-hover:border-brand-primary/20">
+                        <span className="inline-block rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-primary border border-pink-100 mb-2 transition-colors duration-300 group-hover:bg-brand-background group-hover:border-brand-primary/20">
                           {faq.category}
                         </span>
-                        <h3 className={`font-display text-xl md:text-2xl font-bold transition-colors duration-300 ${isOpen ? "text-brand-primary" : "text-brand-accent"}`}>
+                        <h3 className={`font-display text-lg md:text-xl font-bold transition-colors duration-300 ${isOpen ? "text-brand-primary" : "text-brand-accent"}`}>
                           {faq.question}
                         </h3>
                       </div>
                       <span
-                        className={`shrink-0 flex size-12 items-center justify-center rounded-full transition-all duration-500 shadow-sm ${
-                          isOpen 
-                            ? "bg-brand-primary text-white rotate-180" 
-                            : "bg-white text-brand-primary border border-pink-100 group-hover:bg-brand-background group-hover:scale-110"
-                        }`}
+                        className={`shrink-0 flex size-10 items-center justify-center rounded-full transition-all duration-500 shadow-sm ${isOpen
+                          ? "bg-brand-primary text-white rotate-180"
+                          : "bg-white text-brand-primary border border-pink-100 group-hover:bg-brand-background group-hover:scale-110"
+                          }`}
                       >
-                        <Icon icon="mdi:chevron-down" className="size-6" />
+                        <Icon icon="mdi:chevron-down" className="size-5" />
                       </span>
                     </button>
-                    
+
                     <div
-                      className={`relative z-10 grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                      }`}
+                      className={`relative z-10 grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                        }`}
                     >
                       <div className="overflow-hidden">
-                        <div className="px-6 pb-8 md:px-10 pt-2">
-                          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-100 to-transparent mb-6" />
-                          <p className="text-base md:text-lg leading-relaxed text-pink-950/70">
+                        <div className="px-5 pb-5 md:px-6 pt-2">
+                          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-100 to-transparent mb-4" />
+                          <p className="text-sm md:text-base leading-relaxed text-pink-950/70">
                             {faq.answer}
                           </p>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 );
               })
             ) : (

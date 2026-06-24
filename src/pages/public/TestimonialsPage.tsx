@@ -4,6 +4,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { testimonials as fallbackTestimonials } from "@/data/site-content";
 import { useToast } from "@/components/ui/toast-context";
 import { submitReview } from "@/services/forms.service";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 type Testimonial = typeof fallbackTestimonials[0];
 
@@ -73,7 +74,7 @@ export function TestimonialsPage() {
   return (
     <PublicLayout>
       <main className="min-h-screen bg-brand-background/30">
-        <section className="relative overflow-hidden px-5 py-12 md:py-20">
+        <ScrollReveal as="section" className="relative overflow-hidden px-5 py-12 md:py-20">
           <div className="absolute -left-[10%] top-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-primary/10 blur-[100px]" />
           <div className="absolute -right-[5%] bottom-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-accent/10 blur-[100px]" />
 
@@ -186,7 +187,7 @@ export function TestimonialsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
         {/* Read Review Modal */}
         {selectedTestimonial && (

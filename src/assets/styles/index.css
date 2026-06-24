@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -111,15 +111,22 @@ textarea.input-field {
   }
 }
 
-@keyframes scroll-rise {
-  from {
-    opacity: 0;
-    transform: translateY(26px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.section-shell,
+article,
+details,
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.section-shell.is-revealed,
+article.is-revealed,
+details.is-revealed,
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 @keyframes toast-pop {
@@ -137,15 +144,6 @@ textarea.input-field {
   animation: toast-pop 180ms ease-out both;
 }
 
-.section-shell,
-article,
-details,
-.scroll-reveal {
-  animation: scroll-rise both;
-  animation-timeline: view();
-  animation-range: entry 0% cover 26%;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -154,7 +152,12 @@ details,
   .section-shell,
   article,
   details,
-  .scroll-reveal,
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
   .toast-pop {
     animation: none;
   }
@@ -163,4 +166,30 @@ details,
 input[type="range"].barbie-slider {
   accent-color: #ff2fa8;
   cursor: pointer;
+}
+
+/* Barbie-like Scrollbars */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffe2f4;
+  border-radius: 100vw;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff7cc9;
+  border-radius: 100vw;
+  border: 3px solid #ffe2f4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2fa8;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ff7cc9 #ffe2f4;
 }
