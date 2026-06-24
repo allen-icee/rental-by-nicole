@@ -20,6 +20,7 @@ type ItemRow = {
   status: "draft" | "published" | "archived";
   availability_status: "available" | "reserved" | "unavailable";
   featured: boolean;
+  is_new_arrival: boolean;
   price_display: string;
   instagram_reel_url: string | null;
 };

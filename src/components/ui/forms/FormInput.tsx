@@ -12,7 +12,7 @@ type FormInputProps<T extends FieldValues> = {
   maxLength?: number;
   min?: number;
   max?: number;
-  rules?: RegisterOptions;
+  rules?: Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">;
 };
 
 export function FormInput<T extends FieldValues>({
@@ -40,7 +40,7 @@ export function FormInput<T extends FieldValues>({
       min: min !== undefined ? { value: min, message: `Minimum value is ${min}` } : undefined,
       max: max !== undefined ? { value: max, message: `Maximum value is ${max}` } : undefined,
       ...rules
-    }
+    } as Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">
   });
 
   const valueLength = value ? String(value).length : 0;

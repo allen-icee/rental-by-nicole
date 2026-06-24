@@ -16,7 +16,7 @@ type FormSelectProps<T extends FieldValues> = {
   placeholder?: string;
   required?: boolean;
   searchable?: boolean;
-  rules?: RegisterOptions;
+  rules?: Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">;
 };
 
 export function FormSelect<T extends FieldValues>({
@@ -39,7 +39,7 @@ export function FormSelect<T extends FieldValues>({
     rules: {
       required: required ? "This field is required" : false,
       ...rules
-    }
+    } as Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">
   });
 
   const [isOpen, setIsOpen] = useState(false);

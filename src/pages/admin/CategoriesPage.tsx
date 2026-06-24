@@ -248,7 +248,7 @@ export function CategoriesPage() {
             label="Sort Order"
             min={0}
             helperText="Lower numbers appear first."
-            rules={{ valueAsNumber: true }}
+
           />
           <FormToggle
             name="is_active"
