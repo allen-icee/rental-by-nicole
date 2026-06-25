@@ -59,6 +59,7 @@ export type CatalogFormInput = {
     sort_order: number;
     file?: File;
   }[];
+  tags?: string[];
 };
 
 export async function getAdminStats(): Promise<AdminStats> {
@@ -128,6 +129,12 @@ export async function getAllCategories() {
   return data;
 }
 
+export async function getAllTags() {
+  const { data, error } = await supabase.from("tags").select("*").eq("is_active", true).order("sort_order");
+  if (error) throw error;
+  return data;
+}
+
 export async function getAllCatalogItems() {
   const { data, error } = await supabase.from("catalog_items").select("id, name").order("sort_order");
   if (error) throw error;
@@ -184,11 +191,12 @@ export async function deleteTag(id: string) {
 }
 
 export async function fetchItemDetails(itemId: string) {
-  const [sizesResult, measurementsResult, availabilityResult, imagesResult] = await Promise.all([
+  const [sizesResult, measurementsResult, availabilityResult, imagesResult, tagsResult] = await Promise.all([
     supabase.from('catalog_item_sizes').select('*').eq('catalog_item_id', itemId).order('sort_order'),
     supabase.from('catalog_item_measurements').select('*'),
     supabase.from('availability_ranges').select('*').eq('catalog_item_id', itemId),
-    supabase.from('catalog_item_images').select('*').eq('catalog_item_id', itemId).order('sort_order')
+    supabase.from('catalog_item_images').select('*').eq('catalog_item_id', itemId).order('sort_order'),
+    supabase.from('catalog_item_tags').select('tag_id').eq('catalog_item_id', itemId)
   ]);
 
   const sizes = sizesResult.data || [];
@@ -223,7 +231,9 @@ export async function fetchItemDetails(itemId: string) {
     sort_order: img.sort_order
   }));
 
-  return { sizes: formattedSizes, reservedRanges: formattedRanges, images: formattedImages };
+  const tags = tagsResult.data?.map(t => t.tag_id) || [];
+
+  return { sizes: formattedSizes, reservedRanges: formattedRanges, images: formattedImages, tags };
 }
 
 export async function saveCatalogItem(input: CatalogFormInput) {
@@ -372,6 +382,21 @@ export async function saveCatalogItem(input: CatalogFormInput) {
       await supabase.from("catalog_item_images").update(imgPayload).eq("id", img.id);
     } else {
       await supabase.from("catalog_item_images").insert(imgPayload);
+    }
+  }
+
+  // Handle tags
+  if (input.tags) {
+    // Delete existing tags that are not in the new list
+    await supabase.from("catalog_item_tags").delete().eq("catalog_item_id", itemId);
+    
+    // Insert new tags
+    if (input.tags.length > 0) {
+      const tagPayloads = input.tags.map(tagId => ({
+        catalog_item_id: itemId,
+        tag_id: tagId
+      }));
+      await supabase.from("catalog_item_tags").insert(tagPayloads);
     }
   }
 

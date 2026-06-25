@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, fetchItemDetails, getAllCategories, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
+import { getPaginatedData, fetchItemDetails, getAllCategories, getAllTags, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput, type TagRow } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -14,12 +14,14 @@ import { FormSelect } from "@/components/ui/forms/FormSelect";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { FormToggle } from "@/components/ui/forms/FormToggle";
 import { FormMultipleImageUpload } from "@/components/ui/forms/FormMultipleImageUpload";
+import { FormMultiSelect } from "@/components/ui/forms/FormMultiSelect";
 
 export function CataloguePage() {
   const { showToast } = useToast();
   const [data, setData] = useState<CatalogRow[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
+  const [tags, setTags] = useState<TagRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -55,7 +57,7 @@ export function CataloguePage() {
   async function fetchData() {
     setIsLoading(true);
     try {
-      const [paginated, allCategories] = await Promise.all([
+      const [paginated, allCategories, allTags] = await Promise.all([
         getPaginatedData(
           "catalog_items",
           currentPage,
@@ -65,12 +67,14 @@ export function CataloguePage() {
           searchQuery,
           ["name", "slug"]
         ),
-        getAllCategories()
+        getAllCategories(),
+        getAllTags()
       ]);
       
       setData(paginated.data);
       setTotalItems(paginated.count);
       setCategories(allCategories);
+      setTags(allTags);
 
       const totalPages = Math.ceil(paginated.count / pageSize);
       if (currentPage > totalPages && totalPages > 0) {
@@ -106,7 +110,8 @@ export function CataloguePage() {
           sort_order: item.sort_order,
           sizes: details.sizes,
           reservedRanges: details.reservedRanges,
-          images: details.images
+          images: details.images,
+          tags: details.tags
         });
       } catch (err) {
         console.error(err);
@@ -130,7 +135,8 @@ export function CataloguePage() {
         sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         sizes: [],
         reservedRanges: [],
-        images: []
+        images: [],
+        tags: []
       });
       setIsModalOpen(true);
     }
@@ -336,6 +342,14 @@ export function CataloguePage() {
               label="Category"
               options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
               placeholder="Select a category..."
+            />
+
+            <FormMultiSelect
+              name="tags"
+              control={control}
+              label="Tags"
+              options={tags.map(tag => ({ value: tag.id, label: tag.name }))}
+              placeholder="Select tags..."
             />
           </div>
 
