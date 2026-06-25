@@ -23,14 +23,16 @@ type ItemRow = {
   featured: boolean;
   is_new_arrival: boolean;
   price_display: string;
-  instagram_reel_url: string | null;
+  reel_url: string | null;
 };
 type ImageRow = { catalog_item_id: string; image_url: string };
 type SizeRow = { id: string; catalog_item_id: string; size_label: string; inventory_quantity: number };
 type MeasurementRow = {
   catalog_item_size_id: string;
   bust: string | null;
+  chest: string | null;
   waist: string | null;
+  hips: string | null;
   length: string | null;
   notes: string | null;
 };
@@ -49,7 +51,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase.from("tags").select("id,name").eq("is_active", true).order("sort_order"),
       supabase
         .from("catalog_items")
-        .select("id,category_id,name,slug,description,status,availability_status,featured,is_new_arrival,price_display,instagram_reel_url")
+        .select("id,category_id,name,slug,description,status,availability_status,featured,is_new_arrival,price_display,reel_url")
         .eq("status", "published")
         .order("sort_order")
     ]);
@@ -80,7 +82,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
     const measurementsResult = sizeIds.length
       ? await supabase
           .from("catalog_item_measurements")
-          .select("catalog_item_size_id,bust,waist,length,notes")
+          .select("catalog_item_size_id,bust,chest,waist,hips,length,notes")
           .in("catalog_item_size_id", sizeIds)
       : { data: [], error: null };
 
@@ -111,7 +113,9 @@ export async function getCatalogueData(): Promise<CatalogueData> {
           return {
             size: size.size_label,
             bust: measurement?.bust ?? "N/A",
+            chest: measurement?.chest ?? undefined,
             waist: measurement?.waist ?? "N/A",
+            hips: measurement?.hips ?? undefined,
             length: measurement?.length ?? "N/A",
             notes: measurement?.notes ?? undefined
           };
@@ -133,7 +137,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
             featured: item.featured,
             isNewArrival: item.is_new_arrival,
             priceDisplay: item.price_display,
-            instagramReelUrl: item.instagram_reel_url ?? undefined,
+            reelUrl: item.reel_url ?? undefined,
             images: itemImages.length > 0 ? itemImages : [placeholderImage],
             sizes: itemSizes.map((size) => size.size_label),
           measurements: itemMeasurements.length > 0 ? itemMeasurements : [{ size: "One Size", bust: "N/A", waist: "N/A", length: "N/A" }],

@@ -10,7 +10,7 @@ export const catalogItemSchema = z.object({
   availabilityStatus: z.enum(["available", "reserved", "unavailable"]),
   featured: z.boolean(),
   priceDisplay: z.string().min(1),
-  instagramReelUrl: z.string().url().optional().or(z.literal(""))
+  reelUrl: z.string().url().optional().or(z.literal(""))
 });
 
 export type CatalogItemInput = z.infer<typeof catalogItemSchema>;

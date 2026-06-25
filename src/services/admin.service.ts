@@ -34,7 +34,7 @@ export type CatalogFormInput = {
   featured: boolean;
   is_new_arrival: boolean;
   price_display: string;
-  instagram_reel_url: string | null;
+  reel_url: string | null;
   sort_order: number;
   sizes: {
     id?: string;
@@ -42,7 +42,9 @@ export type CatalogFormInput = {
     inventory_quantity: number;
     sort_order: number;
     bust: string;
+    chest: string;
     waist: string;
+    hips: string;
     length: string;
     notes: string;
   }[];
@@ -211,7 +213,9 @@ export async function fetchItemDetails(itemId: string) {
       inventory_quantity: size.inventory_quantity,
       sort_order: size.sort_order,
       bust: measurement?.bust || '',
+      chest: measurement?.chest || '',
       waist: measurement?.waist || '',
+      hips: measurement?.hips || '',
       length: measurement?.length || '',
       notes: measurement?.notes || ''
     };
@@ -247,7 +251,7 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     featured: input.featured,
     is_new_arrival: input.is_new_arrival,
     price_display: input.price_display,
-    instagram_reel_url: input.instagram_reel_url || null,
+    reel_url: input.reel_url || null,
     sort_order: input.sort_order,
     archived_at: input.status === "archived" ? new Date().toISOString() : null
   };
@@ -294,7 +298,9 @@ export async function saveCatalogItem(input: CatalogFormInput) {
       const measurementPayload = {
         catalog_item_size_id: sizeId,
         bust: size.bust || null,
+        chest: size.chest || null,
         waist: size.waist || null,
+        hips: size.hips || null,
         length: size.length || null,
         notes: size.notes || null
       };

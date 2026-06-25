@@ -106,7 +106,7 @@ export function CataloguePage() {
           featured: item.featured,
           is_new_arrival: item.is_new_arrival,
           price_display: item.price_display || "",
-          instagram_reel_url: item.instagram_reel_url || "",
+          reel_url: item.reel_url || "",
           sort_order: item.sort_order,
           sizes: details.sizes,
           reservedRanges: details.reservedRanges,
@@ -131,7 +131,7 @@ export function CataloguePage() {
         featured: false,
         is_new_arrival: false,
         price_display: "",
-        instagram_reel_url: "",
+        reel_url: "",
         sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         sizes: [],
         reservedRanges: [],
@@ -361,11 +361,11 @@ export function CataloguePage() {
               placeholder="e.g. $50/day"
             />
             <FormInput
-              name="instagram_reel_url"
+              name="reel_url"
               control={control}
               type="url"
-              label="Instagram Reel URL"
-              placeholder="https://instagram.com/reel/..."
+              label="Reel URL (Optional)"
+              placeholder="https://tiktok.com/..."
             />
           </div>
 
@@ -444,7 +444,7 @@ export function CataloguePage() {
               <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
               <button
                 type="button"
-                onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", waist: "", length: "", notes: "" })}
+                onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", chest: "", waist: "", hips: "", length: "", notes: "" })}
                 className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
               >
                 <Icon icon="mdi:plus" /> Add Size
@@ -467,9 +467,11 @@ export function CataloguePage() {
                     <FormInput name={`sizes.${index}.sort_order`} control={control} label="Sort Order" type="number" required />
                   </div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-pink-950/60 mb-3">Measurements</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <FormInput name={`sizes.${index}.bust`} control={control} label="Bust" placeholder="e.g. 32-34&quot;" />
+                    <FormInput name={`sizes.${index}.chest`} control={control} label="Chest" placeholder="e.g. 79-83cm" />
                     <FormInput name={`sizes.${index}.waist`} control={control} label="Waist" placeholder="e.g. 26-28&quot;" />
+                    <FormInput name={`sizes.${index}.hips`} control={control} label="Hips" placeholder="e.g. 90cm" />
                     <FormInput name={`sizes.${index}.length`} control={control} label="Length" placeholder="e.g. 45&quot;" />
                     <FormInput name={`sizes.${index}.notes`} control={control} label="Notes" placeholder="e.g. Open fit" />
                   </div>

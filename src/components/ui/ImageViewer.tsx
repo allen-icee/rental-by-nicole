@@ -179,7 +179,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md"
+      className="fixed inset-0 z-[100] bg-pink-950/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       onClick={(e) => {
@@ -194,7 +194,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-6 top-6 z-[110] grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-black/40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+        className="absolute right-6 top-6 z-[110] grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-brand-primary hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
         aria-label="Close image viewer"
       >
         <Icon icon="mdi:close" className="size-6" />
@@ -208,7 +208,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
               e.stopPropagation();
               goToPrev();
             }}
-            className="absolute left-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-black/40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute left-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-brand-primary hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Previous image"
           >
             <Icon icon="mdi:chevron-left" className="size-8" />
@@ -220,7 +220,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
               e.stopPropagation();
               goToNext();
             }}
-            className="absolute right-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-black/40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute right-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-brand-primary hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Next image"
           >
             <Icon icon="mdi:chevron-right" className="size-8" />
@@ -258,7 +258,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
           type="button"
           onClick={(e) => { e.stopPropagation(); handleZoom(-0.5); }}
           disabled={scale === MIN_ZOOM}
-          className="grid size-10 place-items-center rounded-full text-white transition hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="grid size-10 place-items-center rounded-full text-white transition hover:bg-brand-primary hover:scale-110 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-white/50"
           aria-label="Zoom out"
         >
           <Icon icon="mdi:minus" className="size-5" />
@@ -270,7 +270,7 @@ export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer"
           type="button"
           onClick={(e) => { e.stopPropagation(); handleZoom(0.5); }}
           disabled={scale === MAX_ZOOM}
-          className="grid size-10 place-items-center rounded-full text-white transition hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="grid size-10 place-items-center rounded-full text-white transition hover:bg-brand-primary hover:scale-110 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-white/50"
           aria-label="Zoom in"
         >
           <Icon icon="mdi:plus" className="size-5" />

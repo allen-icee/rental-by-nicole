@@ -295,8 +295,8 @@ export function CataloguePage() {
               className="mx-auto my-4 max-w-5xl rounded-2xl bg-brand-background shadow-barbie"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5">
-                <div>
+              <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5 min-w-0">
+                <div className="min-w-0">
                   <div className="relative group">
                     <button
                       type="button"
@@ -399,14 +399,14 @@ export function CataloguePage() {
                       Reserve
                       <Icon icon="mdi:sparkles" className="size-4" />
                     </Link>
-                    {selectedItem.instagramReelUrl ? (
+                    {selectedItem.reelUrl ? (
                       <a
-                        href={selectedItem.instagramReelUrl}
+                        href={selectedItem.reelUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-brand-primary/20 bg-white px-6 py-4 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
                       >
-                        <Icon icon="mdi:instagram" className="size-5 text-[#E1306C]" />
+                        <Icon icon="mdi:play-circle" className="size-5 text-brand-primary" />
                         Watch Reel
                       </a>
                     ) : null}
@@ -438,9 +438,11 @@ export function CataloguePage() {
                         <div key={`${measurement.size}-${index}`} className="mt-3 rounded-xl bg-brand-background/50 p-4">
                           <p className="font-bold text-brand-accent mb-2">Size {measurement.size}</p>
                           <div className="grid grid-cols-2 gap-2 text-xs">
-                            <p>Bust: {measurement.bust}</p>
-                            <p>Waist: {measurement.waist}</p>
-                            <p>Length: {measurement.length}</p>
+                            {measurement.bust && measurement.bust !== "N/A" && <p>Bust: {measurement.bust}</p>}
+                            {measurement.chest && measurement.chest !== "N/A" && <p>Chest: {measurement.chest}</p>}
+                            {measurement.waist && measurement.waist !== "N/A" && <p>Waist: {measurement.waist}</p>}
+                            {measurement.hips && measurement.hips !== "N/A" && <p>Hips: {measurement.hips}</p>}
+                            {measurement.length && measurement.length !== "N/A" && <p>Length: {measurement.length}</p>}
                             {measurement.notes && <p className="col-span-2 mt-1 text-brand-primary italic">Note: {measurement.notes}</p>}
                           </div>
                         </div>

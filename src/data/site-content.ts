@@ -41,7 +41,7 @@ export const catalogueItems: CatalogItem[] = [
     featured: true,
     isNewArrival: false,
     priceDisplay: "PHP 1,499 / 3 Days",
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.roseGown, itemImages.ivoryGown],
     sizes: ["S", "M"],
     measurements: [
@@ -69,7 +69,7 @@ export const catalogueItems: CatalogItem[] = [
     featured: true,
     isNewArrival: false,
     priceDisplay: "PHP 599 / 2 Days",
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.satinDress, itemImages.roseGown],
     sizes: ["XS", "S", "M"],
     measurements: [
@@ -96,7 +96,7 @@ export const catalogueItems: CatalogItem[] = [
     featured: false,
     isNewArrival: false,
     priceDisplay: "Price Upon Inquiry",
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.filipiniana, itemImages.bolero],
     sizes: ["One Size"],
     measurements: [
@@ -124,7 +124,7 @@ export const catalogueItems: CatalogItem[] = [
     featured: false,
     isNewArrival: false,
     priceDisplay: "PHP 299 / 2 Days",
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.bolero, itemImages.filipiniana],
     sizes: ["S", "M", "L"],
     measurements: [
@@ -151,7 +151,7 @@ export const catalogueItems: CatalogItem[] = [
     priceDisplay: "PHP 199 / 2 Days",
     featured: false,
     isNewArrival: false,
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.clutch, itemImages.satinDress],
     sizes: ["One Size"],
     measurements: [
@@ -178,7 +178,7 @@ export const catalogueItems: CatalogItem[] = [
     featured: true,
     isNewArrival: false,
     priceDisplay: "PHP 1,299 / 3 Days",
-    instagramReelUrl: "https://www.instagram.com/",
+    reelUrl: "",
     images: [itemImages.ivoryGown, itemImages.roseGown],
     sizes: ["M", "L"],
     measurements: [

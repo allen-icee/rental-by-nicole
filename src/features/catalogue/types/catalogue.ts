@@ -15,13 +15,15 @@ export type CatalogItem = {
   featured: boolean;
   isNewArrival: boolean;
   priceDisplay: string;
-  instagramReelUrl?: string;
+  reelUrl?: string;
   images: string[];
   sizes: string[];
   measurements: {
     size: string;
     bust: string;
+    chest?: string;
     waist: string;
+    hips?: string;
     length: string;
     notes?: string;
   }[];

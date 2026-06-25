@@ -78,7 +78,7 @@ export type Database = {
         featured: boolean;
         is_new_arrival: boolean;
         price_display: string;
-        instagram_reel_url: string | null;
+        reel_url: string | null;
         sort_order: number;
         archived_at: string | null;
         created_at: string;
@@ -106,7 +106,9 @@ export type Database = {
         id: string;
         catalog_item_size_id: string;
         bust: string | null;
+        chest: string | null;
         waist: string | null;
+        hips: string | null;
         length: string | null;
         notes: string | null;
         created_at: string;
