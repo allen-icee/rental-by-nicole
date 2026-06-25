@@ -299,6 +299,14 @@ export function CataloguePage() {
                   <div className="relative">
                     <button
                       type="button"
+                      onClick={() => setSelectedItem(null)}
+                      className="absolute right-4 top-4 z-10 grid size-10 place-items-center rounded-full bg-white/80 backdrop-blur-md text-brand-accent shadow-soft transition hover:bg-white md:hidden"
+                      aria-label="Close modal"
+                    >
+                      <Icon icon="mdi:close" className="size-6" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => openFullscreen(activeImageUrl)}
                       className="block w-full"
                       aria-label="Open image viewer"
@@ -375,7 +383,7 @@ export function CataloguePage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-4 min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
+                  <div className="mt-8 flex flex-col gap-4 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
                     <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50" open>
                       <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
                         <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>
