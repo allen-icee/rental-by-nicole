@@ -13,6 +13,7 @@ import { FormTextarea } from "@/components/ui/forms/FormTextarea";
 import { FormSelect } from "@/components/ui/forms/FormSelect";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { FormToggle } from "@/components/ui/forms/FormToggle";
+import { FormMultipleImageUpload } from "@/components/ui/forms/FormMultipleImageUpload";
 
 export function CataloguePage() {
   const { showToast } = useToast();
@@ -104,7 +105,8 @@ export function CataloguePage() {
           instagram_reel_url: item.instagram_reel_url || "",
           sort_order: item.sort_order,
           sizes: details.sizes,
-          reservedRanges: details.reservedRanges
+          reservedRanges: details.reservedRanges,
+          images: details.images
         });
       } catch (err) {
         console.error(err);
@@ -127,7 +129,8 @@ export function CataloguePage() {
         instagram_reel_url: "",
         sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         sizes: [],
-        reservedRanges: []
+        reservedRanges: [],
+        images: []
       });
       setIsModalOpen(true);
     }
@@ -368,6 +371,18 @@ export function CataloguePage() {
             label="Instagram Reel URL"
             placeholder="https://instagram.com/reel/..."
           />
+
+          <div className="border-t border-pink-100 pt-6">
+            <h3 className="text-lg font-bold text-pink-950 mb-4">Images</h3>
+            <FormMultipleImageUpload
+              name="images"
+              control={control}
+              label="Catalogue Images"
+              maxSizeMB={5}
+              maxFiles={10}
+              helperText="Upload up to 10 images. They will be automatically compressed."
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-pink-100 pt-6">
             <FormSelect

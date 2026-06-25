@@ -52,6 +52,13 @@ export type CatalogFormInput = {
     end_date: string;
     label: string;
   }[];
+  images: {
+    id?: string;
+    image_url: string;
+    alt_text?: string;
+    sort_order: number;
+    file?: File;
+  }[];
 };
 
 export async function getAdminStats(): Promise<AdminStats> {
@@ -177,10 +184,11 @@ export async function deleteTag(id: string) {
 }
 
 export async function fetchItemDetails(itemId: string) {
-  const [sizesResult, measurementsResult, availabilityResult] = await Promise.all([
+  const [sizesResult, measurementsResult, availabilityResult, imagesResult] = await Promise.all([
     supabase.from('catalog_item_sizes').select('*').eq('catalog_item_id', itemId).order('sort_order'),
     supabase.from('catalog_item_measurements').select('*'),
-    supabase.from('availability_ranges').select('*').eq('catalog_item_id', itemId)
+    supabase.from('availability_ranges').select('*').eq('catalog_item_id', itemId),
+    supabase.from('catalog_item_images').select('*').eq('catalog_item_id', itemId).order('sort_order')
   ]);
 
   const sizes = sizesResult.data || [];
@@ -208,7 +216,14 @@ export async function fetchItemDetails(itemId: string) {
     label: range.label || ''
   }));
 
-  return { sizes: formattedSizes, reservedRanges: formattedRanges };
+  const formattedImages = (imagesResult.data || []).map(img => ({
+    id: img.id,
+    image_url: img.image_url,
+    alt_text: img.alt_text || undefined,
+    sort_order: img.sort_order
+  }));
+
+  return { sizes: formattedSizes, reservedRanges: formattedRanges, images: formattedImages };
 }
 
 export async function saveCatalogItem(input: CatalogFormInput) {
@@ -308,10 +323,75 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     }
   }
 
+  // Handle images
+  const { data: existingImages } = await supabase.from("catalog_item_images").select("*").eq("catalog_item_id", itemId);
+  const inputImageIds = new Set(input.images.map(i => i.id).filter(Boolean));
+
+  // Delete removed images from storage and db
+  const imagesToDelete = existingImages?.filter(i => !inputImageIds.has(i.id)) || [];
+  if (imagesToDelete.length > 0) {
+    const filePaths = imagesToDelete.map(img => {
+      // Extract file path from URL if it's a full URL, or assume it's just the path
+      const urlObj = new URL(img.image_url, "http://localhost");
+      const pathParts = urlObj.pathname.split("/catalog-images/");
+      return pathParts.length > 1 ? pathParts[1] : img.image_url;
+    });
+    
+    // Delete from storage
+    if (filePaths.length > 0) {
+      await supabase.storage.from("catalog-images").remove(filePaths);
+    }
+    // Delete from db
+    await supabase.from("catalog_item_images").delete().in("id", imagesToDelete.map(i => i.id));
+  }
+
+  // Add/Update images
+  for (let i = 0; i < input.images.length; i++) {
+    const img = input.images[i];
+    let publicUrl = img.image_url;
+
+    // If it's a new file, upload it
+    if (img.file) {
+      const fileExt = img.file.name.split('.').pop();
+      const fileName = `${itemId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from("catalog-images").upload(fileName, img.file);
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl: url } } = supabase.storage.from("catalog-images").getPublicUrl(fileName);
+      publicUrl = url;
+    }
+
+    const imgPayload = {
+      catalog_item_id: itemId,
+      image_url: publicUrl,
+      alt_text: img.alt_text || null,
+      sort_order: i + 1
+    };
+
+    if (img.id) {
+      await supabase.from("catalog_item_images").update(imgPayload).eq("id", img.id);
+    } else {
+      await supabase.from("catalog_item_images").insert(imgPayload);
+    }
+  }
+
   return { id: itemId };
 }
 
 export async function deleteCatalogItem(id: string) {
+  // Fetch images before deletion to clean up storage
+  const { data: images } = await supabase.from("catalog_item_images").select("image_url").eq("catalog_item_id", id);
+  if (images && images.length > 0) {
+    const filePaths = images.map(img => {
+      const urlObj = new URL(img.image_url, "http://localhost");
+      const pathParts = urlObj.pathname.split("/catalog-images/");
+      return pathParts.length > 1 ? pathParts[1] : img.image_url;
+    });
+    if (filePaths.length > 0) {
+      await supabase.storage.from("catalog-images").remove(filePaths);
+    }
+  }
+
   return supabase.from("catalog_items").delete().eq("id", id);
 }
 
