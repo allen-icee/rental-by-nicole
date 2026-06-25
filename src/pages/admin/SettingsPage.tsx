@@ -37,7 +37,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     fetchData();
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -104,7 +104,7 @@ export function SettingsPage() {
 
       <div className="rounded-2xl bg-white p-6 shadow-soft w-full">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          
+
           <input type="hidden" {...register("business_name")} />
           <input type="hidden" {...register("tagline")} />
 
@@ -154,7 +154,7 @@ export function SettingsPage() {
                 name="phone"
                 control={control}
                 label="Primary Phone Number"
-                placeholder="+1 (555) 123-4567"
+                placeholder="+63 916 123 4567"
                 helperText="Primary contact phone number."
               />
               <FormInput
@@ -231,11 +231,11 @@ export function SettingsPage() {
           </section>
 
           <div className="pt-4 flex justify-end">
-            <FormSubmitButton 
-              isDirty={isDirty} 
-              isValid={isValid} 
-              isSubmitting={isSubmitting} 
-              isSubmitSuccessful={isSubmitSuccessful} 
+            <FormSubmitButton
+              isDirty={isDirty}
+              isValid={isValid}
+              isSubmitting={isSubmitting}
+              isSubmitSuccessful={isSubmitSuccessful}
             />
           </div>
         </form>

@@ -1,6 +1,7 @@
 // src/pages/public/ContactPage.tsx
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { siteConfig } from "@/config/site";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -11,6 +12,11 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 export function ContactPage() {
   const { showToast } = useToast();
   const { settings } = useSettings();
+  const [searchParams] = useSearchParams();
+  const itemParam = searchParams.get("item");
+
+  const secondaryEmail = settings ? settings.secondary_email : siteConfig.contact.secondaryEmail;
+  const secondaryPhone = settings ? settings.secondary_phone : siteConfig.contact.secondaryPhone;
 
   type ContactFormInputs = {
     rentedItems: string;
@@ -21,7 +27,10 @@ export function ContactPage() {
   };
 
   const { register, handleSubmit, reset, formState: { isValid, isSubmitting } } = useForm<ContactFormInputs>({
-    mode: "onChange"
+    mode: "onChange",
+    defaultValues: {
+      rentedItems: itemParam || "",
+    }
   });
 
   async function onSubmit(data: ContactFormInputs) {
@@ -68,7 +77,7 @@ export function ContactPage() {
                   Don't be shy, send a message.
                 </h1>
                 <p className="mt-4 text-base leading-relaxed text-pink-950/70 font-medium">
-                  Every inquiry is handled personally.
+                  Message us to book a private fitting at our home based location✨
                 </p>
               </ScrollReveal>
 
@@ -80,7 +89,7 @@ export function ContactPage() {
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">Email</p>
                       <p className="mt-1 text-sm font-semibold text-pink-950">{settings?.email || siteConfig.contact.primaryEmail}</p>
-                      <p className="mt-0.5 text-xs text-pink-950/60">{settings?.secondary_email || siteConfig.contact.secondaryEmail}</p>
+                      {secondaryEmail ? <p className="mt-0.5 text-xs text-pink-950/60">{secondaryEmail}</p> : null}
                     </div>
                   </div>
                   <div className="h-px w-full bg-pink-50" />
@@ -90,7 +99,7 @@ export function ContactPage() {
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">Phone</p>
                       <p className="mt-1 text-sm font-semibold text-pink-950">{settings?.phone || siteConfig.contact.primaryPhone}</p>
-                      <p className="mt-0.5 text-xs text-pink-950/60">{settings?.secondary_phone || siteConfig.contact.secondaryPhone}</p>
+                      {secondaryPhone ? <p className="mt-0.5 text-xs text-pink-950/60">{secondaryPhone}</p> : null}
                     </div>
                   </div>
                   <div className="h-px w-full bg-pink-50" />

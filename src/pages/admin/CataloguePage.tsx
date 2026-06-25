@@ -70,7 +70,7 @@ export function CataloguePage() {
         getAllCategories(),
         getAllTags()
       ]);
-      
+
       setData(paginated.data);
       setTotalItems(paginated.count);
       setCategories(allCategories);
@@ -115,7 +115,7 @@ export function CataloguePage() {
         });
       } catch (err) {
         console.error(err);
-        showToast({ tone: "error", title: "Error", message: "Failed to load item details." });
+        showToast({ tone: "error", title: "Error", message: "Failed to load Descriptions." });
       } finally {
         setIsModalLoading(false);
       }
@@ -203,13 +203,12 @@ export function CataloguePage() {
       header: "Status",
       cell: (row) => (
         <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
-            row.status === "published"
+          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${row.status === "published"
               ? "bg-green-100 text-green-700"
               : row.status === "archived"
-              ? "bg-gray-100 text-gray-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
+                ? "bg-gray-100 text-gray-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
         >
           {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
         </span>
@@ -222,25 +221,23 @@ export function CataloguePage() {
           <select
             value={row.availability_status}
             onChange={(e) => handleAvailabilityChange(row.id, e.target.value as CatalogRow["availability_status"])}
-            className={`cursor-pointer appearance-none rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none transition-colors ${
-              row.availability_status === "available"
+            className={`cursor-pointer appearance-none rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none transition-colors ${row.availability_status === "available"
                 ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                 : row.availability_status === "reserved"
-                ? "bg-purple-100 text-purple-700 hover:bg-purple-200"
-                : "bg-orange-100 text-orange-700 hover:bg-orange-200"
-            }`}
+                  ? "bg-purple-100 text-purple-700 hover:bg-purple-200"
+                  : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+              }`}
           >
             <option value="available" className="bg-white text-pink-950 font-medium">Available</option>
             <option value="reserved" className="bg-white text-pink-950 font-medium">Reserved</option>
             <option value="unavailable" className="bg-white text-pink-950 font-medium">Unavailable</option>
           </select>
-          <Icon 
-            icon="mdi:chevron-down" 
-            className={`pointer-events-none absolute right-1.5 size-3.5 ${
-              row.availability_status === "available" ? "text-blue-700" :
-              row.availability_status === "reserved" ? "text-purple-700" :
-              "text-orange-700"
-            }`} 
+          <Icon
+            icon="mdi:chevron-down"
+            className={`pointer-events-none absolute right-1.5 size-3.5 ${row.availability_status === "available" ? "text-blue-700" :
+                row.availability_status === "reserved" ? "text-purple-700" :
+                  "text-orange-700"
+              }`}
           />
         </div>
       ),
@@ -326,206 +323,206 @@ export function CataloguePage() {
             </div>
           ) : (
             <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormInput
-              name="name"
-              control={control}
-              label="Name"
-              required
-              maxLength={100}
-              placeholder="e.g. Barbie Dream Dress"
-            />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormInput
+                  name="name"
+                  control={control}
+                  label="Name"
+                  required
+                  maxLength={100}
+                  placeholder="e.g. Barbie Dream Dress"
+                />
 
-            <FormSelect
-              name="category_id"
-              control={control}
-              label="Category"
-              options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
-              placeholder="Select a category..."
-            />
+                <FormSelect
+                  name="category_id"
+                  control={control}
+                  label="Category"
+                  options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+                  placeholder="Select a category..."
+                />
 
-            <FormMultiSelect
-              name="tags"
-              control={control}
-              label="Tags"
-              options={tags.map(tag => ({ value: tag.id, label: tag.name }))}
-              placeholder="Select tags..."
-            />
-          </div>
+                <FormMultiSelect
+                  name="tags"
+                  control={control}
+                  label="Tags"
+                  options={tags.map(tag => ({ value: tag.id, label: tag.name }))}
+                  placeholder="Select tags..."
+                />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormInput
-              name="price_display"
-              control={control}
-              label="Price Display"
-              placeholder="e.g. $50/day"
-            />
-            <FormInput
-              name="reel_url"
-              control={control}
-              type="url"
-              label="Reel URL (Optional)"
-              placeholder="https://tiktok.com/..."
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormInput
+                  name="price_display"
+                  control={control}
+                  label="Price Display"
+                  placeholder="e.g. $50/day"
+                />
+                <FormInput
+                  name="reel_url"
+                  control={control}
+                  type="url"
+                  label="Reel URL (Optional)"
+                  placeholder="https://tiktok.com/..."
+                />
+              </div>
 
-          <FormTextarea
-            name="description"
-            control={control}
-            label="Description"
-            maxLength={1000}
-            rows={4}
-            placeholder="Detailed description of the item..."
-          />
+              <FormTextarea
+                name="description"
+                control={control}
+                label="Description"
+                maxLength={1000}
+                rows={4}
+                placeholder="Detailed description of the item..."
+              />
 
-          <div className="border-t border-pink-100 pt-6">
-            <h3 className="text-lg font-bold text-pink-950 mb-4">Images</h3>
-            <FormMultipleImageUpload
-              name="images"
-              control={control}
-              label="Catalogue Images"
-              maxSizeMB={5}
-              maxFiles={10}
-              helperText="Upload up to 10 images. They will be automatically compressed."
-            />
-          </div>
+              <div className="border-t border-pink-100 pt-6">
+                <h3 className="text-lg font-bold text-pink-950 mb-4">Images</h3>
+                <FormMultipleImageUpload
+                  name="images"
+                  control={control}
+                  label="Catalogue Images"
+                  maxSizeMB={5}
+                  maxFiles={10}
+                  helperText="Upload up to 10 images. They will be automatically compressed."
+                />
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-pink-100 pt-6">
-            <FormSelect
-              name="status"
-              control={control}
-              label="Status"
-              searchable={false}
-              options={[
-                { value: "draft", label: "Draft" },
-                { value: "published", label: "Published" },
-                { value: "archived", label: "Archived" }
-              ]}
-            />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-pink-100 pt-6">
+                <FormSelect
+                  name="status"
+                  control={control}
+                  label="Status"
+                  searchable={false}
+                  options={[
+                    { value: "draft", label: "Draft" },
+                    { value: "published", label: "Published" },
+                    { value: "archived", label: "Archived" }
+                  ]}
+                />
 
-            <FormSelect
-              name="availability_status"
-              control={control}
-              label="Availability"
-              searchable={false}
-              options={[
-                { value: "available", label: "Available" },
-                { value: "reserved", label: "Reserved" },
-                { value: "unavailable", label: "Unavailable" }
-              ]}
-            />
+                <FormSelect
+                  name="availability_status"
+                  control={control}
+                  label="Availability"
+                  searchable={false}
+                  options={[
+                    { value: "available", label: "Available" },
+                    { value: "reserved", label: "Reserved" },
+                    { value: "unavailable", label: "Unavailable" }
+                  ]}
+                />
 
-            <FormInput
-              name="sort_order"
-              control={control}
-              type="number"
-              label="Sort Order"
-              min={0}
-              helperText="Lower numbers appear first."
+                <FormInput
+                  name="sort_order"
+                  control={control}
+                  type="number"
+                  label="Sort Order"
+                  min={0}
+                  helperText="Lower numbers appear first."
 
-            />
-          </div>
+                />
+              </div>
 
-          <div className="pt-2 flex flex-col gap-4 sm:flex-row sm:gap-8">
-            <FormToggle
-              name="featured"
-              control={control}
-              label="Featured Item"
-            />
-            <FormToggle
-              name="is_new_arrival"
-              control={control}
-              label="New Arrival"
-            />
-          </div>
+              <div className="pt-2 flex flex-col gap-4 sm:flex-row sm:gap-8">
+                <FormToggle
+                  name="featured"
+                  control={control}
+                  label="Featured Item"
+                />
+                <FormToggle
+                  name="is_new_arrival"
+                  control={control}
+                  label="New Arrival"
+                />
+              </div>
 
-          <div className="border-t border-pink-100 pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
-              <button
-                type="button"
-                onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", chest: "", waist: "", hips: "", length: "", notes: "" })}
-                className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
-              >
-                <Icon icon="mdi:plus" /> Add Size
-              </button>
-            </div>
-            {sizeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No sizes added yet.</p>}
-            <div className="space-y-4">
-              {sizeFields.map((field, index) => (
-                <div key={field.id} className="p-4 bg-pink-50/50 rounded-xl border border-pink-100 relative">
+              <div className="border-t border-pink-100 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
                   <button
                     type="button"
-                    onClick={() => removeSize(index)}
-                    className="absolute top-4 right-4 text-pink-950/40 hover:text-red-500 transition-colors"
+                    onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", chest: "", waist: "", hips: "", length: "", notes: "" })}
+                    className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
                   >
-                    <Icon icon="mdi:trash-can-outline" className="size-5" />
+                    <Icon icon="mdi:plus" /> Add Size
                   </button>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pr-8">
-                    <FormInput name={`sizes.${index}.size_label`} control={control} label="Size Label" placeholder="e.g. S, M, L or One Size" required />
-                    <FormInput name={`sizes.${index}.inventory_quantity`} control={control} label="Quantity" type="number" required />
-                    <FormInput name={`sizes.${index}.sort_order`} control={control} label="Sort Order" type="number" required />
-                  </div>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-pink-950/60 mb-3">Measurements</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <FormInput name={`sizes.${index}.bust`} control={control} label="Bust" placeholder="e.g. 32-34&quot;" />
-                    <FormInput name={`sizes.${index}.chest`} control={control} label="Chest" placeholder="e.g. 79-83cm" />
-                    <FormInput name={`sizes.${index}.waist`} control={control} label="Waist" placeholder="e.g. 26-28&quot;" />
-                    <FormInput name={`sizes.${index}.hips`} control={control} label="Hips" placeholder="e.g. 90cm" />
-                    <FormInput name={`sizes.${index}.length`} control={control} label="Length" placeholder="e.g. 45&quot;" />
-                    <FormInput name={`sizes.${index}.notes`} control={control} label="Notes" placeholder="e.g. Open fit" />
-                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
+                {sizeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No sizes added yet.</p>}
+                <div className="space-y-4">
+                  {sizeFields.map((field, index) => (
+                    <div key={field.id} className="p-4 bg-pink-50/50 rounded-xl border border-pink-100 relative">
+                      <button
+                        type="button"
+                        onClick={() => removeSize(index)}
+                        className="absolute top-4 right-4 text-pink-950/40 hover:text-red-500 transition-colors"
+                      >
+                        <Icon icon="mdi:trash-can-outline" className="size-5" />
+                      </button>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pr-8">
+                        <FormInput name={`sizes.${index}.size_label`} control={control} label="Size Label" placeholder="e.g. S, M, L or One Size" required />
+                        <FormInput name={`sizes.${index}.inventory_quantity`} control={control} label="Quantity" type="number" required />
+                        <FormInput name={`sizes.${index}.sort_order`} control={control} label="Sort Order" type="number" required />
+                      </div>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-pink-950/60 mb-3">Measurements</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <FormInput name={`sizes.${index}.bust`} control={control} label="Bust" placeholder="e.g. 32-34&quot;" />
+                        <FormInput name={`sizes.${index}.chest`} control={control} label="Chest" placeholder="e.g. 79-83cm" />
+                        <FormInput name={`sizes.${index}.waist`} control={control} label="Waist" placeholder="e.g. 26-28&quot;" />
+                        <FormInput name={`sizes.${index}.hips`} control={control} label="Hips" placeholder="e.g. 90cm" />
+                        <FormInput name={`sizes.${index}.length`} control={control} label="Length" placeholder="e.g. 45&quot;" />
+                        <FormInput name={`sizes.${index}.notes`} control={control} label="Notes" placeholder="e.g. Open fit" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          <div className="border-t border-pink-100 pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-pink-950">Availability Calendar</h3>
-              <button
-                type="button"
-                onClick={() => appendRange({ start_date: "", end_date: "", label: "" })}
-                className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
-              >
-                <Icon icon="mdi:plus" /> Add Reserved Range
-              </button>
-            </div>
-            {rangeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No dates blocked.</p>}
-            <div className="space-y-4">
-              {rangeFields.map((field, index) => (
-                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start md:items-end">
-                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.start_date`} control={control} label="Start Date" type="date" required /></div>
-                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.end_date`} control={control} label="End Date" type="date" required /></div>
-                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.label`} control={control} label="Label (optional)" placeholder="e.g. Dry Cleaning" /></div>
+              <div className="border-t border-pink-100 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-pink-950">Availability Calendar</h3>
                   <button
                     type="button"
-                    onClick={() => removeRange(index)}
-                    className="mb-1 h-11 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center"
+                    onClick={() => appendRange({ start_date: "", end_date: "", label: "" })}
+                    className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
                   >
-                    <Icon icon="mdi:trash-can-outline" className="size-5" />
+                    <Icon icon="mdi:plus" /> Add Reserved Range
                   </button>
                 </div>
-              ))}
-            </div>
-          </div>
+                {rangeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No dates blocked.</p>}
+                <div className="space-y-4">
+                  {rangeFields.map((field, index) => (
+                    <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.start_date`} control={control} label="Start Date" type="date" required /></div>
+                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.end_date`} control={control} label="End Date" type="date" required /></div>
+                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.label`} control={control} label="Label (optional)" placeholder="e.g. Dry Cleaning" /></div>
+                      <button
+                        type="button"
+                        onClick={() => removeRange(index)}
+                        className="mb-1 h-11 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center"
+                      >
+                        <Icon icon="mdi:trash-can-outline" className="size-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <FormSubmitButton 
-              isDirty={isDirty} 
-              isValid={isValid} 
-              isSubmitting={isSubmitting} 
-              isSubmitSuccessful={isSubmitSuccessful} 
-            />
-          </div>
-          </>
+              <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <FormSubmitButton
+                  isDirty={isDirty}
+                  isValid={isValid}
+                  isSubmitting={isSubmitting}
+                  isSubmitSuccessful={isSubmitSuccessful}
+                />
+              </div>
+            </>
           )}
         </form>
       </AdminModal>

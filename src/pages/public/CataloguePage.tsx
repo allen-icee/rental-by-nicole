@@ -42,6 +42,7 @@ export function CataloguePage() {
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     if (tagParam) setTag(tagParam);
@@ -81,6 +82,36 @@ export function CataloguePage() {
       mounted = false;
     };
   }, [showToast, itemParam, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    const duration = 600;
+    const start = window.scrollY;
+    const startTime = performance.now();
+
+    const easeInOutQuad = (t: number) => {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    };
+
+    const animateScroll = (currentTime: number) => {
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      window.scrollTo(0, start * (1 - easeInOutQuad(progress)));
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animateScroll);
+      }
+    };
+    requestAnimationFrame(animateScroll);
+  };
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -332,7 +363,7 @@ export function CataloguePage() {
                         >
                           <Icon icon="mdi:chevron-left" className="size-6" />
                         </button>
-                        
+
                         <button
                           type="button"
                           onClick={(e) => {
@@ -385,7 +416,7 @@ export function CataloguePage() {
                       type="button"
                       onClick={() => setSelectedItem(null)}
                       className="grid size-10 shrink-0 place-items-center rounded-full bg-pink-50 text-brand-accent transition hover:bg-brand-primary hover:text-white"
-                      aria-label="Close item details"
+                      aria-label="Close Descriptions"
                     >
                       <Icon icon="mdi:close" className="size-5" />
                     </button>
@@ -393,7 +424,7 @@ export function CataloguePage() {
 
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row shrink-0">
                     <Link
-                      to={`/contact?item=${selectedItem.id}`}
+                      to={`/contact?item=${encodeURIComponent(selectedItem.name)}`}
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-6 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-barbie transition-transform hover:scale-[1.02]"
                     >
                       Reserve
@@ -414,7 +445,7 @@ export function CataloguePage() {
 
                   <div className="mt-8 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
                     <Accordion
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" />Item Details</span>}
+                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" />Descriptions</span>}
                       defaultOpen={true}
                     >
                       <p className="mb-4">{selectedItem.description}</p>
@@ -473,12 +504,22 @@ export function CataloguePage() {
         ) : null}
 
         {fullscreenImage ? (
-          <ImageViewer 
-            images={selectedItem?.images || [fullscreenImage]} 
+          <ImageViewer
+            images={selectedItem?.images || [fullscreenImage]}
             initialIndex={activeImage}
-            onClose={closeFullscreen} 
+            onClose={closeFullscreen}
           />
         ) : null}
+
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full bg-brand-primary text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-brand-accent focus:outline-none focus:ring-4 focus:ring-brand-primary/30"
+            aria-label="Scroll to top"
+          >
+            <Icon icon="mdi:chevron-up" className="size-8" />
+          </button>
+        )}
       </main>
     </PublicLayout>
   );
