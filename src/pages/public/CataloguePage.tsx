@@ -383,7 +383,7 @@ export function CataloguePage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-4 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
+                  <div className="mt-8 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
                     <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50" open>
                       <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
                         <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>
