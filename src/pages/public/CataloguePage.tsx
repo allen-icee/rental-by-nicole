@@ -54,12 +54,12 @@ export function CataloguePage() {
       if (mounted) {
         setCatalogueData(data);
         setLoading(false);
-        
+
         if (itemParam) {
           const item = data.items.find((i) => i.id === itemParam);
           if (item) {
             setSelectedItem(item);
-            
+
             const newParams = new URLSearchParams(searchParams);
             newParams.delete("item");
             setSearchParams(newParams, { replace: true });
@@ -98,7 +98,7 @@ export function CataloguePage() {
     });
   }, [catalogueData.items, category, search, tag]);
 
-  
+
   const visibleItems = filteredItems.slice(0, page * pageSize);
   const activeImageUrl = selectedItem?.images[activeImage] ?? "";
 
@@ -428,7 +428,7 @@ export function CataloguePage() {
 
                     <div className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
                       <div className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none">
-                        <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" /> Additional Details</span>
+                        <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" /> Additional Detailss</span>
                         <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform" />
                       </div>
                       <div className="mt-4 border-t border-pink-50 pt-4 text-sm leading-relaxed text-pink-950/70">
