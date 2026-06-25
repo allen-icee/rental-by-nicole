@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, getAllCategories, saveCatalogItem, deleteCatalogItem, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
+import { getPaginatedData, getAllCategories, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -138,6 +138,22 @@ export function CataloguePage() {
     }
   }
 
+  async function handleAvailabilityChange(id: string, newStatus: CatalogRow["availability_status"]) {
+    try {
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, availability_status: newStatus } : item
+        )
+      );
+      await updateCatalogAvailabilityStatus(id, newStatus);
+      showToast({ tone: "success", title: "Updated", message: "Item availability changed." });
+    } catch (error) {
+      console.error(error);
+      showToast({ tone: "error", title: "Error", message: "Failed to update availability." });
+      fetchData();
+    }
+  }
+
   const columns: Column<CatalogRow>[] = [
     { header: "Name", accessorKey: "name", className: "font-medium" },
     {
@@ -167,17 +183,31 @@ export function CataloguePage() {
     {
       header: "Availability",
       cell: (row) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
-            row.availability_status === "available"
-              ? "bg-blue-100 text-blue-700"
-              : row.availability_status === "reserved"
-              ? "bg-purple-100 text-purple-700"
-              : "bg-orange-100 text-orange-700"
-          }`}
-        >
-          {row.availability_status.charAt(0).toUpperCase() + row.availability_status.slice(1)}
-        </span>
+        <div className="relative inline-flex items-center">
+          <select
+            value={row.availability_status}
+            onChange={(e) => handleAvailabilityChange(row.id, e.target.value as CatalogRow["availability_status"])}
+            className={`cursor-pointer appearance-none rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none transition-colors ${
+              row.availability_status === "available"
+                ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                : row.availability_status === "reserved"
+                ? "bg-purple-100 text-purple-700 hover:bg-purple-200"
+                : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+            }`}
+          >
+            <option value="available" className="bg-white text-pink-950 font-medium">Available</option>
+            <option value="reserved" className="bg-white text-pink-950 font-medium">Reserved</option>
+            <option value="unavailable" className="bg-white text-pink-950 font-medium">Unavailable</option>
+          </select>
+          <Icon 
+            icon="mdi:chevron-down" 
+            className={`pointer-events-none absolute right-1.5 size-3.5 ${
+              row.availability_status === "available" ? "text-blue-700" :
+              row.availability_status === "reserved" ? "text-purple-700" :
+              "text-orange-700"
+            }`} 
+          />
+        </div>
       ),
     },
     {

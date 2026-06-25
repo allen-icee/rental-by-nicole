@@ -149,7 +149,7 @@ export function CataloguePage() {
   return (
     <PublicLayout>
       <main>
-        <ScrollReveal as="section" className="section-shell pb-8 relative z-50">
+        <ScrollReveal as="section" className="section-shell pb-8 relative z-30">
           <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-accent">
@@ -332,7 +332,7 @@ export function CataloguePage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col p-4 md:p-6 lg:p-8 max-h-[85vh]">
+                <div className="flex flex-col p-4 md:p-6 lg:p-8 md:max-h-[85vh]">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className={`inline-block rounded-full px-3 py-1 mb-3 text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white ${availabilityClasses[selectedItem.availabilityStatus]}`}>
@@ -365,7 +365,7 @@ export function CataloguePage() {
                       <a
                         href={selectedItem.instagramReelUrl}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-brand-primary/20 bg-white px-6 py-4 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
                       >
                         <Icon icon="mdi:instagram" className="size-5 text-[#E1306C]" />
@@ -374,7 +374,7 @@ export function CataloguePage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="mt-8 flex flex-col gap-4 min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
                     <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50" open>
                       <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
                         <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>

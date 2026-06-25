@@ -124,7 +124,7 @@ export function ContactPage() {
                     <a
                       href={settings.facebook_url}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="group flex flex-1 items-center justify-center gap-2 rounded-[1.5rem] bg-gradient-to-br from-white to-[#1877F2]/5 p-4 md:p-5 font-bold shadow-sm transition-all hover:-translate-y-1 hover:shadow-barbie border border-[#1877F2]/20"
                     >
                       <Icon icon="mdi:facebook" className="size-6 text-[#1877F2] transition-transform group-hover:scale-110" />
@@ -135,7 +135,7 @@ export function ContactPage() {
                     <a
                       href={settings.instagram_url}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="group flex flex-1 items-center justify-center gap-2 rounded-[1.5rem] bg-gradient-to-br from-white to-[#E1306C]/5 p-4 md:p-5 font-bold shadow-sm transition-all hover:-translate-y-1 hover:shadow-barbie border border-[#E1306C]/20"
                     >
                       <Icon icon="mdi:instagram" className="size-6 text-[#E1306C] transition-transform group-hover:scale-110" />

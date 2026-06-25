@@ -194,6 +194,13 @@ export async function updateCatalogStatus(id: string, status: CatalogRow["status
     .eq("id", id);
 }
 
+export async function updateCatalogAvailabilityStatus(id: string, availability_status: CatalogRow["availability_status"]) {
+  return supabase
+    .from("catalog_items")
+    .update({ availability_status })
+    .eq("id", id);
+}
+
 export async function saveAvailability(input: { id?: string; catalog_item_id: string; start_date: string; end_date: string; label?: string; notes?: string }) {
   const payload = {
     catalog_item_id: input.catalog_item_id,
