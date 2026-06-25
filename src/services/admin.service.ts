@@ -36,6 +36,22 @@ export type CatalogFormInput = {
   price_display: string;
   instagram_reel_url: string | null;
   sort_order: number;
+  sizes: {
+    id?: string;
+    size_label: string;
+    inventory_quantity: number;
+    sort_order: number;
+    bust: string;
+    waist: string;
+    length: string;
+    notes: string;
+  }[];
+  reservedRanges: {
+    id?: string;
+    start_date: string;
+    end_date: string;
+    label: string;
+  }[];
 };
 
 export async function getAdminStats(): Promise<AdminStats> {
@@ -160,8 +176,43 @@ export async function deleteTag(id: string) {
   return supabase.from("tags").delete().eq("id", id);
 }
 
+export async function fetchItemDetails(itemId: string) {
+  const [sizesResult, measurementsResult, availabilityResult] = await Promise.all([
+    supabase.from('catalog_item_sizes').select('*').eq('catalog_item_id', itemId).order('sort_order'),
+    supabase.from('catalog_item_measurements').select('*'),
+    supabase.from('availability_ranges').select('*').eq('catalog_item_id', itemId)
+  ]);
+
+  const sizes = sizesResult.data || [];
+  const measurements = measurementsResult.data || [];
+  const reservedRanges = availabilityResult.data || [];
+
+  const formattedSizes = sizes.map(size => {
+    const measurement = measurements.find(m => m.catalog_item_size_id === size.id);
+    return {
+      id: size.id,
+      size_label: size.size_label,
+      inventory_quantity: size.inventory_quantity,
+      sort_order: size.sort_order,
+      bust: measurement?.bust || '',
+      waist: measurement?.waist || '',
+      length: measurement?.length || '',
+      notes: measurement?.notes || ''
+    };
+  });
+
+  const formattedRanges = reservedRanges.map(range => ({
+    id: range.id,
+    start_date: range.start_date || '',
+    end_date: range.end_date || '',
+    label: range.label || ''
+  }));
+
+  return { sizes: formattedSizes, reservedRanges: formattedRanges };
+}
+
 export async function saveCatalogItem(input: CatalogFormInput) {
-  const payload = {
+  const itemPayload = {
     category_id: input.category_id,
     name: input.name,
     slug: input.slug || slugify(input.name),
@@ -176,9 +227,88 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     archived_at: input.status === "archived" ? new Date().toISOString() : null
   };
 
-  return input.id
-    ? supabase.from("catalog_items").update(payload).eq("id", input.id)
-    : supabase.from("catalog_items").insert(payload);
+  let itemId = input.id;
+  if (itemId) {
+    const { error } = await supabase.from("catalog_items").update(itemPayload).eq("id", itemId);
+    if (error) throw error;
+  } else {
+    const { data, error } = await supabase.from("catalog_items").insert(itemPayload).select("id").single();
+    if (error) throw error;
+    itemId = data.id;
+  }
+
+  if (!itemId) throw new Error("Failed to save catalog item");
+
+  // Handle sizes
+  const { data: existingSizes } = await supabase.from("catalog_item_sizes").select("id").eq("catalog_item_id", itemId);
+  const existingSizeIds = new Set(existingSizes?.map(s => s.id) || []);
+  const inputSizeIds = new Set(input.sizes.map(s => s.id).filter(Boolean));
+  
+  const sizesToDelete = [...existingSizeIds].filter(id => !inputSizeIds.has(id));
+  if (sizesToDelete.length > 0) {
+    await supabase.from("catalog_item_sizes").delete().in("id", sizesToDelete);
+  }
+
+  for (const size of input.sizes) {
+    const sizePayload = {
+      catalog_item_id: itemId,
+      size_label: size.size_label,
+      inventory_quantity: Number(size.inventory_quantity),
+      sort_order: Number(size.sort_order)
+    };
+    
+    let sizeId = size.id;
+    if (sizeId) {
+      await supabase.from("catalog_item_sizes").update(sizePayload).eq("id", sizeId);
+    } else {
+      const { data } = await supabase.from("catalog_item_sizes").insert(sizePayload).select("id").single();
+      sizeId = data?.id;
+    }
+
+    if (sizeId) {
+      const measurementPayload = {
+        catalog_item_size_id: sizeId,
+        bust: size.bust || null,
+        waist: size.waist || null,
+        length: size.length || null,
+        notes: size.notes || null
+      };
+      
+      const { data: existingMeasurement } = await supabase.from("catalog_item_measurements").select("id").eq("catalog_item_size_id", sizeId).maybeSingle();
+      if (existingMeasurement) {
+        await supabase.from("catalog_item_measurements").update(measurementPayload).eq("id", existingMeasurement.id);
+      } else {
+        await supabase.from("catalog_item_measurements").insert(measurementPayload);
+      }
+    }
+  }
+
+  // Handle reservedRanges
+  const { data: existingRanges } = await supabase.from("availability_ranges").select("id").eq("catalog_item_id", itemId);
+  const existingRangeIds = new Set(existingRanges?.map(r => r.id) || []);
+  const inputRangeIds = new Set(input.reservedRanges.map(r => r.id).filter(Boolean));
+
+  const rangesToDelete = [...existingRangeIds].filter(id => !inputRangeIds.has(id));
+  if (rangesToDelete.length > 0) {
+    await supabase.from("availability_ranges").delete().in("id", rangesToDelete);
+  }
+
+  for (const range of input.reservedRanges) {
+    if (!range.start_date || !range.end_date) continue;
+    const rangePayload = {
+      catalog_item_id: itemId,
+      start_date: range.start_date,
+      end_date: range.end_date,
+      label: range.label || null
+    };
+    if (range.id) {
+      await supabase.from("availability_ranges").update(rangePayload).eq("id", range.id);
+    } else {
+      await supabase.from("availability_ranges").insert(rangePayload);
+    }
+  }
+
+  return { id: itemId };
 }
 
 export async function deleteCatalogItem(id: string) {

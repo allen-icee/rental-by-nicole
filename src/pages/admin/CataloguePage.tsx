@@ -1,8 +1,8 @@
 // src/pages/admin/CataloguePage.tsx
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, getAllCategories, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
+import { getPaginatedData, fetchItemDetails, getAllCategories, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -26,6 +26,7 @@ export function CataloguePage() {
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalLoading, setIsModalLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogRow | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -33,6 +34,16 @@ export function CataloguePage() {
 
   const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
     mode: "onChange"
+  });
+
+  const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({
+    control,
+    name: "sizes"
+  });
+
+  const { fields: rangeFields, append: appendRange, remove: removeRange } = useFieldArray({
+    control,
+    name: "reservedRanges"
   });
 
   useEffect(() => {
@@ -72,23 +83,35 @@ export function CataloguePage() {
     }
   }
 
-  function handleOpenModal(item?: CatalogRow) {
+  async function handleOpenModal(item?: CatalogRow) {
     if (item) {
       setEditingItem(item);
-      reset({
-        id: item.id,
-        category_id: item.category_id,
-        name: item.name,
-        slug: item.slug,
-        description: item.description || "",
-        status: item.status,
-        availability_status: item.availability_status,
-        featured: item.featured,
-        is_new_arrival: item.is_new_arrival,
-        price_display: item.price_display || "",
-        instagram_reel_url: item.instagram_reel_url || "",
-        sort_order: item.sort_order,
-      });
+      setIsModalLoading(true);
+      setIsModalOpen(true);
+      try {
+        const details = await fetchItemDetails(item.id);
+        reset({
+          id: item.id,
+          category_id: item.category_id,
+          name: item.name,
+          slug: item.slug,
+          description: item.description || "",
+          status: item.status,
+          availability_status: item.availability_status,
+          featured: item.featured,
+          is_new_arrival: item.is_new_arrival,
+          price_display: item.price_display || "",
+          instagram_reel_url: item.instagram_reel_url || "",
+          sort_order: item.sort_order,
+          sizes: details.sizes,
+          reservedRanges: details.reservedRanges
+        });
+      } catch (err) {
+        console.error(err);
+        showToast({ tone: "error", title: "Error", message: "Failed to load item details." });
+      } finally {
+        setIsModalLoading(false);
+      }
     } else {
       setEditingItem(null);
       reset({
@@ -103,9 +126,11 @@ export function CataloguePage() {
         price_display: "",
         instagram_reel_url: "",
         sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
+        sizes: [],
+        reservedRanges: []
       });
+      setIsModalOpen(true);
     }
-    setIsModalOpen(true);
   }
 
   async function onSubmit(formData: CatalogFormInput) {
@@ -286,6 +311,12 @@ export function CataloguePage() {
         maxWidth="2xl"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {isModalLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Icon icon="mdi:loading" className="size-8 animate-spin text-brand-primary" />
+            </div>
+          ) : (
+            <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput
               name="name"
@@ -387,6 +418,75 @@ export function CataloguePage() {
             />
           </div>
 
+          <div className="border-t border-pink-100 pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
+              <button
+                type="button"
+                onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", waist: "", length: "", notes: "" })}
+                className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
+              >
+                <Icon icon="mdi:plus" /> Add Size
+              </button>
+            </div>
+            {sizeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No sizes added yet.</p>}
+            <div className="space-y-4">
+              {sizeFields.map((field, index) => (
+                <div key={field.id} className="p-4 bg-pink-50/50 rounded-xl border border-pink-100 relative">
+                  <button
+                    type="button"
+                    onClick={() => removeSize(index)}
+                    className="absolute top-4 right-4 text-pink-950/40 hover:text-red-500 transition-colors"
+                  >
+                    <Icon icon="mdi:trash-can-outline" className="size-5" />
+                  </button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pr-8">
+                    <FormInput name={`sizes.${index}.size_label`} control={control} label="Size Label" placeholder="e.g. S, M, L or One Size" required />
+                    <FormInput name={`sizes.${index}.inventory_quantity`} control={control} label="Quantity" type="number" required />
+                    <FormInput name={`sizes.${index}.sort_order`} control={control} label="Sort Order" type="number" required />
+                  </div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-pink-950/60 mb-3">Measurements</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput name={`sizes.${index}.bust`} control={control} label="Bust" placeholder="e.g. 32-34&quot;" />
+                    <FormInput name={`sizes.${index}.waist`} control={control} label="Waist" placeholder="e.g. 26-28&quot;" />
+                    <FormInput name={`sizes.${index}.length`} control={control} label="Length" placeholder="e.g. 45&quot;" />
+                    <FormInput name={`sizes.${index}.notes`} control={control} label="Notes" placeholder="e.g. Open fit" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-pink-100 pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-pink-950">Availability Calendar</h3>
+              <button
+                type="button"
+                onClick={() => appendRange({ start_date: "", end_date: "", label: "" })}
+                className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
+              >
+                <Icon icon="mdi:plus" /> Add Reserved Range
+              </button>
+            </div>
+            {rangeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No dates blocked.</p>}
+            <div className="space-y-4">
+              {rangeFields.map((field, index) => (
+                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.start_date`} control={control} label="Start Date" type="date" required /></div>
+                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.end_date`} control={control} label="End Date" type="date" required /></div>
+                  <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.label`} control={control} label="Label (optional)" placeholder="e.g. Dry Cleaning" /></div>
+                  <button
+                    type="button"
+                    onClick={() => removeRange(index)}
+                    className="mb-1 h-11 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center"
+                  >
+                    <Icon icon="mdi:trash-can-outline" className="size-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
@@ -402,6 +502,8 @@ export function CataloguePage() {
               isSubmitSuccessful={isSubmitSuccessful} 
             />
           </div>
+          </>
+          )}
         </form>
       </AdminModal>
 
