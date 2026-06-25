@@ -1,71 +1,30 @@
 # Rental by Nicole
 
-Fashion rental catalogue and reservation inquiry management system for Rental by Nicole.
+Rental by Nicole is a modern, responsive web application designed for a boutique fashion rental service. The platform serves as an interactive digital catalogue, allowing clients to effortlessly browse the boutique's collection, check item availability, view detailed sizing and measurements, and seamlessly submit reservation inquiries. 
 
-## Stack
+Behind the scenes, the application includes a secure administrative dashboard that empowers the boutique owner to effortlessly manage their entire inventory, track customer inquiries, approve customer reviews, and update their catalogue in real-time.
 
-- React, TypeScript, Vite
-- Tailwind CSS v4
-- Iconify
-- React Hook Form and Zod
-- TanStack Query
-- Supabase Auth, PostgreSQL, and Storage
-- Vercel deployment
+## Key Features
 
-## Folder Structure
+### 🛍️ Public Boutique Storefront
+- **Dynamic Catalogue:** Clients can browse gowns, dresses, Filipiniana attire, and accessories with high-quality image galleries.
+- **Advanced Filtering:** Users can filter the collection by categories, tags, and text search to find the perfect outfit for any occasion.
+- **Detailed Item Views:** Each item displays comprehensive sizing guides, exact garment measurements, and an interactive availability calendar showing reserved dates.
+- **Reservation Inquiries:** A streamlined form allows customers to select their rental dates and request reservations directly through the site.
+- **Customer Reviews:** Approved customer testimonials and outfit photos provide social proof and style inspiration.
 
-```text
-public/
-  assets/                  Static public assets served by Vite
-src/
-  app/                     App bootstrap, providers, and root shell
-  assets/styles/           Global CSS and Tailwind theme tokens
-  components/layout/       Shared layout pieces such as header, footer, admin shell
-  components/ui/           Reusable base UI components
-  config/                  Site constants and environment-aware configuration
-  constants/               Shared option lists and app-level constants
-  features/                Domain modules grouped by business feature
-    catalogue/             Catalogue item listing, filters, modals, admin CRUD
-    inquiries/             Customer inquiry form and admin management
-    testimonials/          Public review submission and admin approval
-    faq/                   Searchable FAQ display and admin management
-    rental-guide/          Admin-managed rental guide content
-    settings/              Website settings and contact information
-  lib/                     Third-party client setup
-  pages/admin/             Protected admin route screens
-  pages/public/            Public website route screens
-  routes/                  Route definitions and route guards
-  services/                Cross-feature service helpers
-  types/                   Shared TypeScript types
-  utils/                   Small generic helpers
-supabase/
-  migrations/              Database schema and RLS migrations
-  seed/                    Seed data for local development
-  storage/                 Notes or policies for Supabase Storage buckets
-docs/                      Project notes and implementation references
-scripts/                   Maintenance and setup scripts
-```
+### 🔐 Secure Admin Dashboard
+- **Inventory Management:** Full CRUD (Create, Read, Update, Delete) capabilities for the catalogue.
+- **Nested Data Control:** Seamless management of individual sizes, measurements, and calendar reservation blockers for each piece.
+- **Inquiry Tracking:** A centralized system to review incoming customer inquiries, update their status, and manage the booking workflow.
+- **Content Curation:** Tools to add and edit categories, style tags, FAQ sections, and the boutique's rental guide rules.
+- **Review Moderation:** Tools to approve or reject customer-submitted testimonials before they appear publicly.
 
-## Setup
+## Tech Stack Highlights
 
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Copy `.env.example` to `.env.local` and fill in the Supabase values.
-
-3. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-## Architecture Notes
-
-- Public pages and admin pages are intentionally separated.
-- Admin routes should stay protected by Supabase Auth and should not appear in public navigation.
-- Filters such as categories and tags should come from Supabase instead of hardcoded arrays.
-- All customer-facing forms should use Zod validation before writing to Supabase.
-- Catalogue media should store images in Supabase Storage and Instagram Reels as external URLs.
+- **Frontend Core:** React, TypeScript, and Vite for a lightning-fast, highly responsive single-page application.
+- **Styling & Aesthetics:** Tailwind CSS v4 paired with custom premium design tokens (glassmorphism, micro-animations, and curated color palettes).
+- **State & Data Fetching:** TanStack Query for optimized data caching and seamless asynchronous operations.
+- **Forms & Validation:** React Hook Form coupled with Zod ensures strict data integrity for both customer submissions and complex admin inventory forms.
+- **Backend & Database:** Supabase handles PostgreSQL database operations, secure User Authentication, and media Storage buckets.
+- **Hosting:** Deployed edge-ready on Vercel.
