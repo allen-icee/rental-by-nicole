@@ -384,11 +384,11 @@ export function CataloguePage() {
                   </div>
 
                   <div className="mt-8 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
-                    <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50" open>
-                      <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
+                    <div className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
+                      <div className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none">
                         <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>
-                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform group-open:rotate-180" />
-                      </summary>
+                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform" />
+                      </div>
                       <div className="mt-4 border-t border-pink-50 pt-4 text-sm leading-relaxed text-pink-950/70">
                         <p className="mb-2"><span className="font-semibold text-pink-950">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
                         {selectedItem.measurements.map((measurement, index) => (
@@ -403,13 +403,13 @@ export function CataloguePage() {
                           </div>
                         ))}
                       </div>
-                    </details>
+                    </div>
 
-                    <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
-                      <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
+                    <div className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
+                      <div className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none">
                         <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:calendar-multiselect" className="size-5 text-brand-primary" /> Availability Calendar</span>
-                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform group-open:rotate-180" />
-                      </summary>
+                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform" />
+                      </div>
                       <div className="mt-4 border-t border-pink-50 pt-4 text-sm text-pink-950/70">
                         {selectedItem.reservedRanges.length > 0 ? (
                           <ul className="space-y-2">
@@ -424,27 +424,27 @@ export function CataloguePage() {
                           <p className="flex items-center gap-2 text-emerald-600 font-medium"><Icon icon="mdi:calendar-check" className="size-5" /> Currently no reserved dates.</p>
                         )}
                       </div>
-                    </details>
+                    </div>
 
-                    <details className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
-                      <summary className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none marker:content-['']">
-                        <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-outline" className="size-5 text-brand-primary" /> Additional Details</span>
-                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform group-open:rotate-180" />
-                      </summary>
+                    <div className="group rounded-2xl bg-white p-5 shadow-sm border border-pink-50">
+                      <div className="flex cursor-pointer items-center justify-between font-bold text-brand-accent outline-none">
+                        <span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" /> Additional Details</span>
+                        <Icon icon="mdi:chevron-down" className="size-5 text-brand-primary transition-transform" />
+                      </div>
                       <div className="mt-4 border-t border-pink-50 pt-4 text-sm leading-relaxed text-pink-950/70">
-                        <p>{selectedItem.description}</p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <span className="rounded-full bg-brand-background px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand-primary">
+                        <p className="mb-4">{selectedItem.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary">
                             {selectedItem.category}
                           </span>
-                          {selectedItem.tags.map((itemTag, index) => (
-                            <span key={`${itemTag}-${index}`} className="rounded-full bg-pink-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand-accent">
-                              {itemTag}
+                          {selectedItem.tags.map((tag) => (
+                            <span key={tag} className="rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-900/70 border border-pink-100">
+                              {tag}
                             </span>
                           ))}
                         </div>
                       </div>
-                    </details>
+                    </div>
                   </div>
                 </div>
               </div>
