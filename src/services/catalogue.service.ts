@@ -179,7 +179,12 @@ export async function getTestimonials() {
   try {
     const { data, error } = await supabase.from("customer_reviews").select("*").eq("status", "approved").order("created_at", { ascending: false });
     if (error) throw error;
-    if (data && data.length > 0) return data;
+    if (data && data.length > 0) {
+      return data.map(item => ({
+        ...item,
+        date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      }));
+    }
   } catch (error) {
     console.warn("Using fallback testimonials", error);
   }
