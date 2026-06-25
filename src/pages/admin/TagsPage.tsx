@@ -220,14 +220,6 @@ export function TagsPage() {
           />
 
           <FormInput
-            name="slug"
-            control={control}
-            label="Slug (optional)"
-            placeholder="Leave blank to auto-generate"
-            helperText="The URL friendly version of the name."
-          />
-
-          <FormInput
             name="sort_order"
             control={control}
             type="number"

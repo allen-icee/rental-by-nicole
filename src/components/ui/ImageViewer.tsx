@@ -3,7 +3,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 
 interface ImageViewerProps {
-  imageUrl: string;
+  images: string[];
+  initialIndex?: number;
   altText?: string;
   onClose: () => void;
 }
@@ -12,7 +13,8 @@ const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 const DOUBLE_CLICK_ZOOM = 2.5;
 
-export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: ImageViewerProps) {
+export function ImageViewer({ images, initialIndex = 0, altText = "Image viewer", onClose }: ImageViewerProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [scale, setScale] = useState(MIN_ZOOM);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -23,6 +25,21 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   const lastPinchDistance = useRef<number | null>(null);
   const lastPanPoint = useRef<{ x: number; y: number } | null>(null);
 
+  const resetZoom = useCallback(() => {
+    setScale(MIN_ZOOM);
+    setPosition({ x: 0, y: 0 });
+  }, []);
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+    resetZoom();
+  }, [images.length, resetZoom]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    resetZoom();
+  }, [images.length, resetZoom]);
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -31,6 +48,10 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
         handleZoom(0.5);
       } else if (event.key === "-") {
         handleZoom(-0.5);
+      } else if (event.key === "ArrowRight") {
+        goToNext();
+      } else if (event.key === "ArrowLeft") {
+        goToPrev();
       }
     }
     
@@ -42,7 +63,7 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       document.body.style.overflow = "";
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onClose]);
+  }, [onClose, goToNext, goToPrev]);
 
   const clampZoom = (value: number) => {
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(value.toFixed(2))));
@@ -82,7 +103,6 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   }, [clampPosition]);
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    
     const delta = event.deltaY < 0 ? -0.2 : 0.2;
     handleZoom(delta);
   };
@@ -95,63 +115,52 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLImageElement>) => {
-    
     if (event.button !== 0 && event.pointerType === "mouse") return;
     
     event.currentTarget.setPointerCapture(event.pointerId);
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     
-    if (pointers.current.size === 1 && scale > 1) {
-      setIsDragging(true);
+    if (pointers.current.size === 1) {
       lastPanPoint.current = { x: event.clientX, y: event.clientY };
+      if (scale > MIN_ZOOM) setIsDragging(true);
     } else if (pointers.current.size === 2) {
-      setIsDragging(false); 
       lastPinchDistance.current = getPinchDistance();
+      setIsDragging(false);
     }
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLImageElement>) => {
     if (!pointers.current.has(event.pointerId)) return;
-
+    
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
-    if (pointers.current.size === 2) {
-      const distance = getPinchDistance();
-      if (!distance || !lastPinchDistance.current) {
-        lastPinchDistance.current = distance;
-        return;
+    if (pointers.current.size === 2 && lastPinchDistance.current !== null) {
+      const currentDistance = getPinchDistance();
+      if (currentDistance) {
+        const delta = (currentDistance - lastPinchDistance.current) * 0.01;
+        handleZoom(delta);
+        lastPinchDistance.current = currentDistance;
       }
-      const change = (distance - lastPinchDistance.current) / 100;
-      handleZoom(change);
-      lastPinchDistance.current = distance;
-      return;
-    }
-
-    if (pointers.current.size === 1 && isDragging && lastPanPoint.current && scale > 1) {
+    } else if (isDragging && lastPanPoint.current) {
       const deltaX = event.clientX - lastPanPoint.current.x;
       const deltaY = event.clientY - lastPanPoint.current.y;
       
-      setPosition((prev) => clampPosition(prev.x + deltaX, prev.y + deltaY, scale));
-      
+      setPosition(prev => clampPosition(prev.x + deltaX, prev.y + deltaY, scale));
       lastPanPoint.current = { x: event.clientX, y: event.clientY };
     }
   };
 
   const handlePointerEnd = (event: React.PointerEvent<HTMLImageElement>) => {
+    event.currentTarget.releasePointerCapture(event.pointerId);
     pointers.current.delete(event.pointerId);
-    if (pointers.current.size < 2) {
-      lastPinchDistance.current = null;
-    }
+    
     if (pointers.current.size === 0) {
       setIsDragging(false);
       lastPanPoint.current = null;
     } else if (pointers.current.size === 1) {
-      
       const remainingPointer = Array.from(pointers.current.values())[0];
-      if (scale > 1) {
-        setIsDragging(true);
-        lastPanPoint.current = { x: remainingPointer.x, y: remainingPointer.y };
-      }
+      lastPanPoint.current = { x: remainingPointer.x, y: remainingPointer.y };
+      lastPinchDistance.current = null;
     }
   };
 
@@ -164,23 +173,20 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
     }
   };
 
-  const cursorClass = scale === MIN_ZOOM 
-    ? "cursor-default" 
-    : isDragging ? "cursor-grabbing" : "cursor-grab";
+  const cursorClass = scale > MIN_ZOOM 
+    ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') 
+    : 'cursor-zoom-in';
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-pink-950/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
-      aria-label="Image viewer"
-      
-      onPointerDown={(e) => {
+      onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       onWheel={handleWheel}
     >
-      
       <div className="sr-only" aria-live="polite">
         {`Image zoomed to ${Math.round(scale * 100)}%`}
       </div>
@@ -194,13 +200,41 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
         <Icon icon="mdi:close" className="size-6" />
       </button>
 
+      {images.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPrev();
+            }}
+            className="absolute left-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-black/40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            aria-label="Previous image"
+          >
+            <Icon icon="mdi:chevron-left" className="size-8" />
+          </button>
+          
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNext();
+            }}
+            className="absolute right-6 top-1/2 z-[110] -translate-y-1/2 grid size-12 place-items-center rounded-full bg-black/20 text-white backdrop-blur transition hover:bg-black/40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            aria-label="Next image"
+          >
+            <Icon icon="mdi:chevron-right" className="size-8" />
+          </button>
+        </>
+      )}
+
       <div
         ref={containerRef}
         className="relative flex items-center justify-center h-full w-full overflow-hidden pointer-events-none"
       >
         <img
           ref={imageRef}
-          src={imageUrl}
+          src={images[currentIndex]}
           alt={altText}
           draggable={false}
           onDoubleClick={handleDoubleClick}
@@ -212,7 +246,6 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
           className={`max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg pointer-events-auto touch-none ${cursorClass}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            
             transition: isDragging || pointers.current.size > 1 ? 'none' : 'transform 0.2s cubic-bezier(0.2, 0, 0.2, 1)'
           }}
         />
@@ -243,6 +276,12 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
           <Icon icon="mdi:plus" className="size-5" />
         </button>
       </div>
+
+      {images.length > 1 && (
+        <div className="absolute bottom-6 left-6 z-[110] rounded-full bg-black/30 px-3 py-1 text-sm font-semibold text-white backdrop-blur-sm">
+          {currentIndex + 1} / {images.length}
+        </div>
+      )}
     </div>
   );
 }

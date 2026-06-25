@@ -13,6 +13,7 @@
 }
 
 :root {
+  color-scheme: light;
   color: #2a1020;
   background: #fff1fa;
   font-family: "Poppins", system-ui, sans-serif;

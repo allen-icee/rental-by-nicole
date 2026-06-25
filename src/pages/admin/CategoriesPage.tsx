@@ -223,14 +223,6 @@ export function CategoriesPage() {
             placeholder="e.g. Dresses"
           />
 
-          <FormInput
-            name="slug"
-            control={control}
-            label="Slug (optional)"
-            placeholder="Leave blank to auto-generate"
-            helperText="The URL friendly version of the name."
-          />
-
           <FormTextarea
             name="description"
             control={control}

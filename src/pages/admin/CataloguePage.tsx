@@ -361,11 +361,11 @@ export function CataloguePage() {
               placeholder="e.g. $50/day"
             />
             <FormInput
-              name="slug"
+              name="instagram_reel_url"
               control={control}
-              label="Slug (optional)"
-              placeholder="Leave blank to auto-generate"
-              helperText="The URL friendly version of the name."
+              type="url"
+              label="Instagram Reel URL"
+              placeholder="https://instagram.com/reel/..."
             />
           </div>
 
@@ -376,14 +376,6 @@ export function CataloguePage() {
             maxLength={1000}
             rows={4}
             placeholder="Detailed description of the item..."
-          />
-
-          <FormInput
-            name="instagram_reel_url"
-            control={control}
-            type="url"
-            label="Instagram Reel URL"
-            placeholder="https://instagram.com/reel/..."
           />
 
           <div className="border-t border-pink-100 pt-6">

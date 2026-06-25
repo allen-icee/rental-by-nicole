@@ -297,7 +297,7 @@ export function CataloguePage() {
             >
               <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5">
                 <div>
-                  <div className="relative">
+                  <div className="relative group">
                     <button
                       type="button"
                       onClick={() => setSelectedItem(null)}
@@ -318,6 +318,34 @@ export function CataloguePage() {
                         className="h-[390px] w-full rounded-2xl object-cover"
                       />
                     </button>
+
+                    {selectedItem.images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImage((prev) => (prev - 1 + selectedItem.images.length) % selectedItem.images.length);
+                          }}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-white/80 text-brand-accent shadow-soft backdrop-blur transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/20 opacity-0 group-hover:opacity-100"
+                          aria-label="Previous image"
+                        >
+                          <Icon icon="mdi:chevron-left" className="size-6" />
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImage((prev) => (prev + 1) % selectedItem.images.length);
+                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-white/80 text-brand-accent shadow-soft backdrop-blur transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/20 opacity-0 group-hover:opacity-100"
+                          aria-label="Next image"
+                        >
+                          <Icon icon="mdi:chevron-right" className="size-6" />
+                        </button>
+                      </>
+                    )}
                     <button
                       type="button"
                       onClick={() => openFullscreen(activeImageUrl)}
@@ -328,7 +356,7 @@ export function CataloguePage() {
                       <Icon icon="mdi:fullscreen" className="size-6" />
                     </button>
                   </div>
-                  <div className="mt-3 flex gap-3 overflow-x-auto">
+                  <div className="mt-3 flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
                     {selectedItem.images.map((image, index) => (
                       <button
                         type="button"
@@ -385,9 +413,25 @@ export function CataloguePage() {
                   </div>
 
                   <div className="mt-8 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
-                    <Accordion 
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>}
+                    <Accordion
+                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" />Item Details</span>}
                       defaultOpen={true}
+                    >
+                      <p className="mb-4">{selectedItem.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary">
+                          {selectedItem.category}
+                        </span>
+                        {selectedItem.tags.map((tag) => (
+                          <span key={tag} className="rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-900/70 border border-pink-100">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </Accordion>
+
+                    <Accordion
+                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>}
                     >
                       <p className="mb-2"><span className="font-semibold text-pink-950">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
                       {selectedItem.measurements.map((measurement, index) => (
@@ -403,7 +447,7 @@ export function CataloguePage() {
                       ))}
                     </Accordion>
 
-                    <Accordion 
+                    <Accordion
                       title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:calendar-multiselect" className="size-5 text-brand-primary" /> Availability Calendar</span>}
                     >
                       {selectedItem.reservedRanges.length > 0 ? (
@@ -419,22 +463,6 @@ export function CataloguePage() {
                         <p className="flex items-center gap-2 text-emerald-600 font-medium"><Icon icon="mdi:calendar-check" className="size-5" /> Currently no reserved dates.</p>
                       )}
                     </Accordion>
-
-                    <Accordion 
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" /> Additional Details</span>}
-                    >
-                      <p className="mb-4">{selectedItem.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary">
-                          {selectedItem.category}
-                        </span>
-                        {selectedItem.tags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-900/70 border border-pink-100">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </Accordion>
                   </div>
                 </div>
               </div>
@@ -443,7 +471,11 @@ export function CataloguePage() {
         ) : null}
 
         {fullscreenImage ? (
-          <ImageViewer imageUrl={fullscreenImage} onClose={closeFullscreen} />
+          <ImageViewer 
+            images={selectedItem?.images || [fullscreenImage]} 
+            initialIndex={activeImage}
+            onClose={closeFullscreen} 
+          />
         ) : null}
       </main>
     </PublicLayout>

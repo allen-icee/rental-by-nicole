@@ -116,25 +116,26 @@ export async function getCatalogueData(): Promise<CatalogueData> {
             notes: measurement?.notes ?? undefined
           };
         });
+          const itemImages = images.filter((image) => image.catalog_item_id === item.id).map((image) => image.image_url);
 
-        return {
-          id: item.id,
-          name: item.name,
-          slug: item.slug,
-          description: item.description,
-          category: item.category_id ? categoryById.get(item.category_id) ?? "Uncategorized" : "Uncategorized",
-          tags: itemTags
-            .filter((itemTag) => itemTag.catalog_item_id === item.id)
-            .map((itemTag) => tagById.get(itemTag.tag_id))
-            .filter((tagName): tagName is string => Boolean(tagName)),
-          status: item.status,
-          availabilityStatus: item.availability_status,
-          featured: item.featured,
-          isNewArrival: item.is_new_arrival,
-          priceDisplay: item.price_display,
-          instagramReelUrl: item.instagram_reel_url ?? undefined,
-          images: images.filter((image) => image.catalog_item_id === item.id).map((image) => image.image_url).concat(placeholderImage).slice(0, 4),
-          sizes: itemSizes.map((size) => size.size_label),
+          return {
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            description: item.description,
+            category: item.category_id ? categoryById.get(item.category_id) ?? "Uncategorized" : "Uncategorized",
+            tags: itemTags
+              .filter((itemTag) => itemTag.catalog_item_id === item.id)
+              .map((itemTag) => tagById.get(itemTag.tag_id))
+              .filter((tagName): tagName is string => Boolean(tagName)),
+            status: item.status,
+            availabilityStatus: item.availability_status,
+            featured: item.featured,
+            isNewArrival: item.is_new_arrival,
+            priceDisplay: item.price_display,
+            instagramReelUrl: item.instagram_reel_url ?? undefined,
+            images: itemImages.length > 0 ? itemImages : [placeholderImage],
+            sizes: itemSizes.map((size) => size.size_label),
           measurements: itemMeasurements.length > 0 ? itemMeasurements : [{ size: "One Size", bust: "N/A", waist: "N/A", length: "N/A" }],
           inventoryQuantity: itemSizes.reduce((total, size) => total + size.inventory_quantity, 0),
           reservedRanges: availability
