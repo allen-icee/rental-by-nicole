@@ -1,3 +1,4 @@
+// src/contexts/SettingsContext.tsx
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getSettings } from "@/services/admin.service";
 import type { SettingsRow } from "@/services/admin.service";
@@ -11,6 +12,8 @@ type SettingsContextType = {
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
+ 
+ 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SettingsRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,6 +54,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSettings() {
   const context = useContext(SettingsContext);
   if (context === undefined) {

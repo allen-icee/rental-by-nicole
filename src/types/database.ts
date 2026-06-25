@@ -1,3 +1,4 @@
+// src/types/database.ts
 export type Json =
   | string
   | number
@@ -215,5 +216,4 @@ export type Database = {
     CompositeTypes: Record<string, never>;
   };
 };
-
 

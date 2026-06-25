@@ -1,3 +1,4 @@
+// src/pages/public/TestimonialsPage.tsx
 import { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
@@ -13,7 +14,6 @@ export function TestimonialsPage() {
   const [selectedTestimonial, setSelectedTestimonial] = useState<any | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-  // Interactive star rating state
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
@@ -47,7 +47,7 @@ export function TestimonialsPage() {
     photoUrl: string;
   };
 
-  const { register, handleSubmit, reset, formState: { errors, isValid } } = useForm<ReviewFormInputs>({
+  const { register, handleSubmit, reset, formState: { isValid } } = useForm<ReviewFormInputs>({
     mode: "onChange"
   });
 
@@ -201,7 +201,6 @@ export function TestimonialsPage() {
           </div>
         </ScrollReveal>
 
-        {/* Read Review Modal */}
         {selectedTestimonial && (
           <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-pink-950/40 p-4 backdrop-blur-sm"
@@ -272,7 +271,6 @@ export function TestimonialsPage() {
           </div>
         )}
 
-        {/* Submit Review Modal */}
         {isReviewModalOpen && (
           <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-pink-950/40 p-4 backdrop-blur-sm"
@@ -380,5 +378,4 @@ export function TestimonialsPage() {
     </PublicLayout>
   );
 }
-
 

@@ -1,4 +1,5 @@
-﻿import type { Session } from "@supabase/supabase-js";
+// src/services/auth.service.ts
+import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 export async function getCurrentSession(): Promise<Session | null> {

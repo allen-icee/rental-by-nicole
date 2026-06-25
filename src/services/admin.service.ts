@@ -1,3 +1,4 @@
+// src/services/admin.service.ts
 import { catalogueItems } from "@/data/site-content";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
@@ -37,8 +38,6 @@ export type CatalogFormInput = {
   sort_order: number;
 };
 
-
-
 export async function getAdminStats(): Promise<AdminStats> {
   try {
     const [items, inquiries, reviews] = await Promise.all([
@@ -70,7 +69,6 @@ export async function getAdminStats(): Promise<AdminStats> {
   }
 }
 
-// Data Fetching Helpers
 export async function getPaginatedData<T extends keyof Tables>(
   table: T,
   page: number,
@@ -88,7 +86,8 @@ export async function getPaginatedData<T extends keyof Tables>(
     .select("*", { count: "exact" });
 
   if (searchQuery && searchColumns && searchColumns.length > 0) {
-    const orFilter = searchColumns.map(col => `${col}.ilike.%${searchQuery}%`).join(',');
+    const safeQuery = `"%${searchQuery.replace(/"/g, '""')}%"`;
+    const orFilter = searchColumns.map(col => `${col}.ilike.${safeQuery}`).join(',');
     query = query.or(orFilter);
   }
 
@@ -126,7 +125,6 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-// Mutations
 export async function saveCategory(input: { id?: string; name: string; slug: string; description?: string; sort_order: number; is_active: boolean }) {
   const payload = {
     name: input.name,

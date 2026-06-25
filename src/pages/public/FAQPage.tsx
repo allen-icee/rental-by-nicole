@@ -1,3 +1,4 @@
+// src/pages/public/FAQPage.tsx
 import { useMemo, useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -28,7 +29,7 @@ export function FAQPage() {
   return (
     <PublicLayout>
       <main className="min-h-[90vh] bg-brand-background/30 pb-32">
-        {/* Hero & Search Section */}
+        
         <ScrollReveal as="section" className="relative overflow-hidden bg-white py-8 md:py-12 shadow-sm border-b border-pink-100">
           <div className="absolute inset-0 bg-gradient-to-b from-brand-background/60 to-transparent" />
           <div className="relative mx-auto max-w-4xl px-5 text-center">
@@ -41,7 +42,6 @@ export function FAQPage() {
               Search below or browse.
             </p>
 
-            {/* Premium Search Bar */}
             <div className="mt-6 mx-auto max-w-2xl relative group">
               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-brand-primary">
                 <Icon icon="mdi:magnify" className="size-6 transition-transform duration-300 group-focus-within:scale-110 group-focus-within:text-brand-accent" />
@@ -66,7 +66,6 @@ export function FAQPage() {
           </div>
         </ScrollReveal>
 
-        {/* Interactive FAQ Cards */}
         <section className="mx-auto mt-8 max-w-3xl px-5 relative z-10">
           <div className="space-y-6">
             {filteredFaqs.length > 0 ? (
@@ -75,7 +74,7 @@ export function FAQPage() {
                 return (
                   <ScrollReveal
                     key={faq.question}
-                    delay={Math.min(index * 50, 500)} // max 500ms delay to prevent excessive waiting
+                    delay={Math.min(index * 50, 500)} 
                     className={`group relative overflow-hidden rounded-[2rem] border transition-all duration-500 ${isOpen
                       ? "bg-white border-brand-primary/30 shadow-barbie"
                       : "bg-white/70 backdrop-blur-sm border-white shadow-soft hover:border-brand-primary/40 hover:shadow-barbie hover:-translate-y-1 hover:bg-white"

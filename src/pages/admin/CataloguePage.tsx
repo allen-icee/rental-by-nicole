@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+// src/pages/admin/CataloguePage.tsx
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
 import { getPaginatedData, getAllCategories, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput } from "@/services/admin.service";
@@ -30,7 +31,7 @@ export function CataloguePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const { control, register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
     mode: "onChange"
   });
 

@@ -1,3 +1,4 @@
+// src/components/admin/AdminModal.tsx
 import { ReactNode, useEffect } from "react";
 import { Icon } from "@iconify/react";
 
@@ -42,13 +43,12 @@ export function AdminModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      
       <div
         className="absolute inset-0 bg-pink-950/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal Content */}
       <div
         className={`relative w-full ${maxWidthClass} rounded-2xl bg-white shadow-xl transition-all transform max-h-[90vh] flex flex-col`}
       >

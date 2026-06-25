@@ -1,4 +1,4 @@
-import { useState } from "react";
+// src/pages/public/ContactPage.tsx
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -50,7 +50,6 @@ export function ContactPage() {
     <PublicLayout>
       <main className="relative min-h-screen pb-24 bg-gradient-to-b from-brand-background via-white to-brand-background/30">
 
-        {/* Global Background Elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-0 right-[-5%] h-[600px] w-[600px] rounded-full bg-brand-primary/10 blur-[120px]" />
           <div className="absolute bottom-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[120px]" />
@@ -59,7 +58,6 @@ export function ContactPage() {
         <section className="relative mx-auto max-w-6xl px-5 pt-8 md:pt-16 z-10">
           <div className="grid gap-8 lg:gap-16 lg:grid-cols-[1fr_1.4fr] items-start">
 
-            {/* Left Column: Intro, Contact Info & Socials */}
             <div className="flex flex-col gap-8 lg:sticky lg:top-24">
 
               <ScrollReveal>

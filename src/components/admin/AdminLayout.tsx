@@ -1,3 +1,4 @@
+// src/components/admin/AdminLayout.tsx
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/toast-context";
@@ -45,7 +46,7 @@ function NavGroup({ item, closeMobileMenu }: { item: NavItem, closeMobileMenu: (
           }`
         }
       >
-        {({ isActive }) => (
+        {() => (
           <>
             <Icon icon={item.icon} className="size-5 shrink-0" />
             {item.label}
@@ -111,7 +112,7 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-brand-background text-pink-950">
-      {/* Mobile Header */}
+      
       <header className="flex items-center justify-between bg-white p-4 shadow-soft lg:hidden">
         <div className="font-display text-xl font-bold text-brand-accent">RbN Admin</div>
         <button
@@ -122,7 +123,6 @@ export function AdminLayout() {
         </button>
       </header>
 
-      {/* Sidebar Navigation */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-soft transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
@@ -160,7 +160,6 @@ export function AdminLayout() {
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-30 bg-pink-950/20 backdrop-blur-sm lg:hidden"
@@ -168,7 +167,6 @@ export function AdminLayout() {
         />
       )}
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-x-hidden w-full lg:w-auto">
         <div className="mx-auto w-full max-w-7xl p-4 md:p-8 lg:p-10">
           <Outlet />

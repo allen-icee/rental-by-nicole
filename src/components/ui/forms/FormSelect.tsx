@@ -1,3 +1,4 @@
+// src/components/ui/forms/FormSelect.tsx
 import { useState, useRef, useEffect } from "react";
 import { useController, type Control, type RegisterOptions, type FieldValues, type Path } from "react-hook-form";
 import { Icon } from "@iconify/react";
@@ -93,7 +94,6 @@ export function FormSelect<T extends FieldValues>({
           />
         </button>
 
-        {/* Dropdown Menu */}
         <div
           className={`absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-pink-100 bg-white shadow-barbie transition-all duration-200 origin-top ${
             isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"

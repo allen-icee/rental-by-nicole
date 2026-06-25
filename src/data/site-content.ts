@@ -1,3 +1,4 @@
+// src/data/site-content.ts
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 
 export const categories = ["Dress", "Gown", "Filipiniana", "Bolero", "Accessory"];

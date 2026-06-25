@@ -1,4 +1,5 @@
-﻿import { inquirySchema, type InquiryInput } from "@/features/inquiries/schemas/inquiry.schema";
+// src/services/forms.service.ts
+import { inquirySchema, type InquiryInput } from "@/features/inquiries/schemas/inquiry.schema";
 import { testimonialSchema, type TestimonialInput } from "@/features/testimonials/schemas/testimonial.schema";
 import { supabase } from "@/lib/supabase/client";
 

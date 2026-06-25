@@ -1,3 +1,4 @@
+// src/components/admin/AdminPagination.tsx
 import { Icon } from "@iconify/react";
 
 interface AdminPaginationProps {
@@ -37,7 +38,7 @@ export function AdminPagination({
             value={pageSize}
             onChange={(e) => {
               onPageSizeChange(Number(e.target.value));
-              onPageChange(1); // Reset to first page
+              onPageChange(1); 
             }}
             className="rounded-lg border-pink-200 bg-white py-1 pl-2 pr-6 text-sm text-pink-950 shadow-sm focus:border-brand-accent focus:ring-brand-accent"
           >

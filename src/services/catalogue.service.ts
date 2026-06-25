@@ -1,3 +1,4 @@
+// src/services/catalogue.service.ts
 import { catalogueItems as fallbackItems, categories as fallbackCategories, tags as fallbackTags } from "@/data/site-content";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 import { supabase } from "@/lib/supabase/client";

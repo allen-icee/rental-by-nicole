@@ -1,34 +1,37 @@
+// src/routes/public-routes.tsx
+import { lazy, Suspense } from "react";
 import type { RouteObject } from "react-router-dom";
-import { CataloguePage } from "@/pages/public/CataloguePage";
-import { ContactPage } from "@/pages/public/ContactPage";
-import { FAQPage } from "@/pages/public/FAQPage";
-import { HomePage } from "@/pages/public/HomePage";
-import { RentalGuidePage } from "@/pages/public/RentalGuidePage";
-import { TestimonialsPage } from "@/pages/public/TestimonialsPage";
+
+const HomePage = lazy(() => import("@/pages/public/HomePage").then(m => ({ default: m.HomePage })));
+const CataloguePage = lazy(() => import("@/pages/public/CataloguePage").then(m => ({ default: m.CataloguePage })));
+const RentalGuidePage = lazy(() => import("@/pages/public/RentalGuidePage").then(m => ({ default: m.RentalGuidePage })));
+const TestimonialsPage = lazy(() => import("@/pages/public/TestimonialsPage").then(m => ({ default: m.TestimonialsPage })));
+const FAQPage = lazy(() => import("@/pages/public/FAQPage").then(m => ({ default: m.FAQPage })));
+const ContactPage = lazy(() => import("@/pages/public/ContactPage").then(m => ({ default: m.ContactPage })));
 
 export const publicRoutes: RouteObject[] = [
   {
     path: "/",
-    element: <HomePage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><HomePage /></Suspense>
   },
   {
     path: "/catalogue",
-    element: <CataloguePage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><CataloguePage /></Suspense>
   },
   {
     path: "/rental-guide",
-    element: <RentalGuidePage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><RentalGuidePage /></Suspense>
   },
   {
     path: "/testimonials",
-    element: <TestimonialsPage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><TestimonialsPage /></Suspense>
   },
   {
     path: "/faq",
-    element: <FAQPage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><FAQPage /></Suspense>
   },
   {
     path: "/contact",
-    element: <ContactPage />
+    element: <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}><ContactPage /></Suspense>
   }
 ];

@@ -1,28 +1,37 @@
+// src/routes/admin-routes.tsx
+import { lazy, Suspense } from "react";
 import type { RouteObject } from "react-router-dom";
 import { ProtectedAdminRoute } from "@/features/auth/ProtectedAdminRoute";
-import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
-import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
-import { AdminLayout } from "@/components/admin/AdminLayout";
-import { CataloguePage } from "@/pages/admin/CataloguePage";
-import { CategoriesPage } from "@/pages/admin/CategoriesPage";
-import { TagsPage } from "@/pages/admin/TagsPage";
-import { AvailabilityPage } from "@/pages/admin/AvailabilityPage";
-import { RentalGuidePage } from "@/pages/admin/RentalGuidePage";
-import { FaqPage } from "@/pages/admin/FaqPage";
-import { ReviewsPage } from "@/pages/admin/ReviewsPage";
-import { InquiriesPage } from "@/pages/admin/InquiriesPage";
-import { SettingsPage } from "@/pages/admin/SettingsPage";
+
+const AdminLoginPage = lazy(() => import("@/pages/admin/AdminLoginPage").then(m => ({ default: m.AdminLoginPage })));
+const AdminLayout = lazy(() => import("@/components/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage").then(m => ({ default: m.AdminDashboardPage })));
+const CataloguePage = lazy(() => import("@/pages/admin/CataloguePage").then(m => ({ default: m.CataloguePage })));
+const CategoriesPage = lazy(() => import("@/pages/admin/CategoriesPage").then(m => ({ default: m.CategoriesPage })));
+const TagsPage = lazy(() => import("@/pages/admin/TagsPage").then(m => ({ default: m.TagsPage })));
+const AvailabilityPage = lazy(() => import("@/pages/admin/AvailabilityPage").then(m => ({ default: m.AvailabilityPage })));
+const RentalGuidePage = lazy(() => import("@/pages/admin/RentalGuidePage").then(m => ({ default: m.RentalGuidePage })));
+const FaqPage = lazy(() => import("@/pages/admin/FaqPage").then(m => ({ default: m.FaqPage })));
+const ReviewsPage = lazy(() => import("@/pages/admin/ReviewsPage").then(m => ({ default: m.ReviewsPage })));
+const InquiriesPage = lazy(() => import("@/pages/admin/InquiriesPage").then(m => ({ default: m.InquiriesPage })));
+const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage").then(m => ({ default: m.SettingsPage })));
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "/admin/login",
-    element: <AdminLoginPage />
+    element: (
+      <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}>
+        <AdminLoginPage />
+      </Suspense>
+    )
   },
   {
     path: "/admin",
     element: (
       <ProtectedAdminRoute>
-        <AdminLayout />
+        <Suspense fallback={<div className="grid min-h-screen place-items-center bg-brand-background text-brand-accent font-semibold">Loading...</div>}>
+          <AdminLayout />
+        </Suspense>
       </ProtectedAdminRoute>
     ),
     children: [

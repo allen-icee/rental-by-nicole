@@ -1,3 +1,4 @@
+// src/components/ui/Carousel.tsx
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -21,10 +22,9 @@ export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
   };
 
   useEffect(() => {
-    // Initial check
-    checkScrollState();
     
-    // Auto scroll setup
+    checkScrollState();
+
     const interval = setInterval(() => {
       if (scrollContainerRef.current && !isHovered.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
@@ -33,7 +33,7 @@ export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
         if (scrollLeft >= maxScroll - 10) {
           scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
         } else {
-          // Scroll one approximate card width
+          
           scrollContainerRef.current.scrollBy({ left: 350, behavior: "smooth" });
         }
       }

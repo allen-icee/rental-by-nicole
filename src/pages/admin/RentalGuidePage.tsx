@@ -1,3 +1,4 @@
+// src/pages/admin/RentalGuidePage.tsx
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
@@ -36,7 +37,7 @@ export function RentalGuidePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const { control, register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<GuideFormData>({
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<GuideFormData>({
     mode: "onChange"
   });
 

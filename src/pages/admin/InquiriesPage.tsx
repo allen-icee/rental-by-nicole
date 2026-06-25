@@ -1,3 +1,4 @@
+// src/pages/admin/InquiriesPage.tsx
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -52,6 +53,7 @@ export function InquiriesPage() {
 
     void fetchInitial();
     return () => { mounted = false; };
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

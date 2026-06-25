@@ -1,3 +1,4 @@
+// src/pages/admin/SettingsPage.tsx
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getSettings, saveSettings } from "@/services/admin.service";
@@ -36,6 +37,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     fetchData();
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

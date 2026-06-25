@@ -1,3 +1,4 @@
+// src/components/ui/forms/FormImageUpload.tsx
 import { useState, useRef } from "react";
 import { useController, type Control, type RegisterOptions, type FieldValues, type Path } from "react-hook-form";
 import { Icon } from "@iconify/react";
@@ -40,7 +41,6 @@ export function FormImageUpload<T extends FieldValues>({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // value can be a string (URL) or a File object
   const previewUrl = (value as any) instanceof File ? URL.createObjectURL(value as any) : typeof value === "string" ? value : null;
   const fileName = (value as any) instanceof File ? (value as any).name : typeof value === "string" && value ? value.split("/").pop() : null;
 
@@ -64,12 +64,12 @@ export function FormImageUpload<T extends FieldValues>({
   };
 
   const handleFileSelection = (file: File) => {
-    // Validate size
+    
     if (file.size > maxSizeMB * 1024 * 1024) {
       alert(`File size exceeds ${maxSizeMB}MB`);
       return;
     }
-    // Update react-hook-form state
+    
     onChange(file);
   };
 

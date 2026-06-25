@@ -1,3 +1,4 @@
+// src/pages/admin/FaqPage.tsx
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
@@ -37,7 +38,7 @@ export function FaqPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const { control, register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<FaqFormData>({
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<FaqFormData>({
     mode: "onChange"
   });
 

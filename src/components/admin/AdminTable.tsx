@@ -1,3 +1,4 @@
+// src/components/admin/AdminTable.tsx
 import { ReactNode } from "react";
 
 export interface Column<T> {

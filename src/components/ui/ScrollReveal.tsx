@@ -1,7 +1,8 @@
+// src/components/ui/ScrollReveal.tsx
 import { motion } from "framer-motion";
 import { type ReactNode, type ElementType } from "react";
 
-// Cache to prevent React from remounting elements when creating dynamic motion components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const motionComponentCache = new Map<ElementType | string, any>();
 
 type ScrollRevealProps = {
@@ -25,8 +26,8 @@ export function ScrollReveal({ children, delay = 0, className = "", as = "div", 
       viewport={{ once: false, margin: "-10%" }}
       transition={{ 
         duration: 0.7, 
-        ease: [0.4, 0, 0.2, 1], // Custom cubic-bezier equivalent
-        delay: delay / 1000 // Framer motion uses seconds for delay
+        ease: [0.4, 0, 0.2, 1], 
+        delay: delay / 1000 
       }}
       className={className}
       {...props}

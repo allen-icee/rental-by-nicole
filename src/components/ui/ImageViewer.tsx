@@ -1,3 +1,4 @@
+// src/components/ui/ImageViewer.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 
@@ -22,7 +23,6 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   const lastPinchDistance = useRef<number | null>(null);
   const lastPanPoint = useRef<{ x: number; y: number } | null>(null);
 
-  // Close on Escape key, zoom on +/- keys
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -35,12 +35,13 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
     }
     
     document.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden"; // Prevent body scroll
+    document.body.style.overflow = "hidden"; 
     
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
 
   const clampZoom = (value: number) => {
@@ -77,10 +78,11 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       }
       return newScale;
     });
+   
   }, [clampPosition]);
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    // Determine zoom direction
+    
     const delta = event.deltaY < 0 ? -0.2 : 0.2;
     handleZoom(delta);
   };
@@ -93,7 +95,7 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLImageElement>) => {
-    // Only capture left click or touch
+    
     if (event.button !== 0 && event.pointerType === "mouse") return;
     
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -103,7 +105,7 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       setIsDragging(true);
       lastPanPoint.current = { x: event.clientX, y: event.clientY };
     } else if (pointers.current.size === 2) {
-      setIsDragging(false); // Stop panning when pinching
+      setIsDragging(false); 
       lastPinchDistance.current = getPinchDistance();
     }
   };
@@ -111,10 +113,8 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
   const handlePointerMove = (event: React.PointerEvent<HTMLImageElement>) => {
     if (!pointers.current.has(event.pointerId)) return;
 
-    // Update pointer position
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
-    // Handle Pinch (Zoom)
     if (pointers.current.size === 2) {
       const distance = getPinchDistance();
       if (!distance || !lastPinchDistance.current) {
@@ -127,7 +127,6 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       return;
     }
 
-    // Handle Pan (Drag)
     if (pointers.current.size === 1 && isDragging && lastPanPoint.current && scale > 1) {
       const deltaX = event.clientX - lastPanPoint.current.x;
       const deltaY = event.clientY - lastPanPoint.current.y;
@@ -147,7 +146,7 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       setIsDragging(false);
       lastPanPoint.current = null;
     } else if (pointers.current.size === 1) {
-      // Re-initialize pan base if falling back from pinch to single touch
+      
       const remainingPointer = Array.from(pointers.current.values())[0];
       if (scale > 1) {
         setIsDragging(true);
@@ -175,13 +174,13 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
       role="dialog"
       aria-modal="true"
       aria-label="Image viewer"
-      // Prevent clicks on backdrop from bubbling, close if clicked exactly on backdrop
+      
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       onWheel={handleWheel}
     >
-      {/* Live region for screen readers to announce zoom level */}
+      
       <div className="sr-only" aria-live="polite">
         {`Image zoomed to ${Math.round(scale * 100)}%`}
       </div>
@@ -213,13 +212,12 @@ export function ImageViewer({ imageUrl, altText = "Image viewer", onClose }: Ima
           className={`max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg pointer-events-auto touch-none ${cursorClass}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            // Add transition only if not currently dragging/pinching to ensure responsive tracking
+            
             transition: isDragging || pointers.current.size > 1 ? 'none' : 'transform 0.2s cubic-bezier(0.2, 0, 0.2, 1)'
           }}
         />
       </div>
 
-      {/* Subtle floating zoom controls */}
       <div 
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full bg-black/30 p-1.5 backdrop-blur-sm opacity-100"
       >

@@ -1,3 +1,4 @@
+// src/components/ui/AnnouncementToast.tsx
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -9,7 +10,7 @@ export function AnnouncementToast() {
 
   useEffect(() => {
     if (settings?.announcement_is_active && settings.announcement_text) {
-      // Slight delay to let the page load before sliding in
+      
       const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
     }
@@ -19,7 +20,7 @@ export function AnnouncementToast() {
 
   return (
     <>
-      {/* Minimized Floating Action Button */}
+      
       <div
         className={`fixed bottom-6 right-4 md:right-6 z-[100] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right ${
           isVisible && isMinimized ? "scale-100 opacity-60 hover:opacity-100 pointer-events-auto" : "scale-50 opacity-0 pointer-events-none"
@@ -36,7 +37,6 @@ export function AnnouncementToast() {
         </button>
       </div>
 
-      {/* Expanded Toast */}
       <div
         className={`fixed bottom-6 right-4 md:right-6 z-[100] w-[calc(100vw-2rem)] max-w-sm sm:max-w-md transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right ${
           isVisible && !isMinimized ? "scale-100 opacity-100 pointer-events-auto" : "scale-50 opacity-0 pointer-events-none"

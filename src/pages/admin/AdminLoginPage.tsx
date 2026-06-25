@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+// src/pages/admin/AdminLoginPage.tsx
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/toast-context";
@@ -87,7 +88,4 @@ export function AdminLoginPage() {
     </main>
   );
 }
-
-
-
 

@@ -1,3 +1,4 @@
+// src/pages/admin/AvailabilityPage.tsx
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
@@ -216,7 +217,6 @@ export function AvailabilityPage() {
         onPageSizeChange={setPageSize}
       />
 
-      {/* Add Modal */}
       <AdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -286,7 +286,6 @@ export function AvailabilityPage() {
         </form>
       </AdminModal>
 
-      {/* Delete Confirmation Modal */}
       <AdminModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

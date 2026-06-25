@@ -1,3 +1,4 @@
+// src/pages/public/HomePage.tsx
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -11,8 +12,6 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { siteConfig } from "@/config/site";
 import { AnnouncementToast } from "@/components/ui/AnnouncementToast";
 
-
-
 const processSteps = [
   { title: "Browse the Collection", desc: "Find the perfect dress or gown." },
   { title: "Check Availability", desc: "View availability notes on each item." },
@@ -21,11 +20,11 @@ const processSteps = [
 ];
 
 export function HomePage() {
-  const { settings } = useSettings();
+  useSettings();
   const heroImageRef = useParallax<HTMLImageElement>(0.35);
 
   const [newArrivals, setNewArrivals] = useState<CatalogItem[]>([]);
-  const [featuredItems, setFeaturedItems] = useState<CatalogItem[]>([]);
+  const [, setFeaturedItems] = useState<CatalogItem[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);
   const [curatedTags, setCuratedTags] = useState<string[]>([]);
@@ -61,7 +60,7 @@ export function HomePage() {
     <PublicLayout>
       <main>
         <AnnouncementToast />
-        {/* Left-Aligned Hero Section */}
+        
         <section className="relative isolate overflow-hidden bg-white min-h-[85vh] flex items-center">
           <div className="absolute inset-0 z-0">
             <img
@@ -108,7 +107,6 @@ export function HomePage() {
           </ScrollReveal>
         </section>
 
-        {/* New Arrivals with Mobile Carousel */}
         <section className="bg-brand-background/30 overflow-hidden py-16 md:py-24">
           <ScrollReveal className="mx-auto max-w-7xl px-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -185,7 +183,6 @@ export function HomePage() {
                   delay={index * 100}
                   className="group relative flex flex-col items-center justify-center p-6 md:p-8 md:w-[220px] bg-gradient-to-br from-brand-accent to-pink-600 rounded-[2rem] shadow-soft transition-all duration-300 hover:-translate-y-2 hover:shadow-barbie aspect-[1/1] md:aspect-[1/1.2] overflow-hidden"
                   as={Link}
-                  // @ts-ignore Link props bypass generic
                   to={`/catalogue?tag=${encodeURIComponent(collection)}`}
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

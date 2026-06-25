@@ -1,3 +1,4 @@
+// src/pages/admin/ReviewsPage.tsx
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/toast-context";
@@ -37,6 +38,7 @@ export function ReviewsPage() {
 
   useEffect(() => {
     loadItems();
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,3 +1,4 @@
+// src/features/catalogue/schemas/catalogue.schema.ts
 import { z } from "zod";
 
 export const catalogItemSchema = z.object({

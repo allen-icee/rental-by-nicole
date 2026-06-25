@@ -1,6 +1,7 @@
+// src/components/layout/PublicLayout.tsx
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { AdminLoginModal } from "@/components/admin/AdminLoginModal";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -20,7 +21,7 @@ type PublicLayoutProps = {
 
 export function PublicLayout({ children }: PublicLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [clickCount, setClickCount] = useState(0);
+  const [, setClickCount] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
@@ -45,7 +46,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     
     clickTimeoutRef.current = setTimeout(() => {
       setClickCount(0);
-    }, 1000); // reset if clicks aren't fast enough
+    }, 1000); 
   };
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
-          {/* Logo Section */}
+          
           <NavLink 
             to="/" 
             onClick={handleLogoClick}
@@ -75,7 +76,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             </div>
           </NavLink>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-3">
             {links.map((link) => (
               <NavLink
@@ -101,7 +101,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             ))}
           </nav>
 
-          {/* Mobile Hamburger Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden relative grid size-10 place-items-center rounded-full bg-white/80 border border-pink-100 text-brand-primary shadow-soft hover:bg-pink-50 transition-colors focus:outline-none"
@@ -114,7 +113,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           </button>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
         <div
           className={[
             "absolute inset-x-0 top-full flex flex-col bg-white/95 backdrop-blur-xl border-b border-pink-100 px-5 py-6 gap-2 shadow-barbie transition-all duration-500 ease-in-out md:hidden z-40",

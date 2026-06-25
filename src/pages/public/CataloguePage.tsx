@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+// src/pages/public/CataloguePage.tsx
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -58,7 +59,7 @@ export function CataloguePage() {
           const item = data.items.find((i) => i.id === itemParam);
           if (item) {
             setSelectedItem(item);
-            // Remove item from URL so it doesn't re-open on refresh or navigation
+            
             const newParams = new URLSearchParams(searchParams);
             newParams.delete("item");
             setSearchParams(newParams, { replace: true });
@@ -97,7 +98,7 @@ export function CataloguePage() {
     });
   }, [catalogueData.items, category, search, tag]);
 
-  const pageCount = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+  
   const visibleItems = filteredItems.slice(0, page * pageSize);
   const activeImageUrl = selectedItem?.images[activeImage] ?? "";
 

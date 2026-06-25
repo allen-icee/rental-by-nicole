@@ -1,3 +1,4 @@
+// src/config/site.ts
 export const siteConfig = {
   name: "Rental by Nicole",
   tagline: "Wear Your Dream Dress",

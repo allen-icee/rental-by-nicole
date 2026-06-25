@@ -1,4 +1,5 @@
-﻿import { createContext, useContext } from "react";
+// src/components/ui/toast-context.ts
+import { createContext, useContext } from "react";
 
 export type ToastTone = "success" | "error" | "info";
 

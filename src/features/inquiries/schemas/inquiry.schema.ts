@@ -1,3 +1,4 @@
+// src/features/inquiries/schemas/inquiry.schema.ts
 import { z } from "zod";
 
 export const inquirySchema = z.object({

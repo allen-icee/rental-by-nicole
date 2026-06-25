@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+// src/features/auth/ProtectedAdminRoute.tsx
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { isCurrentUserOwner } from "@/services/auth.service";

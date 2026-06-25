@@ -1,3 +1,4 @@
+// src/app/App.tsx
 import { useEffect } from "react";
 import Lenis from "lenis";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";

@@ -1,3 +1,4 @@
+// src/hooks/useParallax.ts
 import { useEffect, useRef } from "react";
 
 export function useParallax<T extends HTMLElement>(speed = 0.5) {
@@ -20,7 +21,7 @@ export function useParallax<T extends HTMLElement>(speed = 0.5) {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Run once on mount
+    
     onScroll();
 
     return () => window.removeEventListener("scroll", onScroll);

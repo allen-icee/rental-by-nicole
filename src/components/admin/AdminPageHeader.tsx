@@ -1,3 +1,4 @@
+// src/components/admin/AdminPageHeader.tsx
 import { Icon } from "@iconify/react";
 import { ReactNode } from "react";
 

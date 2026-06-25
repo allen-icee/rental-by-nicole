@@ -1,3 +1,4 @@
+// src/pages/public/RentalGuidePage.tsx
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
@@ -48,14 +49,12 @@ export function RentalGuidePage() {
     <PublicLayout>
       <main className="relative min-h-screen pb-24 bg-gradient-to-b from-brand-background via-white to-brand-background/30">
 
-        {/* Global Background Elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-brand-primary/10 blur-[120px]" />
           <div className="absolute top-[20%] right-[-5%] h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[120px]" />
           <div className="absolute bottom-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-brand-primary/10 blur-[120px]" />
         </div>
 
-        {/* S-Curve Journey Process */}
         <section className="mx-auto max-w-6xl px-5 py-20 relative z-10">
           <div className="text-center mb-10">
             <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">How to Rent?</h2>
@@ -64,7 +63,6 @@ export function RentalGuidePage() {
             {journeySteps.map((step, index) => {
               const isLast = index === journeySteps.length - 1;
 
-              // Explicit S-Curve Grid Positioning for Desktop
               const desktopGridClass = [
                 "md:col-start-1 md:row-start-1",
                 "md:col-start-2 md:row-start-1",
@@ -77,14 +75,12 @@ export function RentalGuidePage() {
               return (
                 <ScrollReveal key={step.title} delay={index * 100} className={`relative flex flex-col items-center text-center gap-5 ${desktopGridClass}`}>
 
-                  {/* Connectors (Rendered in the background of the cell) */}
                   <div className="absolute inset-0 pointer-events-none -z-10">
-                    {/* Mobile vertical connector */}
+                    
                     {!isLast && (
                       <div className="md:hidden absolute top-[24px] left-[50%] w-px h-[calc(100%+48px)] bg-brand-primary/20" />
                     )}
 
-                    {/* Desktop S-Curve Connectors */}
                     {(index === 0 || index === 1) && (
                       <div className="hidden md:block absolute top-[24px] left-[50%] w-[calc(100%+40px)] h-px bg-brand-primary/20" />
                     )}
@@ -96,7 +92,6 @@ export function RentalGuidePage() {
                     )}
                   </div>
 
-                  {/* Step Node (Heart) */}
                   <div className="relative shrink-0 z-10 transition-transform duration-500 hover:scale-110">
                     <div className="absolute inset-0 bg-brand-primary/20 blur-md rounded-full" />
                     <div className="relative grid size-12 place-items-center rounded-full bg-white border-2 border-pink-100 shadow-sm text-brand-primary">
@@ -104,7 +99,6 @@ export function RentalGuidePage() {
                     </div>
                   </div>
 
-                  {/* Step Card */}
                   <div className="group relative w-full rounded-3xl bg-white/80 backdrop-blur-sm p-6 md:p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-barbie border border-pink-50 overflow-hidden flex-1 flex flex-col">
                     <div className="absolute -top-4 -right-4 text-brand-secondary/5 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/10">
                       {step.icon === "RN-Logo-Pink" ? (
@@ -128,7 +122,6 @@ export function RentalGuidePage() {
           </div>
         </section>
 
-        {/* Important Policies / Guidelines Grid */}
         <section className="mx-auto max-w-6xl px-5 pb-20 relative z-10">
           <div className="text-center mb-10">
             <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">Things to Know</h2>
@@ -146,7 +139,6 @@ export function RentalGuidePage() {
           </div>
         </section>
 
-        {/* Call to Action */}
         <ScrollReveal className="mx-auto max-w-4xl px-5 relative z-10" as="section">
           <div className="rounded-[2.5rem] bg-gradient-to-br from-brand-accent to-pink-600 p-8 md:p-14 shadow-barbie overflow-hidden relative text-center text-white">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
