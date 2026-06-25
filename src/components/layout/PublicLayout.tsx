@@ -30,7 +30,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   const handleLogoClick = () => {
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    
+
     setClickCount((prev) => {
       const newCount = prev + 1;
       if (newCount >= 5) {
@@ -43,10 +43,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
     }
-    
+
     clickTimeoutRef.current = setTimeout(() => {
       setClickCount(0);
-    }, 1000); 
+    }, 1000);
   };
 
   useEffect(() => {
@@ -57,9 +57,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
-          
-          <NavLink 
-            to="/" 
+
+          <NavLink
+            to="/"
             onClick={handleLogoClick}
             className="flex items-center gap-3 group"
           >
@@ -106,9 +106,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             className="md:hidden relative grid size-10 place-items-center rounded-full bg-white/80 border border-pink-100 text-brand-primary shadow-soft hover:bg-pink-50 transition-colors focus:outline-none"
             aria-label="Toggle Menu"
           >
-            <Icon 
-              icon={isMobileMenuOpen ? "mdi:close" : "mdi:menu"} 
-              className="size-6 transition-transform duration-300" 
+            <Icon
+              icon={isMobileMenuOpen ? "mdi:close" : "mdi:menu"}
+              className="size-6 transition-transform duration-300"
             />
           </button>
         </div>
@@ -116,8 +116,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         <div
           className={[
             "absolute inset-x-0 top-full flex flex-col bg-white/95 backdrop-blur-xl border-b border-pink-100 px-5 py-6 gap-2 shadow-barbie transition-all duration-500 ease-in-out md:hidden z-40",
-            isMobileMenuOpen 
-              ? "translate-y-0 opacity-100 pointer-events-auto visible" 
+            isMobileMenuOpen
+              ? "translate-y-0 opacity-100 pointer-events-auto visible"
               : "-translate-y-8 opacity-0 pointer-events-none invisible"
           ].join(" ")}
         >
@@ -171,7 +171,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-center gap-4">
               {settings?.email && (
                 <a href={`mailto:${settings.email}`} className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Email Us">
@@ -190,10 +190,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               )}
             </div>
           </div>
-          
+
           <div className="mt-10 border-t border-pink-100 pt-6 text-center">
             <p className="text-xs font-semibold text-pink-950/40">
-              © {new Date().getFullYear()} {settings?.business_name || siteConfig.name}. All rights reserved.
+              © {new Date().getFullYear()} {settings?.business_name || siteConfig.name}. All rights reserved. ⊂⁠(⁠≽^•⩊•^≼⁠)⁠つ
             </p>
           </div>
         </div>
