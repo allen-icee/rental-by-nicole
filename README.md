@@ -1,67 +1,74 @@
 # Rental by Nicole
 
-Rental by Nicole is a modern, responsive web application designed for a fashion rental service. The platform serves as an interactive digital catalogue, allowing clients to effortlessly browse the collection, check item availability, view detailed sizing and measurements, and seamlessly submit reservation inquiries.
+Rental by Nicole is a modern web application designed for a boutique fashion rental service. It provides clients with an interactive digital storefront to browse collections and reserve items, while offering business owners a secure dashboard to manage inventory and track inquiries. This platform streamlines the rental process, solving the challenge of managing manual bookings and maintaining an up-to-date online catalogue.
 
-Behind the scenes, the application includes a secure administrative dashboard that empowers the business owner to effortlessly manage their entire inventory, track customer inquiries, approve customer reviews, and update their catalogue in real-time.
+---
 
-## Key Features
+## ✨ Features
 
-### 🛍️ Public Storefront
-- **Dynamic Catalogue:** Clients can browse gowns, dresses, Filipiniana attire, and accessories with high-quality image galleries.
-- **Advanced Filtering:** Users can filter the collection by categories, tags, and text search to find the perfect outfit for any occasion.
-- **Detailed Item Views:** Each item displays comprehensive sizing guides, exact garment measurements, and an interactive availability calendar showing reserved dates.
-- **Reservation Inquiries:** A streamlined form allows customers to select their rental dates and request reservations directly through the site.
-- **Customer Reviews:** Approved customer testimonials and outfit photos provide social proof and style inspiration.
+- **Dynamic Public Storefront**: Interactive catalogue with advanced filtering, comprehensive sizing guides, and an availability calendar.
+- **Reservation System**: Streamlined inquiry forms for customers to select rental dates and submit booking requests.
+- **Secure Admin Dashboard**: Comprehensive inventory management with full CRUD capabilities for items, categories, and tags.
+- **Inquiry & Review Management**: Centralized workflow for administrators to track customer inquiries and moderate user-submitted reviews.
 
-### 🔐 Secure Admin Dashboard
-- **Inventory Management:** Full CRUD (Create, Read, Update, Delete) capabilities for the catalogue.
-- **Nested Data Control:** Seamless management of individual sizes, measurements, and calendar reservation blockers for each piece.
-- **Inquiry Tracking:** A centralized system to review incoming customer inquiries, update their status, and manage the booking workflow.
-- **Content Curation:** Tools to add and edit categories, style tags, FAQ sections, and the service's rental guide rules.
-- **Review Moderation:** Tools to approve or reject customer-submitted testimonials before they appear publicly.
+---
 
-## Tech Stack Highlights
+<h3>Languages & Tools (⌐■_■)</h3>
 
-- **Frontend Core:** React, TypeScript, and Vite for a lightning-fast, highly responsive single-page application.
-- **Styling & Aesthetics:** Tailwind CSS v4 paired with custom premium design tokens (glassmorphism, micro-animations, and curated color palettes).
-- **State & Data Fetching:** TanStack Query for optimized data caching and seamless asynchronous operations.
-- **Forms & Validation:** React Hook Form coupled with Zod ensures strict data integrity for both customer submissions and complex admin inventory forms.
-- **Backend & Database:** Supabase handles PostgreSQL database operations, secure User Authentication, and media Storage buckets.
-- **Hosting:** Deployed edge-ready on Vercel.
+<p align="left">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="35" title="React"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" width="35" title="Vite"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="35" title="TypeScript"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" width="35" title="Tailwind CSS"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" width="35" title="Supabase"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" width="35" title="PostgreSQL"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/eslint/eslint-original.svg" width="35" title="ESLint"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vercel/vercel-original.svg" width="35" title="Vercel"/>
+</p>
 
-## Architecture Overview
+---
 
-The application utilizes a Single Page Application (SPA) architecture optimized for high interactivity. It adopts a Backend-as-a-Service (BaaS) model via Supabase, directly querying a relational PostgreSQL database from the client. Security is enforced at the database level using Row Level Security (RLS) policies, ensuring that only authenticated administrative users can mutate inventory data or view sensitive inquiries. Data fetching is heavily cached and synchronized using TanStack Query to minimize network requests and optimize the user experience.
+## 🚀 Getting Started
 
-## Running Locally
+### Prerequisites
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/rental-by-nicole.git
-   cd rental-by-nicole
-   ```
+- Node.js
+- npm
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### Installation
 
-3. **Environment Setup:**
-   Create a `.env.local` file in the root directory based on `.env.example`.
+```bash
+git clone https://github.com/yourusername/rental-by-nicole.git
+cd rental-by-nicole
+npm install
+```
 
-   ```env
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_SITE_URL=http://localhost:5173
-   ```
+### Environment Variables
 
-4. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_SITE_URL=
+```
 
-## Repository Usage Notice
+### Run
 
-This repository is shared primarily for learning, inspiration, and portfolio demonstration. Developers are welcome to study the architecture, database schema, and implementation details of the application. 
+```bash
+npm run dev
+```
 
-However, please do not directly copy this project, submit it as your own work, or redistribute it without explicit permission. If you are building a system inspired by this architecture, I encourage you to use the concepts to create your own unique implementation. Thank you for checking out the project!
+---
+
+## 📄 License
+
+Copyright (c) 2026 Nicole
+
+This project is shared for portfolio, educational, and learning purposes.
+
+You are welcome to study the codebase and use it as inspiration for your own projects.
+
+Copying substantial portions of this project, redistributing it, submitting it as your own work, or creating direct clones is not permitted without explicit permission.
+
+If this project inspires your work, please build your own implementation rather than copying the source code.
+
+All rights reserved.
