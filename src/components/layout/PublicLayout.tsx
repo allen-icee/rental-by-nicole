@@ -54,8 +54,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
-      <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
+    <div className="min-h-screen bg-transparent text-pink-950 flex flex-col relative overflow-hidden">
+      <header className="sticky top-0 z-50 border-b border-white/60 bg-white/40 backdrop-blur-2xl shadow-crystal transition-all duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
 
           <NavLink
@@ -63,8 +63,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             onClick={handleLogoClick}
             className="flex items-center gap-3 group"
           >
-            <div className="size-10 md:size-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 drop-shadow-sm">
-              <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="w-full h-full object-contain" />
+            <div className="relative size-10 md:size-12 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6 drop-shadow-md">
+              <div className="absolute inset-0 bg-brand-primary/20 blur-xl rounded-full animate-glow" />
+              <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="relative z-10 w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="block font-display text-xl md:text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none tracking-tight">
@@ -89,10 +90,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 }}
                 className={({ isActive }) =>
                   [
-                    "whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300",
+                    "whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all duration-400",
                     isActive
-                      ? "bg-brand-accent text-white shadow-soft"
-                      : "text-pink-950/70 hover:bg-pink-100 hover:text-brand-accent active:scale-95"
+                      ? "crystal-button text-white"
+                      : "text-pink-950/80 hover:bg-white/60 hover:text-brand-accent hover:shadow-soft active:scale-95"
                   ].join(" ")
                 }
               >
@@ -153,13 +154,14 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         {children}
       </main>
 
-      <footer className="border-t border-pink-100 bg-white/90 backdrop-blur-md mt-auto relative z-10 py-10 md:py-12">
+      <footer className="border-t border-white/50 bg-white/30 backdrop-blur-2xl mt-auto relative z-10 py-10 md:py-12">
         <div className="mx-auto max-w-7xl px-5">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-8">
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3">
-                <div className="size-10 drop-shadow-sm">
-                  <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="w-full h-full object-contain" />
+                <div className="relative size-10 drop-shadow-sm">
+                  <div className="absolute inset-0 bg-brand-primary/20 blur-xl rounded-full animate-glow" />
+                  <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="relative z-10 w-full h-full object-contain" />
                 </div>
                 <div>
                   <p className="font-display text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none">
@@ -174,17 +176,17 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
             <div className="flex justify-center gap-4">
               {settings?.email && (
-                <a href={`mailto:${settings.email}`} className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Email Us">
+                <a href={`mailto:${settings.email}`} className="grid size-10 place-items-center rounded-full border border-white/60 bg-white/50 text-brand-primary shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-brand-primary hover:text-white hover:shadow-crystal hover:border-brand-primary" aria-label="Email Us">
                   <Icon icon="mdi:email-outline" className="size-5" />
                 </a>
               )}
               {settings?.instagram_url && (
-                <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Instagram">
+                <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-white/60 bg-white/50 text-brand-primary shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-brand-primary hover:text-white hover:shadow-crystal hover:border-brand-primary" aria-label="Instagram">
                   <Icon icon="mdi:instagram" className="size-5" />
                 </a>
               )}
               {settings?.facebook_url && (
-                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-pink-100 bg-white text-brand-primary shadow-sm transition hover:scale-110 hover:border-brand-primary hover:bg-brand-primary hover:text-white" aria-label="Facebook">
+                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="grid size-10 place-items-center rounded-full border border-white/60 bg-white/50 text-brand-primary shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-brand-primary hover:text-white hover:shadow-crystal hover:border-brand-primary" aria-label="Facebook">
                   <Icon icon="mdi:facebook" className="size-5" />
                 </a>
               )}

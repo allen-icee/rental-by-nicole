@@ -63,20 +63,20 @@ export function HomePage() {
       <main>
         <AnnouncementToast />
         
-        <section className="relative isolate overflow-hidden bg-white min-h-[85vh] flex items-center">
+        <section className="relative isolate overflow-hidden min-h-[85vh] flex items-center mt-[-80px] pt-[80px]">
           <div className="absolute inset-0 z-0">
             <img
               ref={heroImageRef}
               src="/assets/boutique-hero.png"
               alt="Elegant rack of gowns and boutique accessories for fashion rental"
-              className="h-[120%] w-full object-cover object-top blur-[2px] origin-top will-change-transform"
+              className="h-[120%] w-full object-cover object-top opacity-50 blur-[2px] origin-top will-change-transform"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent z-0" />
-          <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] z-0" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-background/90 via-white/50 to-transparent z-0 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-brand-background/30 backdrop-blur-[2px] z-0" />
 
           <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10">
-            <div className="max-w-2xl text-left">
+            <div className="max-w-2xl text-left glass-panel p-8 md:p-12 shadow-barbie animate-float-slow">
               <p className="text-sm font-bold uppercase tracking-[0.35em] text-brand-primary">
                 {siteConfig.name}
               </p>
@@ -90,17 +90,16 @@ export function HomePage() {
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link
                   to="/catalogue"
-                  className="group relative inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-8 py-4 font-bold text-white shadow-barbie transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_30px_rgba(255,47,168,0.3)] overflow-hidden"
+                  className="crystal-button group inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold text-white shadow-crystal"
                 >
-                  <span className="absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300 group-hover:translate-y-0" />
                   <span className="relative z-10 flex items-center gap-2">
                     Browse Catalogue
-                    <Icon icon="mdi:arrow-right" className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    <Icon icon="mdi:magic-staff" className="size-5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
                   </span>
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center rounded-full border-2 border-brand-accent/20 bg-white/90 px-8 py-4 font-bold text-brand-accent backdrop-blur-md transition-all duration-300 hover:border-brand-accent hover:bg-brand-background/90 hover:shadow-soft"
+                  className="inline-flex items-center justify-center rounded-full border-2 border-white/80 bg-white/40 px-8 py-4 font-bold text-brand-accent backdrop-blur-md transition-all duration-300 hover:bg-white/70 hover:shadow-barbie"
                 >
                   Send Inquiry
                 </Link>
@@ -109,7 +108,7 @@ export function HomePage() {
           </ScrollReveal>
         </section>
 
-        <section className="bg-brand-background/30 overflow-hidden py-16 md:py-24">
+        <section className="relative bg-transparent py-16 md:py-24">
           <ScrollReveal className="mx-auto max-w-7xl px-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
@@ -130,15 +129,17 @@ export function HomePage() {
           <ScrollReveal delay={150} className="mx-auto max-w-7xl mt-10">
             {newArrivals.length > 0 ? (
               <Carousel autoScrollDelay={3500}>
-                {newArrivals.map((item) => (
-                  <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
-                  <div className="overflow-hidden h-80 relative">
-                    <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="absolute bottom-6 left-0 right-0 flex justify-center translate-y-8 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                      <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm text-brand-accent px-5 py-2 rounded-full text-sm font-bold shadow-soft">
-                        Explore Item <Icon icon="mdi:arrow-right" className="size-4" />
-                      </span>
+                {newArrivals.map((item, i) => (
+                  <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-[2rem] glass-card animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
+                  <div className="overflow-hidden h-80 relative p-3">
+                    <div className="w-full h-full rounded-[1.5rem] overflow-hidden relative">
+                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="absolute bottom-6 left-0 right-0 flex justify-center translate-y-8 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                        <span className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md text-brand-accent px-5 py-2 rounded-full text-sm font-bold shadow-crystal">
+                          Explore Item <Icon icon="mdi:sparkles" className="size-4 animate-pulse" />
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex flex-1 flex-col p-6 items-center text-center">
@@ -159,15 +160,15 @@ export function HomePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={200} className="mt-8 px-5 text-center md:hidden">
-            <Link to="/catalogue" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 font-bold text-brand-accent shadow-sm border border-pink-100 transition hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
+            <Link to="/catalogue" className="crystal-button group inline-flex items-center gap-2 rounded-full px-8 py-3.5 font-bold text-white shadow-crystal">
               See More Arrivals
-              <Icon icon="mdi:arrow-right" className="size-5 transition-transform group-hover:translate-x-1" />
+              <Icon icon="mdi:sparkles" className="size-5 transition-transform group-hover:scale-110" />
             </Link>
           </ScrollReveal>
         </section>
 
         {/* Curated Collections */}
-        <section className="bg-white py-16 md:py-24 overflow-hidden">
+        <section className="bg-transparent py-16 md:py-24 relative overflow-hidden">
           <div className="mx-auto max-w-7xl px-5">
             <ScrollReveal className="text-center max-w-2xl mx-auto">
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
@@ -183,20 +184,20 @@ export function HomePage() {
                 <ScrollReveal
                   key={collection}
                   delay={index * 100}
-                  className="group relative flex flex-col items-center justify-center p-6 md:p-8 md:w-[220px] bg-gradient-to-br from-brand-accent to-pink-600 rounded-[2rem] shadow-soft transition-all duration-300 hover:-translate-y-2 hover:shadow-barbie aspect-[1/1] md:aspect-[1/1.2] overflow-hidden"
+                  className="group relative flex flex-col items-center justify-center p-6 md:p-8 md:w-[220px] rounded-[2.5rem] glass-card shadow-barbie transition-all duration-500 hover:-translate-y-3 hover:shadow-crystal aspect-[1/1] md:aspect-[1/1.2] overflow-hidden"
                   as={Link}
                   to={`/catalogue?tag=${encodeURIComponent(collection)}`}
                 >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/10 to-brand-accent/20 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <span className="grid size-10 md:size-12 place-items-center rounded-full bg-white/20 backdrop-blur-sm text-white mb-3 md:mb-4 p-2">
-                      <img src="/assets/RN-Logo-White.png" alt="" className="w-full h-full object-contain drop-shadow-sm" />
+                    <span className="grid size-12 place-items-center rounded-full bg-white/50 backdrop-blur-md shadow-inner text-brand-accent mb-3 md:mb-4 p-2 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                      <Icon icon="mdi:crown" className="size-6 opacity-80" />
                     </span>
-                    <p className="font-display text-lg md:text-xl font-bold text-white text-balance leading-tight group-hover:text-pink-100 transition-colors">
+                    <p className="font-display text-lg md:text-xl font-bold text-brand-accent text-balance leading-tight group-hover:text-brand-primary transition-colors">
                       {collection}
                     </p>
-                    <p className="mt-2 md:mt-3 text-[10px] font-bold uppercase tracking-widest text-white/80 flex items-center gap-1 group-hover:text-white transition-colors">
-                      Explore <Icon icon="mdi:arrow-right" className="size-3 md:size-4 transition-transform group-hover:translate-x-1" />
+                    <p className="mt-2 md:mt-3 text-[10px] font-bold uppercase tracking-widest text-brand-primary/80 flex items-center gap-1 group-hover:text-brand-primary transition-colors">
+                      Explore <Icon icon="mdi:magic-staff" className="size-3 md:size-4 transition-transform group-hover:translate-x-1" />
                     </p>
                   </div>
                 </ScrollReveal>
@@ -206,8 +207,8 @@ export function HomePage() {
         </section>
 
         {/* Rental Process */}
-        <section className="bg-pink-50/60 py-16 md:py-24">
-          <div className="mx-auto max-w-7xl px-5 text-center">
+        <section className="py-16 md:py-24 px-5">
+          <div className="mx-auto max-w-7xl glass-panel p-10 md:p-16 text-center animate-float-slow">
             <ScrollReveal className="max-w-2xl mx-auto">
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
                 Rental Process
@@ -237,16 +238,16 @@ export function HomePage() {
             </div>
 
             <div className="mt-12 text-center relative z-10">
-              <Link to="/rental-guide" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-bold uppercase tracking-widest text-xs text-brand-accent shadow-sm border border-pink-100 transition hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
+              <Link to="/rental-guide" className="crystal-button group inline-flex items-center gap-2 rounded-full px-8 py-4 font-bold uppercase tracking-widest text-xs text-white shadow-crystal">
                 Explore Full Rental Guide
-                <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
+                <Icon icon="mdi:sparkles" className="size-4 transition-transform group-hover:scale-125" />
               </Link>
             </div>
           </div>
         </section>
 
         {/* Customer Feedback */}
-        <section className="bg-white py-16 md:py-24">
+        <section className="bg-transparent py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5 grid gap-12 lg:grid-cols-[1fr_1.5fr] items-center">
             <ScrollReveal>
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">
@@ -259,7 +260,7 @@ export function HomePage() {
                 See how exceptional pieces and dedicated service have helped clients feel their best.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                <Link to="/testimonials" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3.5 font-bold text-white shadow-barbie transition hover:scale-105 hover:bg-brand-primary">
+                <Link to="/testimonials" className="crystal-button w-full sm:w-auto inline-flex items-center justify-center rounded-full px-8 py-3.5 font-bold text-white shadow-crystal">
                   Read More Customer Feedback
                 </Link>
                 <Link to="/contact" className="group inline-flex items-center gap-2 text-sm font-bold text-brand-accent transition hover:text-brand-primary">
@@ -270,8 +271,8 @@ export function HomePage() {
             </ScrollReveal>
             <div className="grid gap-6 sm:grid-cols-2">
               {testimonials.slice(0, 2).map((item, index) => (
-                <ScrollReveal key={item.name} delay={index * 200} className="group relative flex flex-col justify-between overflow-hidden rounded-[2.5rem] border border-pink-100 bg-white/60 p-8 text-left shadow-soft backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-barbie">
-                  <Icon icon="mdi:format-quote-open" className="absolute right-6 top-6 text-5xl text-brand-secondary/20 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/40" />
+                <ScrollReveal key={item.name} delay={index * 200} className="group relative flex flex-col justify-between overflow-hidden rounded-[2.5rem] glass-card p-8 text-left animate-float" style={{ animationDelay: `${index * 1.5}s` }}>
+                  <Icon icon="mdi:crown" className="absolute right-6 top-6 text-5xl text-brand-primary/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:text-brand-primary/20" />
 
                   <div>
                     <div className="mb-6 flex gap-1 text-brand-primary">
@@ -298,7 +299,7 @@ export function HomePage() {
         </section>
 
         {/* FAQ Preview - Redesigned Cards */}
-        <section className="bg-brand-background/30 py-16 md:py-24">
+        <section className="bg-transparent py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5">
             <ScrollReveal className="text-center max-w-2xl mx-auto">
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
@@ -310,7 +311,7 @@ export function HomePage() {
             </ScrollReveal>
             <div className="mt-12 md:mt-16 max-w-3xl mx-auto space-y-4">
               {faqs.slice(0, 2).map((faq, index) => (
-                <ScrollReveal key={faq.question} delay={index * 150} as="details" className="group rounded-3xl bg-white border border-pink-100 p-6 md:p-8 shadow-[0_4px_20px_rgba(255,47,168,0.03)] transition-all duration-300 hover:border-brand-primary/40 hover:shadow-barbie [&_summary::-webkit-details-marker]:hidden overflow-hidden relative">
+                <ScrollReveal key={faq.question} delay={index * 150} as="details" className="group glass-card p-6 md:p-8 [&_summary::-webkit-details-marker]:hidden overflow-hidden relative">
                   <summary className="relative z-10 flex cursor-pointer items-center justify-between font-bold text-brand-accent text-lg md:text-xl outline-none">
                     {faq.question}
                     <span className="ml-4 flex size-10 items-center justify-center shrink-0 rounded-full bg-pink-50 text-brand-primary transition-all duration-500 group-open:rotate-180 group-open:bg-brand-primary group-open:text-white group-hover:scale-110">
@@ -325,28 +326,37 @@ export function HomePage() {
               ))}
             </div>
             <div className="mt-12 text-center">
-              <Link to="/faq" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-bold uppercase tracking-widest text-xs text-brand-accent shadow-sm border border-pink-100 transition-all hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
+              <Link to="/faq" className="crystal-button group inline-flex items-center gap-2 rounded-full px-8 py-4 font-bold uppercase tracking-widest text-xs text-white shadow-crystal">
                 Explore All FAQs
-                <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
+                <Icon icon="mdi:sparkles" className="size-4 transition-transform group-hover:scale-125" />
               </Link>
             </div>
           </div>
         </section>
 
         {/* Bottom CTA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-brand-accent via-brand-primary to-pink-400 text-white">
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-5 py-28 text-center">
-            <div className="max-w-3xl">
-              <h2 className="font-display text-5xl md:text-6xl font-bold leading-tight">Found the right look?</h2>
-              <p className="mt-6 text-xl md:text-2xl text-white/90 font-medium">Send an inquiry and the details will be confirmed with you personally.</p>
+        <section className="py-16 md:py-24 px-5">
+          <div className="relative mx-auto max-w-7xl crystal-button rounded-[3rem] px-5 py-28 text-center text-white overflow-hidden shadow-crystal">
+            <div className="absolute inset-0 bg-brand-primary/40 backdrop-blur-md" />
+            <div className="absolute top-10 left-10 text-white/30 animate-float">
+              <Icon icon="mdi:creation" className="size-20" />
             </div>
-            <Link
-              to="/contact"
-              className="group inline-flex items-center justify-center gap-3 rounded-full bg-white px-12 py-6 text-xl font-bold text-brand-accent shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 hover:scale-105 hover:bg-brand-background"
-            >
-              Contact
-              <Icon icon="mdi:paper-plane" className="size-6 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </Link>
+            <div className="absolute bottom-10 right-10 text-white/30 animate-float" style={{ animationDelay: '2s' }}>
+              <Icon icon="mdi:creation" className="size-24" />
+            </div>
+            <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center gap-10">
+              <div>
+                <h2 className="font-display text-5xl md:text-6xl font-bold leading-tight">Ready for a magical look?</h2>
+                <p className="mt-6 text-xl md:text-2xl text-white/90 font-medium">Send an inquiry and let us bring your dream dress to life.</p>
+              </div>
+              <Link
+                to="/contact"
+                className="group inline-flex items-center justify-center gap-3 rounded-full bg-white/90 backdrop-blur-xl px-12 py-6 text-xl font-bold text-brand-accent shadow-barbie transition-all duration-500 hover:scale-105 hover:bg-white"
+              >
+                Send Inquiry
+                <Icon icon="mdi:magic-staff" className="size-6 transition-transform duration-500 group-hover:translate-x-1 group-hover:-rotate-12" />
+              </Link>
+            </div>
           </div>
         </section>
       </main>
