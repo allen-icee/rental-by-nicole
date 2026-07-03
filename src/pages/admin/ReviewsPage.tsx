@@ -371,7 +371,7 @@ export function ReviewsPage() {
         title="Delete Review"
         onClose={() => setDeleteTarget(null)}
       >
-        <div className="space-y-6">
+        <div className="space-y-4">
           <p className="text-pink-950/70">
             Are you sure you want to permanently delete the review from <strong>{deleteTarget?.name}</strong>? This action cannot be undone.
           </p>

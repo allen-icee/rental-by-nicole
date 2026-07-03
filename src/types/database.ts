@@ -73,13 +73,13 @@ export type Database = {
         name: string;
         slug: string;
         description: string;
-        status: "draft" | "published" | "archived";
         availability_status: "available" | "reserved" | "unavailable";
         featured: boolean;
         is_new_arrival: boolean;
-        price_display: string;
+        price: number;
+        rental_days: number;
+        price_display: string | null;
         reel_url: string | null;
-        sort_order: number;
         archived_at: string | null;
         created_at: string;
         updated_at: string;
@@ -123,6 +123,7 @@ export type Database = {
         catalog_item_id: string;
         start_date: string | null;
         end_date: string | null;
+        customer_name: string | null;
         label: string | null;
         notes: string | null;
         created_at: string;
@@ -196,6 +197,25 @@ export type Database = {
         metadata: Json;
         created_at: string;
       }>;
+      rentals: Table<{
+        id: string;
+        tracking_number: string;
+        date: string;
+        customer_name: string;
+        rented_items: { item_id: string; item_name: string; quantity: number; unit_price: number; amount: number }[];
+        amount: number;
+        total_income: number;
+        status: "paid and verified" | "pending" | "unpaid";
+        payment_method: string | null;
+        created_at: string;
+        updated_at: string;
+      }>;
+      page_views: Table<{
+        id: string;
+        path: string;
+        session_id: string | null;
+        created_at: string;
+      }>;
     };
     Views: Record<string, never>;
     Functions: {
@@ -214,6 +234,7 @@ export type Database = {
       availability_status: "available" | "reserved" | "unavailable";
       inquiry_status: "new" | "contacted" | "completed" | "archived";
       review_status: "pending" | "approved" | "rejected" | "archived";
+      rental_status: "paid and verified" | "pending" | "unpaid";
     };
     CompositeTypes: Record<string, never>;
   };

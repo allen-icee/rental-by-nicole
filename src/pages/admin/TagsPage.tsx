@@ -209,7 +209,7 @@ export function TagsPage() {
         title={editingItem ? "Edit Tag" : "Add Tag"}
         maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             name="name"
             control={control}
@@ -226,7 +226,6 @@ export function TagsPage() {
             label="Sort Order"
             min={0}
             helperText="Lower numbers appear first."
-
           />
 
           <FormToggle
@@ -236,7 +235,7 @@ export function TagsPage() {
             description="Inactive tags are hidden from customers."
           />
 
-          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
+          <div className="pt-4 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}

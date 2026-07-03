@@ -11,6 +11,7 @@ import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 import { useSettings } from "@/contexts/SettingsContext";
 import { siteConfig } from "@/config/site";
 import { AnnouncementToast } from "@/components/ui/AnnouncementToast";
+import { useTrackPageView } from "@/features/analytics/usePageViews";
 
 const processSteps = [
   { title: "Browse the Collection", desc: "Find the perfect dress or gown." },
@@ -22,6 +23,7 @@ const processSteps = [
 export function HomePage() {
   useSettings();
   const heroImageRef = useParallax<HTMLImageElement>(0.35);
+  useTrackPageView();
 
   const [newArrivals, setNewArrivals] = useState<CatalogItem[]>([]);
   const [, setFeaturedItems] = useState<CatalogItem[]>([]);

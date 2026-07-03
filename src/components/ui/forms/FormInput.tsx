@@ -9,7 +9,7 @@ type FormInputProps<T extends FieldValues> = {
   helperText?: string;
   placeholder?: string;
   required?: boolean;
-  type?: "text" | "number" | "email" | "password" | "url" | "date";
+  type?: "text" | "number" | "email" | "password" | "url" | "date" | "datetime-local";
   maxLength?: number;
   min?: number;
   max?: number;
@@ -85,22 +85,24 @@ export function FormInput<T extends FieldValues>({
         )}
       </div>
 
-      <div className="min-h-[20px]">
-        {error ? (
-          <p className="text-xs font-semibold text-red-500 mt-0.5 flex items-center gap-1">
-            {error.message}
-          </p>
-        ) : helperText || (type === "number" && (min !== undefined || max !== undefined)) ? (
-          <p className="text-xs font-medium text-pink-950/60 mt-0.5">
-            {helperText}
-            {type === "number" && (min !== undefined || max !== undefined) && (
-              <span className="block mt-0.5">
-                Valid range: {min !== undefined ? min : "-∞"} to {max !== undefined ? max : "∞"}
-              </span>
-            )}
-          </p>
-        ) : null}
-      </div>
+      {(error || helperText || (type === "number" && (min !== undefined || max !== undefined))) && (
+        <div className="mt-1">
+          {error ? (
+            <p className="text-xs font-semibold text-red-500 flex items-center gap-1">
+              {error.message}
+            </p>
+          ) : (
+            <p className="text-xs font-medium text-pink-950/60">
+              {helperText}
+              {type === "number" && (min !== undefined || max !== undefined) && (
+                <span className="block mt-0.5">
+                  Valid range: {min !== undefined ? min : "-∞"} to {max !== undefined ? max : "∞"}
+                </span>
+              )}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

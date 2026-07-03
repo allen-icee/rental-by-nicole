@@ -1,5 +1,4 @@
 // src/features/catalogue/types/catalogue.ts
-export type CatalogItemStatus = "draft" | "published" | "archived";
 
 export type AvailabilityStatus = "available" | "reserved" | "unavailable";
 
@@ -10,7 +9,6 @@ export type CatalogItem = {
   description: string;
   category: string;
   tags: string[];
-  status: CatalogItemStatus;
   availabilityStatus: AvailabilityStatus;
   featured: boolean;
   isNewArrival: boolean;

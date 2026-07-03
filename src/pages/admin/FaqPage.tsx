@@ -213,7 +213,7 @@ export function FaqPage() {
         title={editingItem ? "Edit FAQ" : "Add FAQ"}
         maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             name="category"
             control={control}
@@ -256,7 +256,7 @@ export function FaqPage() {
             description="Unpublished FAQs are hidden from customers."
           />
 
-          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
+          <div className="pt-4 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}

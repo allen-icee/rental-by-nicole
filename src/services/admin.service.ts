@@ -29,13 +29,12 @@ export type CatalogFormInput = {
   name: string;
   slug: string;
   description: string;
-  status: CatalogRow["status"];
   availability_status: CatalogRow["availability_status"];
   featured: boolean;
   is_new_arrival: boolean;
-  price_display: string;
+  price: number;
+  rental_days: number;
   reel_url: string | null;
-  sort_order: number;
   sizes: {
     id?: string;
     size_label: string;
@@ -67,7 +66,7 @@ export type CatalogFormInput = {
 export async function getAdminStats(): Promise<AdminStats> {
   try {
     const [items, inquiries, reviews] = await Promise.all([
-      supabase.from("catalog_items").select("id", { count: "exact", head: true }).eq("status", "published"),
+      supabase.from("catalog_items").select("id", { count: "exact", head: true }),
       supabase.from("inquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
       supabase.from("customer_reviews").select("id", { count: "exact", head: true }).eq("status", "pending")
     ]);
@@ -126,19 +125,19 @@ export async function getPaginatedData<T extends keyof Tables>(
 }
 
 export async function getAllCategories() {
-  const { data, error } = await supabase.from("categories").select("*").order("sort_order");
+  const { data, error } = await supabase.from("categories").select("*").order("name");
   if (error) throw error;
   return data;
 }
 
 export async function getAllTags() {
-  const { data, error } = await supabase.from("tags").select("*").eq("is_active", true).order("sort_order");
+  const { data, error } = await supabase.from("tags").select("*").eq("is_active", true).order("name");
   if (error) throw error;
   return data;
 }
 
 export async function getAllCatalogItems() {
-  const { data, error } = await supabase.from("catalog_items").select("id, name").order("sort_order");
+  const { data, error } = await supabase.from("catalog_items").select("id, name").order("name");
   if (error) throw error;
   return data;
 }
@@ -246,14 +245,12 @@ export async function saveCatalogItem(input: CatalogFormInput) {
     name: input.name,
     slug: input.slug || slugify(input.name),
     description: input.description,
-    status: input.status,
     availability_status: input.availability_status,
     featured: input.featured,
     is_new_arrival: input.is_new_arrival,
-    price_display: input.price_display,
-    reel_url: input.reel_url || null,
-    sort_order: input.sort_order,
-    archived_at: input.status === "archived" ? new Date().toISOString() : null
+    price: input.price,
+    rental_days: input.rental_days,
+    reel_url: input.reel_url || null
   };
 
   let itemId = input.id;
@@ -426,12 +423,7 @@ export async function deleteCatalogItem(id: string) {
   return supabase.from("catalog_items").delete().eq("id", id);
 }
 
-export async function updateCatalogStatus(id: string, status: CatalogRow["status"]) {
-  return supabase
-    .from("catalog_items")
-    .update({ status, archived_at: status === "archived" ? new Date().toISOString() : null })
-    .eq("id", id);
-}
+
 
 export async function updateCatalogAvailabilityStatus(id: string, availability_status: CatalogRow["availability_status"]) {
   return supabase
@@ -440,13 +432,21 @@ export async function updateCatalogAvailabilityStatus(id: string, availability_s
     .eq("id", id);
 }
 
-export async function saveAvailability(input: { id?: string; catalog_item_id: string; start_date: string; end_date: string; label?: string; notes?: string }) {
+export async function updateCatalogFeaturedStatus(id: string, featured: boolean) {
+  return supabase.from("catalog_items").update({ featured }).eq("id", id);
+}
+
+export async function updateCatalogNewArrivalStatus(id: string, is_new_arrival: boolean) {
+  return supabase.from("catalog_items").update({ is_new_arrival }).eq("id", id);
+}
+
+export async function saveAvailability(input: { id?: string; catalog_item_id: string; start_date: string; end_date: string; label?: string; customer_name?: string }) {
   const payload = {
     catalog_item_id: input.catalog_item_id,
     start_date: input.start_date || null,
     end_date: input.end_date || null,
     label: input.label || null,
-    notes: input.notes || null,
+    customer_name: input.customer_name || null,
   };
   return input.id
     ? supabase.from("availability_ranges").update(payload).eq("id", input.id)
@@ -504,8 +504,6 @@ export async function saveSettings(input: {
   id?: string;
   business_name: string;
   tagline: string;
-  phone?: string;
-  secondary_phone?: string;
   email?: string;
   secondary_email?: string;
   facebook_url?: string;
@@ -520,8 +518,6 @@ export async function saveSettings(input: {
   const payload = {
     business_name: input.business_name,
     tagline: input.tagline,
-    phone: input.phone || null,
-    secondary_phone: input.secondary_phone || null,
     email: input.email || null,
     secondary_email: input.secondary_email || null,
     facebook_url: input.facebook_url || null,

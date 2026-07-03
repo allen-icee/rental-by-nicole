@@ -1,3 +1,4 @@
+-- supabase/owner-setup.example.sql
 ﻿-- Owner account setup for Rental by Nicole
 -- 1. Create each account first in Supabase Authentication > Users.
 -- 2. Copy each Auth user UUID.

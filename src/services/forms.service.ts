@@ -22,8 +22,8 @@ export async function submitInquiry(input: InquiryInput): Promise<SubmissionResu
 
   const { error } = await supabase.from("inquiries").insert({
     name: parsed.data.name,
-    phone: parsed.data.phone,
-    email: parsed.data.email || null,
+    phone: "",
+    email: parsed.data.email,
     message: parsed.data.message,
     selected_item_id: parsed.data.selectedItemId || null,
     status: "new"

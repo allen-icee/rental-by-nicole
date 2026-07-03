@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, fetchItemDetails, getAllCategories, getAllTags, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, type CatalogRow, type CategoryRow, type CatalogFormInput, type TagRow } from "@/services/admin.service";
+import { getPaginatedData, fetchItemDetails, getAllCategories, getAllTags, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, updateCatalogFeaturedStatus, updateCatalogNewArrivalStatus, saveAvailability, deleteAvailability, type CatalogRow, type CategoryRow, type CatalogFormInput, type TagRow } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -35,6 +35,107 @@ export function CataloguePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
+  // Reserve Availability Modal State
+  const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+  const [reservingItem, setReservingItem] = useState<CatalogRow | null>(null);
+  const [existingReservations, setExistingReservations] = useState<any[]>([]);
+  const [isReserveLoading, setIsReserveLoading] = useState(false);
+  
+  const { control: reserveControl, handleSubmit: handleReserveSubmit, reset: resetReserve, setValue: setReserveValue, watch: watchReserve, formState: { isSubmitting: isReserveSubmitting, isValid: isReserveValid, isDirty: isReserveDirty } } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      start_date: "",
+      end_date: "",
+      customer_name: "",
+      label: "",
+      availability_status: "available" as CatalogRow["availability_status"]
+    }
+  });
+
+  const reserveStartDate = watchReserve("start_date");
+
+  useEffect(() => {
+    if (reserveStartDate && reservingItem?.rental_days) {
+      const start = new Date(reserveStartDate);
+      start.setDate(start.getDate() + reservingItem.rental_days);
+      setReserveValue("end_date", start.toISOString().split("T")[0], { shouldValidate: true, shouldDirty: true });
+    }
+  }, [reserveStartDate, reservingItem, setReserveValue]);
+
+  async function onReserveSubmit(data: any) {
+    if (!reservingItem) return;
+    try {
+      await saveAvailability({
+        catalog_item_id: reservingItem.id,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        customer_name: data.customer_name,
+        label: data.label,
+      });
+      if (reservingItem.availability_status !== data.availability_status) {
+        await handleAvailabilityChange(reservingItem.id, data.availability_status);
+      } else {
+        fetchData();
+      }
+      showToast({ tone: "success", title: "Success", message: "Dates reserved successfully." });
+      
+      // Refresh reservations
+      loadReservations(reservingItem);
+      
+      // Reset form but keep status
+      resetReserve({
+        start_date: "",
+        end_date: "",
+        customer_name: "",
+        label: "",
+        availability_status: data.availability_status
+      });
+    } catch (error) {
+      console.error(error);
+      showToast({ tone: "error", title: "Error", message: "Failed to reserve dates." });
+    }
+  }
+
+  async function loadReservations(item: CatalogRow) {
+    setIsReserveLoading(true);
+    try {
+      const details = await fetchItemDetails(item.id);
+      setExistingReservations(details.reservedRanges || []);
+    } catch (err) {
+      console.error(err);
+      showToast({ tone: "error", title: "Error", message: "Failed to load existing reservations." });
+    } finally {
+      setIsReserveLoading(false);
+    }
+  }
+
+  async function handleOpenReserveModal(item: CatalogRow) {
+    setReservingItem(item);
+    setExistingReservations([]);
+    resetReserve({
+      start_date: "",
+      end_date: "",
+      customer_name: "",
+      label: "",
+      availability_status: item.availability_status
+    });
+    setIsReserveModalOpen(true);
+    await loadReservations(item);
+  }
+
+  async function handleDeleteReservation(id: string) {
+    try {
+      await deleteAvailability(id);
+      showToast({ tone: "success", title: "Success", message: "Reservation deleted." });
+      if (reservingItem) {
+        await loadReservations(reservingItem);
+      }
+    } catch (error) {
+      console.error(error);
+      showToast({ tone: "error", title: "Error", message: "Failed to delete reservation." });
+    }
+  }
+
   const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
     mode: "onChange"
   });
@@ -42,11 +143,6 @@ export function CataloguePage() {
   const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({
     control,
     name: "sizes"
-  });
-
-  const { fields: rangeFields, append: appendRange, remove: removeRange } = useFieldArray({
-    control,
-    name: "reservedRanges"
   });
 
   useEffect(() => {
@@ -101,13 +197,12 @@ export function CataloguePage() {
           name: item.name,
           slug: item.slug,
           description: item.description || "",
-          status: item.status,
           availability_status: item.availability_status,
           featured: item.featured,
           is_new_arrival: item.is_new_arrival,
-          price_display: item.price_display || "",
+          price: item.price || 0,
+          rental_days: item.rental_days || 2,
           reel_url: item.reel_url || "",
-          sort_order: item.sort_order,
           sizes: details.sizes,
           reservedRanges: details.reservedRanges,
           images: details.images,
@@ -126,13 +221,12 @@ export function CataloguePage() {
         name: "",
         slug: "",
         description: "",
-        status: "draft",
         availability_status: "available",
         featured: false,
         is_new_arrival: false,
-        price_display: "",
+        price: 0,
+        rental_days: 2,
         reel_url: "",
-        sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         sizes: [],
         reservedRanges: [],
         images: [],
@@ -180,11 +274,36 @@ export function CataloguePage() {
           item.id === id ? { ...item, availability_status: newStatus } : item
         )
       );
+      if (reservingItem?.id === id) {
+        setReservingItem(prev => prev ? { ...prev, availability_status: newStatus } : null);
+      }
       await updateCatalogAvailabilityStatus(id, newStatus);
       showToast({ tone: "success", title: "Updated", message: "Item availability changed." });
     } catch (error) {
       console.error(error);
       showToast({ tone: "error", title: "Error", message: "Failed to update availability." });
+      fetchData();
+    }
+  }
+
+  async function handleToggleFeatured(id: string, currentVal: boolean) {
+    try {
+      setData(prev => prev.map(i => i.id === id ? { ...i, featured: !currentVal } : i));
+      await updateCatalogFeaturedStatus(id, !currentVal);
+      showToast({ tone: "success", title: "Updated", message: "Featured status updated." });
+    } catch (err) {
+      console.error(err);
+      fetchData();
+    }
+  }
+
+  async function handleToggleNewArrival(id: string, currentVal: boolean) {
+    try {
+      setData(prev => prev.map(i => i.id === id ? { ...i, is_new_arrival: !currentVal } : i));
+      await updateCatalogNewArrivalStatus(id, !currentVal);
+      showToast({ tone: "success", title: "Updated", message: "New Arrival status updated." });
+    } catch (err) {
+      console.error(err);
       fetchData();
     }
   }
@@ -200,52 +319,27 @@ export function CataloguePage() {
     },
     { header: "Price", accessorKey: "price_display" },
     {
-      header: "Status",
-      cell: (row) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${row.status === "published"
-              ? "bg-green-100 text-green-700"
-              : row.status === "archived"
-                ? "bg-gray-100 text-gray-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-        >
-          {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
-        </span>
-      ),
-    },
-    {
-      header: "Availability",
-      cell: (row) => (
-        <div className="relative inline-flex items-center">
-          <select
-            value={row.availability_status}
-            onChange={(e) => handleAvailabilityChange(row.id, e.target.value as CatalogRow["availability_status"])}
-            className={`cursor-pointer appearance-none rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none transition-colors ${row.availability_status === "available"
-                ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                : row.availability_status === "reserved"
-                  ? "bg-purple-100 text-purple-700 hover:bg-purple-200"
-                  : "bg-orange-100 text-orange-700 hover:bg-orange-200"
-              }`}
-          >
-            <option value="available" className="bg-white text-pink-950 font-medium">Available</option>
-            <option value="reserved" className="bg-white text-pink-950 font-medium">Reserved</option>
-            <option value="unavailable" className="bg-white text-pink-950 font-medium">Unavailable</option>
-          </select>
-          <Icon
-            icon="mdi:chevron-down"
-            className={`pointer-events-none absolute right-1.5 size-3.5 ${row.availability_status === "available" ? "text-blue-700" :
-                row.availability_status === "reserved" ? "text-purple-700" :
-                  "text-orange-700"
-              }`}
-          />
-        </div>
-      ),
-    },
-    {
       header: "Featured",
       cell: (row) => (
-        row.featured ? <Icon icon="mdi:star" className="size-5 text-yellow-400" /> : null
+        <button 
+          onClick={() => handleToggleFeatured(row.id, row.featured)}
+          className={`p-1 rounded transition-colors ${row.featured ? "text-yellow-400 hover:text-yellow-500" : "text-gray-300 hover:text-yellow-400"}`}
+          title="Toggle Featured"
+        >
+          <Icon icon="mdi:star" className="size-5" />
+        </button>
+      ),
+    },
+    {
+      header: "New Arrival",
+      cell: (row) => (
+        <button 
+          onClick={() => handleToggleNewArrival(row.id, row.is_new_arrival)}
+          className={`p-1 rounded transition-colors ${row.is_new_arrival ? "text-pink-500 hover:text-pink-600" : "text-gray-300 hover:text-pink-500"}`}
+          title="Toggle New Arrival"
+        >
+          <Icon icon="mdi:sparkles" className="size-5" />
+        </button>
       ),
     },
     {
@@ -253,14 +347,23 @@ export function CataloguePage() {
       cell: (row) => (
         <div className="flex gap-2">
           <button
+            onClick={() => handleOpenReserveModal(row)}
+            className="text-brand-accent hover:text-brand-primary transition-colors"
+            title="Reserve Dates"
+          >
+            <Icon icon="mdi:calendar-lock" className="size-5" />
+          </button>
+          <button
             onClick={() => handleOpenModal(row)}
             className="text-brand-primary hover:text-brand-accent transition-colors"
+            title="Edit Item"
           >
             <Icon icon="mdi:pencil" className="size-5" />
           </button>
           <button
             onClick={() => confirmDelete(row.id)}
             className="text-red-600 hover:text-red-800 transition-colors"
+            title="Delete Item"
           >
             <Icon icon="mdi:trash-can-outline" className="size-5" />
           </button>
@@ -316,14 +419,14 @@ export function CataloguePage() {
         title={editingItem ? "Edit Catalogue Item" : "Add Catalogue Item"}
         maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {isModalLoading ? (
             <div className="flex items-center justify-center py-12">
               <Icon icon="mdi:loading" className="size-8 animate-spin text-brand-primary" />
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   name="name"
                   control={control}
@@ -332,7 +435,6 @@ export function CataloguePage() {
                   maxLength={100}
                   placeholder="e.g. Barbie Dream Dress"
                 />
-
                 <FormSelect
                   name="category_id"
                   control={control}
@@ -340,22 +442,12 @@ export function CataloguePage() {
                   options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
                   placeholder="Select a category..."
                 />
-
                 <FormMultiSelect
                   name="tags"
                   control={control}
                   label="Tags"
                   options={tags.map(tag => ({ value: tag.id, label: tag.name }))}
                   placeholder="Select tags..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormInput
-                  name="price_display"
-                  control={control}
-                  label="Price Display"
-                  placeholder="e.g. $50/day"
                 />
                 <FormInput
                   name="reel_url"
@@ -366,17 +458,36 @@ export function CataloguePage() {
                 />
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  name="price"
+                  control={control}
+                  type="number"
+                  label="Price (PHP)"
+                  placeholder="e.g. 499"
+                  required
+                />
+                <FormInput
+                  name="rental_days"
+                  control={control}
+                  type="number"
+                  label="Rental Days"
+                  placeholder="e.g. 2"
+                  required
+                />
+              </div>
+
               <FormTextarea
                 name="description"
                 control={control}
                 label="Description"
                 maxLength={1000}
-                rows={4}
+                rows={3}
                 placeholder="Detailed description of the item..."
               />
 
-              <div className="border-t border-pink-100 pt-6">
-                <h3 className="text-lg font-bold text-pink-950 mb-4">Images</h3>
+              <div className="border-t border-pink-100 pt-4">
+                <h3 className="text-sm font-bold text-pink-950 mb-3">Images</h3>
                 <FormMultipleImageUpload
                   name="images"
                   control={control}
@@ -384,42 +495,6 @@ export function CataloguePage() {
                   maxSizeMB={5}
                   maxFiles={10}
                   helperText="Upload up to 10 images. They will be automatically compressed."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-pink-100 pt-6">
-                <FormSelect
-                  name="status"
-                  control={control}
-                  label="Status"
-                  searchable={false}
-                  options={[
-                    { value: "draft", label: "Draft" },
-                    { value: "published", label: "Published" },
-                    { value: "archived", label: "Archived" }
-                  ]}
-                />
-
-                <FormSelect
-                  name="availability_status"
-                  control={control}
-                  label="Availability"
-                  searchable={false}
-                  options={[
-                    { value: "available", label: "Available" },
-                    { value: "reserved", label: "Reserved" },
-                    { value: "unavailable", label: "Unavailable" }
-                  ]}
-                />
-
-                <FormInput
-                  name="sort_order"
-                  control={control}
-                  type="number"
-                  label="Sort Order"
-                  min={0}
-                  helperText="Lower numbers appear first."
-
                 />
               </div>
 
@@ -436,7 +511,7 @@ export function CataloguePage() {
                 />
               </div>
 
-              <div className="border-t border-pink-100 pt-6">
+              <div className="border-t border-pink-100 pt-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
                   <button
@@ -477,36 +552,6 @@ export function CataloguePage() {
                 </div>
               </div>
 
-              <div className="border-t border-pink-100 pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-pink-950">Availability Calendar</h3>
-                  <button
-                    type="button"
-                    onClick={() => appendRange({ start_date: "", end_date: "", label: "" })}
-                    className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
-                  >
-                    <Icon icon="mdi:plus" /> Add Reserved Range
-                  </button>
-                </div>
-                {rangeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No dates blocked.</p>}
-                <div className="space-y-4">
-                  {rangeFields.map((field, index) => (
-                    <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start md:items-end">
-                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.start_date`} control={control} label="Start Date" type="date" required /></div>
-                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.end_date`} control={control} label="End Date" type="date" required /></div>
-                      <div className="flex-1 w-full"><FormInput name={`reservedRanges.${index}.label`} control={control} label="Label (optional)" placeholder="e.g. Dry Cleaning" /></div>
-                      <button
-                        type="button"
-                        onClick={() => removeRange(index)}
-                        className="mb-1 h-11 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center"
-                      >
-                        <Icon icon="mdi:trash-can-outline" className="size-5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
                 <button
                   type="button"
@@ -534,6 +579,113 @@ export function CataloguePage() {
         message="Are you sure you want to delete this item? All images, sizes, and availability ranges will be lost. This cannot be undone."
         onConfirm={handleDelete}
       />
+
+      <AdminModal
+        isOpen={isReserveModalOpen}
+        onClose={() => setIsReserveModalOpen(false)}
+        title={`Reserve Dates: ${reservingItem?.name}`}
+        maxWidth="lg"
+      >
+        <div className="space-y-4">
+          {/* Existing Reservations Section */}
+          <div>
+            <h3 className="text-sm font-bold text-brand-accent uppercase tracking-wider mb-3">Existing Reservations</h3>
+            {isReserveLoading ? (
+              <p className="text-sm text-pink-950/60 italic">Loading...</p>
+            ) : existingReservations.length === 0 ? (
+              <p className="text-sm text-pink-950/60 italic">No existing reservations for this item.</p>
+            ) : (
+              <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                {existingReservations.map(res => (
+                  <li key={res.id} className="flex items-center justify-between p-3 bg-pink-50/50 rounded-lg border border-pink-100 text-sm">
+                    <div>
+                      <div className="font-semibold text-pink-950">
+                        {new Date(res.start_date).toLocaleDateString()} - {new Date(res.end_date).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-pink-950/70">
+                        {res.customer_name || 'No customer name'} {res.label && `(${res.label})`}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteReservation(res.id)}
+                      className="text-red-400 hover:text-red-600 transition-colors"
+                      title="Delete Reservation"
+                    >
+                      <Icon icon="mdi:trash-can-outline" className="size-5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <hr className="border-pink-100" />
+
+          {/* Add New Reservation Form */}
+          <form onSubmit={handleReserveSubmit(onReserveSubmit)} className="space-y-4">
+            <h3 className="text-sm font-bold text-brand-accent uppercase tracking-wider">Add New Reservation</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                name="start_date"
+                control={reserveControl}
+                type="date"
+                label="Start Date"
+                required
+              />
+              <FormInput
+                name="end_date"
+                control={reserveControl}
+                type="date"
+                label="End Date (Auto-computes)"
+                required
+              />
+            </div>
+
+            <FormInput
+              name="customer_name"
+              control={reserveControl}
+              label="Customer Name (Optional)"
+              placeholder="e.g. Jane Doe"
+            />
+
+            <FormInput
+              name="label"
+              control={reserveControl}
+              label="Label (Optional)"
+              placeholder="e.g. Cleaning, Unavailable"
+            />
+
+            <FormSelect
+              name="availability_status"
+              control={reserveControl}
+              label="Update Item Availability"
+              searchable={false}
+              options={[
+                { value: "available", label: "Available" },
+                { value: "reserved", label: "Reserved" },
+                { value: "unavailable", label: "Unavailable" }
+              ]}
+            />
+
+            <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
+              <button
+                type="button"
+                onClick={() => setIsReserveModalOpen(false)}
+                className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
+              >
+                Close
+              </button>
+              <FormSubmitButton 
+                isDirty={isReserveDirty} 
+                isValid={isReserveValid} 
+                isSubmitting={isReserveSubmitting} 
+                isSubmitSuccessful={false} 
+                defaultText="Save Reservation"
+              />
+            </div>
+          </form>
+        </div>
+      </AdminModal>
     </div>
   );
 }

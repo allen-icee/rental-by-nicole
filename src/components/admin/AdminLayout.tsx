@@ -17,13 +17,13 @@ const navItems: NavItem[] = [
       { path: "/admin/catalogue", label: "Items", icon: "mdi:hanger" },
       { path: "/admin/categories", label: "Categories", icon: "mdi:shape-outline" },
       { path: "/admin/tags", label: "Tags", icon: "mdi:tag-outline" },
-      { path: "/admin/availability", label: "Availability", icon: "mdi:calendar-clock-outline" },
     ]
   },
   { path: "/admin/guides", label: "Rental Guides", icon: "mdi:book-open-page-variant-outline" },
   { path: "/admin/faqs", label: "FAQs", icon: "mdi:frequently-asked-questions" },
   { path: "/admin/reviews", label: "Reviews", icon: "mdi:star-outline" },
   { path: "/admin/inquiries", label: "Inquiries", icon: "mdi:email-outline" },
+  { path: "/admin/sales", label: "Sales Tracker", icon: "mdi:chart-line" },
   { path: "/admin/settings", label: "Website Settings", icon: "mdi:cog-outline" },
 ];
 

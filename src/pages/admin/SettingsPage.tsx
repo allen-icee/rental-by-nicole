@@ -13,8 +13,6 @@ type SettingsFormData = {
   id?: string;
   business_name: string;
   tagline: string;
-  phone: string;
-  secondary_phone: string;
   email: string;
   secondary_email: string;
   facebook_url: string;
@@ -50,8 +48,6 @@ export function SettingsPage() {
           id: settings.id,
           business_name: settings.business_name,
           tagline: settings.tagline || "",
-          phone: settings.phone || "",
-          secondary_phone: settings.secondary_phone || "",
           email: settings.email || "",
           secondary_email: settings.secondary_email || "",
           facebook_url: settings.facebook_url || "",
@@ -103,15 +99,15 @@ export function SettingsPage() {
       />
 
       <div className="rounded-2xl bg-white p-6 shadow-soft w-full">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
           <input type="hidden" {...register("business_name")} />
           <input type="hidden" {...register("tagline")} />
 
           <section>
-            <h3 className="text-lg font-semibold text-brand-accent mb-4 border-b border-pink-100 pb-2">Homepage Content</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="md:col-span-2 space-y-4">
+            <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">Homepage Content</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="md:col-span-2 space-y-3">
                 <FormToggle
                   name="announcement_is_active"
                   control={control}
@@ -123,7 +119,7 @@ export function SettingsPage() {
                   control={control}
                   label="Announcement Text"
                   maxLength={500}
-                  rows={3}
+                  rows={2}
                   placeholder="e.g. Free shipping on all rentals this month!"
                   helperText="Displayed globally on the website."
                 />
@@ -132,8 +128,8 @@ export function SettingsPage() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-brand-accent mb-4 border-b border-pink-100 pb-2">Contact Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">Contact Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
                 name="email"
                 control={control}
@@ -150,26 +146,12 @@ export function SettingsPage() {
                 placeholder="info@rentalbynicole.com"
                 helperText="Alternative email address."
               />
-              <FormInput
-                name="phone"
-                control={control}
-                label="Primary Phone Number"
-                placeholder="+63 916 123 4567"
-                helperText="Primary contact phone number."
-              />
-              <FormInput
-                name="secondary_phone"
-                control={control}
-                label="Secondary Phone Number"
-                placeholder="+1 (555) 987-6543"
-                helperText="Alternative contact phone number."
-              />
             </div>
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-brand-accent mb-4 border-b border-pink-100 pb-2">Social Links</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">Social Links</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
                 name="instagram_url"
                 control={control}
@@ -188,8 +170,8 @@ export function SettingsPage() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-brand-accent mb-4 border-b border-pink-100 pb-2">Operations</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">Operations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
                 name="business_hours"
                 control={control}
@@ -208,8 +190,8 @@ export function SettingsPage() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-brand-accent mb-4 border-b border-pink-100 pb-2">SEO Metadata</h3>
-            <div className="grid grid-cols-1 gap-6">
+            <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">SEO Metadata</h3>
+            <div className="grid grid-cols-1 gap-4">
               <FormInput
                 name="seo_title"
                 control={control}
@@ -223,7 +205,7 @@ export function SettingsPage() {
                 control={control}
                 label="SEO Description"
                 maxLength={160}
-                rows={3}
+                rows={2}
                 placeholder="Discover our curated collection of designer dresses..."
                 helperText="The description shown in search engine results (aim for ~160 chars)."
               />

@@ -209,7 +209,7 @@ export function RentalGuidePage() {
         title={editingItem ? "Edit Guide" : "Add Guide"}
         maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             name="title"
             control={control}
@@ -245,7 +245,7 @@ export function RentalGuidePage() {
             description="Inactive guides are hidden from customers."
           />
 
-          <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
+          <div className="pt-4 flex justify-end gap-3 border-t border-pink-100">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}

@@ -9,12 +9,12 @@ const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage")
 const CataloguePage = lazy(() => import("@/pages/admin/CataloguePage").then(m => ({ default: m.CataloguePage })));
 const CategoriesPage = lazy(() => import("@/pages/admin/CategoriesPage").then(m => ({ default: m.CategoriesPage })));
 const TagsPage = lazy(() => import("@/pages/admin/TagsPage").then(m => ({ default: m.TagsPage })));
-const AvailabilityPage = lazy(() => import("@/pages/admin/AvailabilityPage").then(m => ({ default: m.AvailabilityPage })));
 const RentalGuidePage = lazy(() => import("@/pages/admin/RentalGuidePage").then(m => ({ default: m.RentalGuidePage })));
 const FaqPage = lazy(() => import("@/pages/admin/FaqPage").then(m => ({ default: m.FaqPage })));
 const ReviewsPage = lazy(() => import("@/pages/admin/ReviewsPage").then(m => ({ default: m.ReviewsPage })));
 const InquiriesPage = lazy(() => import("@/pages/admin/InquiriesPage").then(m => ({ default: m.InquiriesPage })));
 const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage").then(m => ({ default: m.SettingsPage })));
+const SalesTrackerPage = lazy(() => import("@/pages/admin/SalesTrackerPage").then(m => ({ default: m.SalesTrackerPage })));
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -39,11 +39,11 @@ export const adminRoutes: RouteObject[] = [
       { path: "catalogue", element: <CataloguePage /> },
       { path: "categories", element: <CategoriesPage /> },
       { path: "tags", element: <TagsPage /> },
-      { path: "availability", element: <AvailabilityPage /> },
       { path: "guides", element: <RentalGuidePage /> },
       { path: "faqs", element: <FaqPage /> },
       { path: "reviews", element: <ReviewsPage /> },
       { path: "inquiries", element: <InquiriesPage /> },
+      { path: "sales", element: <SalesTrackerPage /> },
       { path: "settings", element: <SettingsPage /> }
     ]
   }

@@ -401,33 +401,33 @@ export function CataloguePage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col p-4 md:p-6 lg:p-8 md:max-h-[85vh]">
-                  <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col p-4 md:p-5 lg:p-6 md:max-h-[85svh]">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className={`inline-block rounded-full px-3 py-1 mb-3 text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white ${availabilityClasses[selectedItem.availabilityStatus]}`}>
+                      <span className={`inline-block rounded-full px-2.5 py-1 mb-2 text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white ${availabilityClasses[selectedItem.availabilityStatus]}`}>
                         {selectedItem.availabilityStatus}
                       </span>
-                      <h2 className="font-display text-3xl font-bold text-brand-accent">
+                      <h2 className="font-display text-2xl font-bold text-brand-accent leading-tight">
                         {selectedItem.name}
                       </h2>
-                      <p className="mt-2 text-xl font-semibold text-pink-950/80">{selectedItem.priceDisplay}</p>
+                      <p className="mt-1 text-lg font-semibold text-pink-950/80">{selectedItem.priceDisplay}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setSelectedItem(null)}
-                      className="grid size-10 shrink-0 place-items-center rounded-full bg-pink-50 text-brand-accent transition hover:bg-brand-primary hover:text-white"
-                      aria-label="Close Descriptions"
+                      className="grid size-8 shrink-0 place-items-center rounded-full bg-pink-50 text-brand-accent transition hover:bg-brand-primary hover:text-white"
+                      aria-label="Close"
                     >
-                      <Icon icon="mdi:close" className="size-5" />
+                      <Icon icon="mdi:close" className="size-4" />
                     </button>
                   </div>
 
-                  <div className="mt-6 flex flex-col gap-3 sm:flex-row shrink-0">
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row shrink-0">
                     <Link
                       to={`/contact?item=${encodeURIComponent(selectedItem.name)}`}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-6 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-barbie transition-transform hover:scale-[1.02]"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-soft transition-transform hover:scale-[1.02]"
                     >
-                      Reserve
+                      Inquire
                       <Icon icon="mdi:sparkles" className="size-4" />
                     </Link>
                     {selectedItem.reelUrl ? (
@@ -435,7 +435,7 @@ export function CataloguePage() {
                         href={selectedItem.reelUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-brand-primary/20 bg-white px-6 py-4 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-primary/20 bg-white px-4 py-3 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
                       >
                         <Icon icon="mdi:play-circle" className="size-5 text-brand-primary" />
                         Watch Reel
@@ -443,57 +443,63 @@ export function CataloguePage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-8 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
-                    <Accordion
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:information-variant" className="size-5 text-brand-primary" />Descriptions</span>}
-                      defaultOpen={true}
-                    >
-                      <p className="mb-4">{selectedItem.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary">
+                  <div className="mt-5 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
+                    {/* Descriptions (Not Collapsible) */}
+                    <div className="rounded-xl border border-pink-100 bg-white/50 p-4 shadow-sm">
+                      <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-pink-950 mb-2">
+                        <Icon icon="mdi:information-variant" className="size-4 text-brand-primary" />
+                        Descriptions
+                      </h3>
+                      <p className="mb-3 text-sm text-pink-950/80 leading-relaxed">{selectedItem.description}</p>
+                      <div className="flex gap-1.5 overflow-hidden whitespace-nowrap text-ellipsis">
+                        <span className="shrink-0 rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary">
                           {selectedItem.category}
                         </span>
                         {selectedItem.tags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-900/70 border border-pink-100">
+                          <span key={tag} className="shrink-0 rounded-full bg-pink-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pink-900/70 border border-pink-100">
                             {tag}
                           </span>
                         ))}
                       </div>
-                    </Accordion>
+                    </div>
 
+                    {/* Sizing & Measurements */}
                     <Accordion
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>}
+                      title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-4 text-brand-primary" /> Sizing & Measurements</span>}
                     >
-                      <p className="mb-2"><span className="font-semibold text-pink-950">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
-                      {selectedItem.measurements.map((measurement, index) => (
-                        <div key={`${measurement.size}-${index}`} className="mt-3 rounded-xl bg-brand-background/50 p-4">
-                          <p className="font-bold text-brand-accent mb-2">Size {measurement.size}</p>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            {measurement.bust && measurement.bust !== "N/A" && <p>Bust: {measurement.bust}</p>}
-                            {measurement.chest && measurement.chest !== "N/A" && <p>Chest: {measurement.chest}</p>}
-                            {measurement.waist && measurement.waist !== "N/A" && <p>Waist: {measurement.waist}</p>}
-                            {measurement.hips && measurement.hips !== "N/A" && <p>Hips: {measurement.hips}</p>}
-                            {measurement.length && measurement.length !== "N/A" && <p>Length: {measurement.length}</p>}
-                            {measurement.notes && <p className="col-span-2 mt-1 text-brand-primary italic">Note: {measurement.notes}</p>}
+                      <p className="mb-2 text-xs text-pink-950/70"><span className="font-bold text-pink-950">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
+                      <div className="space-y-2">
+                        {selectedItem.measurements.map((measurement, index) => (
+                          <div key={`${measurement.size}-${index}`} className="rounded-lg bg-brand-background/80 p-3">
+                            <p className="text-xs font-bold text-brand-accent mb-1.5">Size {measurement.size}</p>
+                            <div className="grid grid-cols-2 gap-1 text-[11px] text-pink-950/80">
+                              {measurement.bust && measurement.bust !== "N/A" && <p>Bust: {measurement.bust}</p>}
+                              {measurement.chest && measurement.chest !== "N/A" && <p>Chest: {measurement.chest}</p>}
+                              {measurement.waist && measurement.waist !== "N/A" && <p>Waist: {measurement.waist}</p>}
+                              {measurement.hips && measurement.hips !== "N/A" && <p>Hips: {measurement.hips}</p>}
+                              {measurement.length && measurement.length !== "N/A" && <p>Length: {measurement.length}</p>}
+                              {measurement.notes && <p className="col-span-2 mt-0.5 text-brand-primary italic">Note: {measurement.notes}</p>}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </Accordion>
 
+                    {/* Availability Calendar */}
                     <Accordion
-                      title={<span className="flex items-center gap-2 text-sm uppercase tracking-widest"><Icon icon="mdi:calendar-multiselect" className="size-5 text-brand-primary" /> Availability Calendar</span>}
+                      title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"><Icon icon="mdi:calendar-multiselect" className="size-4 text-brand-primary" /> Availability Calendar</span>}
                     >
                       {selectedItem.reservedRanges.length > 0 ? (
-                        <ul className="space-y-2">
+                        <ul className="space-y-1.5">
                           {selectedItem.reservedRanges.map((range, index) => (
-                            <li key={`${range}-${index}`} className="flex items-center gap-2 rounded-lg bg-pink-50/50 p-2 text-brand-accent font-medium">
-                              <Icon icon="mdi:calendar-remove" className="size-4 text-brand-primary" />
+                            <li key={`${range}-${index}`} className="flex items-center gap-2 rounded-md bg-pink-50/70 px-2 py-1.5 text-xs text-brand-accent font-semibold">
+                              <Icon icon="mdi:calendar-remove" className="size-3.5 text-brand-primary" />
                               Reserved: {range}
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="flex items-center gap-2 text-emerald-600 font-medium"><Icon icon="mdi:calendar-check" className="size-5" /> Currently no reserved dates.</p>
+                        <p className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold"><Icon icon="mdi:calendar-check" className="size-4" /> Currently no reserved dates.</p>
                       )}
                     </Accordion>
                   </div>

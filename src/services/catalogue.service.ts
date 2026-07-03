@@ -18,7 +18,6 @@ type ItemRow = {
   name: string;
   slug: string;
   description: string;
-  status: "draft" | "published" | "archived";
   availability_status: "available" | "reserved" | "unavailable";
   featured: boolean;
   is_new_arrival: boolean;
@@ -47,13 +46,13 @@ type ItemTagRow = { catalog_item_id: string; tag_id: string };
 export async function getCatalogueData(): Promise<CatalogueData> {
   try {
     const [categoriesResult, tagsResult, itemsResult] = await Promise.all([
-      supabase.from("categories").select("id,name").eq("is_active", true).order("sort_order"),
-      supabase.from("tags").select("id,name").eq("is_active", true).order("sort_order"),
+      supabase.from("categories").select("id,name").eq("is_active", true).order("name"),
+      supabase.from("tags").select("id,name").eq("is_active", true).order("name"),
       supabase
         .from("catalog_items")
-        .select("id,category_id,name,slug,description,status,availability_status,featured,is_new_arrival,price_display,reel_url")
-        .eq("status", "published")
-        .order("sort_order")
+        .select("id,category_id,name,slug,description,availability_status,featured,is_new_arrival,price_display,reel_url")
+        .order("featured", { ascending: false })
+        .order("name", { ascending: true })
     ]);
 
     if (categoriesResult.error || tagsResult.error || itemsResult.error) {
@@ -132,7 +131,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
               .filter((itemTag) => itemTag.catalog_item_id === item.id)
               .map((itemTag) => tagById.get(itemTag.tag_id))
               .filter((tagName): tagName is string => Boolean(tagName)),
-            status: item.status,
+
             availabilityStatus: item.availability_status,
             featured: item.featured,
             isNewArrival: item.is_new_arrival,

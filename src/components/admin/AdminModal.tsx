@@ -50,19 +50,19 @@ export function AdminModal({
       />
 
       <div
-        className={`relative w-full ${maxWidthClass} rounded-2xl bg-white shadow-xl transition-all transform max-h-[90vh] flex flex-col`}
+        className={`relative w-full ${maxWidthClass} rounded-2xl bg-white shadow-xl transition-all transform max-h-[90svh] flex flex-col`}
       >
-        <div className="flex items-center justify-between border-b border-pink-100 p-5">
-          <h2 className="font-display text-xl font-semibold text-brand-accent">{title}</h2>
+        <div className="flex items-center justify-between border-b border-pink-100 p-4">
+          <h2 className="font-display text-lg font-semibold text-brand-accent">{title}</h2>
           <button
             onClick={onClose}
             className="rounded-full p-1.5 text-pink-950/50 hover:bg-pink-50 hover:text-brand-accent transition-colors"
           >
-            <Icon icon="mdi:close" className="size-6" />
+            <Icon icon="mdi:close" className="size-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto p-5 hide-scrollbar" data-lenis-prevent="true">
+        <div className="overflow-y-auto p-4 hide-scrollbar" data-lenis-prevent="true">
           {children}
         </div>
       </div>

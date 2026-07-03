@@ -126,7 +126,7 @@ export function FormMultiSelect<T extends FieldValues>({
                 </button>
               </span>
             ))
-          ) : !searchable || !isOpen ? (
+          ) : !searchable ? (
             <span className="text-pink-950/40 px-1 py-1">{placeholder}</span>
           ) : null}
 
@@ -157,7 +157,7 @@ export function FormMultiSelect<T extends FieldValues>({
             isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
           }`}
         >
-          <div className="max-h-60 overflow-y-auto overscroll-contain py-2">
+          <div className="max-h-60 overflow-y-auto overscroll-contain py-2" data-lenis-prevent="true">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((opt) => {
                 const isSelected = currentValues.includes(opt.value);
@@ -187,17 +187,19 @@ export function FormMultiSelect<T extends FieldValues>({
         </div>
       </div>
 
-      <div className="min-h-[20px]">
-        {error ? (
-          <p className="text-xs font-semibold text-red-500 mt-0.5 flex items-center gap-1">
-            {error.message}
-          </p>
-        ) : helperText ? (
-          <p className="text-xs font-medium text-pink-950/60 mt-0.5">
-            {helperText}
-          </p>
-        ) : null}
-      </div>
+      {(error || helperText) && (
+        <div className="mt-1">
+          {error ? (
+            <p className="text-xs font-semibold text-red-500 flex items-center gap-1">
+              {error.message}
+            </p>
+          ) : (
+            <p className="text-xs font-medium text-pink-950/60">
+              {helperText}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

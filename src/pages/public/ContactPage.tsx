@@ -8,6 +8,9 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useToast } from "@/components/ui/toast-context";
 import { submitInquiry } from "@/services/forms.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { useEffect, useState } from "react";
+import { getCatalogueData } from "@/services/catalogue.service";
+import { FormMultiSelect } from "@/components/ui/forms/FormMultiSelect";
 
 export function ContactPage() {
   const { showToast } = useToast();
@@ -16,29 +19,36 @@ export function ContactPage() {
   const itemParam = searchParams.get("item");
 
   const secondaryEmail = settings ? settings.secondary_email : siteConfig.contact.secondaryEmail;
-  const secondaryPhone = settings ? settings.secondary_phone : siteConfig.contact.secondaryPhone;
 
   type ContactFormInputs = {
-    rentedItems: string;
+    rentedItems: string[];
     name: string;
-    phone: string;
     email: string;
     message: string;
   };
 
-  const { register, handleSubmit, reset, formState: { isValid, isSubmitting } } = useForm<ContactFormInputs>({
+  const { register, handleSubmit, reset, control, formState: { isValid, isSubmitting } } = useForm<ContactFormInputs>({
     mode: "onChange",
     defaultValues: {
-      rentedItems: itemParam || "",
+      rentedItems: itemParam ? [itemParam] : [],
     }
   });
 
+  const [itemOptions, setItemOptions] = useState<{label: string; value: string}[]>([]);
+
+  useEffect(() => {
+    getCatalogueData().then(({ items }) => {
+      const options = items.map(i => ({ label: i.name, value: i.name }));
+      setItemOptions(options);
+    });
+  }, []);
+
   async function onSubmit(data: ContactFormInputs) {
-    const finalMessage = data.rentedItems ? `Interested in renting: ${data.rentedItems}\n\n${data.message}` : data.message;
+    const itemsStr = data.rentedItems.join(", ");
+    const finalMessage = itemsStr ? `Interested in renting: ${itemsStr}\n\n${data.message}` : data.message;
 
     const response = await submitInquiry({
       name: data.name,
-      phone: data.phone,
       email: data.email,
       message: finalMessage,
       selectedItemId: undefined
@@ -92,16 +102,7 @@ export function ContactPage() {
                       {secondaryEmail ? <p className="mt-0.5 text-xs text-pink-950/60">{secondaryEmail}</p> : null}
                     </div>
                   </div>
-                  <div className="h-px w-full bg-pink-50" />
-                  <div className="flex gap-4">
 
-                    <Icon icon="mdi:phone-outline" className="size-6 shrink-0 text-brand-primary" />
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">Phone</p>
-                      <p className="mt-1 text-sm font-semibold text-pink-950">{settings?.phone || siteConfig.contact.primaryPhone}</p>
-                      {secondaryPhone ? <p className="mt-0.5 text-xs text-pink-950/60">{secondaryPhone}</p> : null}
-                    </div>
-                  </div>
                   <div className="h-px w-full bg-pink-50" />
 
                   <div className="flex gap-4">
@@ -162,19 +163,18 @@ export function ContactPage() {
               <form className="relative z-10 flex flex-col gap-6 md:gap-7" onSubmit={handleSubmit(onSubmit)}>
 
                 {/* Custom Modal Item Selector */}
-                <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">What are you looking to rent? (Can be multiples)</label>
-                  <input {...register("rentedItems")} className="w-full rounded-2xl border-2 border-pink-50 bg-brand-background/10 px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/30 transition-all focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10" placeholder="e.g. Rose Atelier Ball Gown, Pearl Sheer Bolero" />
-                </div>
+                <FormMultiSelect
+                  name="rentedItems"
+                  control={control}
+                  label="What are you looking to rent? (Can be multiples)"
+                  placeholder="Select items..."
+                  options={itemOptions}
+                />
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6">
                   <div>
                     <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Your Name</label>
                     <input {...register("name", { required: true, minLength: 2 })} className="w-full rounded-2xl border-2 border-pink-50 bg-brand-background/10 px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/30 transition-all focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10" placeholder="e.g. Maria Theresa" />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Phone Number (Optional)</label>
-                    <input {...register("phone")} className="w-full rounded-2xl border-2 border-pink-50 bg-brand-background/10 px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/30 transition-all focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10" placeholder="0916 123 4567" />
                   </div>
                 </div>
 

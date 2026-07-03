@@ -1,3 +1,4 @@
+-- supabase/seed/seed.sql
 ﻿-- Optional live demo seed data for Rental by Nicole.
 -- Run after the initial schema migration.
 

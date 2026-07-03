@@ -39,7 +39,7 @@ export function CustomSelect({ value, onChange, options }: CustomSelectProps) {
       </button>
       
       {isOpen && (
-        <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-2xl border-2 border-pink-100 bg-white p-1 shadow-barbie">
+        <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-2xl border-2 border-pink-100 bg-white p-1 shadow-barbie" data-lenis-prevent="true">
           {options.map((option, index) => (
             <button
               key={`${option}-${index}`}

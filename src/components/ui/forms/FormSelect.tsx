@@ -50,7 +50,7 @@ export function FormSelect<T extends FieldValues>({
   const selectedOption = options.find((opt) => opt.value === value);
 
   const filteredOptions = options.filter((opt) =>
-    opt.label.toLowerCase().includes(search.toLowerCase())
+    opt.value !== "" && opt.label.toLowerCase().includes(search.toLowerCase())
   );
 
   useEffect(() => {
@@ -147,17 +147,19 @@ export function FormSelect<T extends FieldValues>({
         </div>
       </div>
 
-      <div className="min-h-[20px]">
-        {error ? (
-          <p className="text-xs font-semibold text-red-500 mt-0.5 flex items-center gap-1">
-            {error.message}
-          </p>
-        ) : helperText ? (
-          <p className="text-xs font-medium text-pink-950/60 mt-0.5">
-            {helperText}
-          </p>
-        ) : null}
-      </div>
+      {(error || helperText) && (
+        <div className="mt-1">
+          {error ? (
+            <p className="text-xs font-semibold text-red-500 flex items-center gap-1">
+              {error.message}
+            </p>
+          ) : (
+            <p className="text-xs font-medium text-pink-950/60">
+              {helperText}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
