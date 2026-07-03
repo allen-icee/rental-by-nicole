@@ -158,8 +158,8 @@ export function CataloguePage() {
           "catalog_items",
           currentPage,
           pageSize,
-          "sort_order",
-          true,
+          "created_at",
+          false,
           searchQuery,
           ["name", "slug"]
         ),

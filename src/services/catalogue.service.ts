@@ -46,8 +46,8 @@ type ItemTagRow = { catalog_item_id: string; tag_id: string };
 export async function getCatalogueData(): Promise<CatalogueData> {
   try {
     const [categoriesResult, tagsResult, itemsResult] = await Promise.all([
-      supabase.from("categories").select("id,name").eq("is_active", true).order("name"),
-      supabase.from("tags").select("id,name").eq("is_active", true).order("name"),
+      supabase.from("categories").select("id,name").eq("is_active", true).order("sort_order", { ascending: true }),
+      supabase.from("tags").select("id,name").eq("is_active", true).order("sort_order", { ascending: true }),
       supabase
         .from("catalog_items")
         .select("id,category_id,name,slug,description,availability_status,featured,is_new_arrival,price_display,reel_url")
