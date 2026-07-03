@@ -187,7 +187,7 @@ export function CataloguePage() {
   return (
     <PublicLayout>
       <main>
-        <ScrollReveal as="section" className="section-shell pb-8 relative z-30">
+        <ScrollReveal as="section" className="mx-auto max-w-7xl px-4 pt-8 pb-8 relative z-30">
           <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-accent">
