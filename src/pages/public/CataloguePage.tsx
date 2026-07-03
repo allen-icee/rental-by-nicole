@@ -50,6 +50,11 @@ export function CataloguePage() {
   }, [tagParam, categoryParam]);
 
   useEffect(() => {
+    document.body.classList.add("catalogue-page");
+    return () => document.body.classList.remove("catalogue-page");
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
 
     getCatalogueData().then((data) => {

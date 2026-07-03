@@ -5,6 +5,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { AdminLoginModal } from "@/components/admin/AdminLoginModal";
 import { useSettings } from "@/contexts/SettingsContext";
+import { AtmosphereBackground } from "./AtmosphereBackground";
 
 const links = [
   { to: "/", label: "Home" },
@@ -54,7 +55,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-brand-background text-pink-950 flex flex-col">
+    <div className="min-h-screen bg-transparent text-pink-950 flex flex-col relative z-0">
+      <AtmosphereBackground />
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
 
@@ -149,7 +151,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col relative">
+      <main className="flex-1 flex flex-col relative z-10">
         {children}
       </main>
 

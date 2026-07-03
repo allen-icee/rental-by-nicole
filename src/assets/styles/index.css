@@ -1,22 +1,81 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #ff2fa8;
-  --color-brand-secondary: #ffd1ec;
-  --color-brand-accent: #d60072;
-  --color-brand-background: #fff1fa;
-  --font-display: "Playfair Display", serif;
-  --font-body: "Poppins", sans-serif;
-  --shadow-soft: 0 14px 36px rgb(214 0 114 / 0.14);
-  --shadow-barbie: 0 16px 42px rgb(255 47 168 / 0.22);
+  --color-brand-primary: #b091f2;
+  /* Deeper soft lilac */
+  --color-brand-secondary: #ffb6e4;
+  /* Soft pink */
+  --color-brand-accent: #ff66b2;
+  /* Vibrant magenta for magical accents */
+  --color-brand-background: #f7f2ff;
+  /* Soft lavender fallback */
+  --color-brand-deep: #2c1b4d;
+  /* Royal purple for readable text */
+  --color-brand-blue: #d4e8ff;
+  /* Powder blue */
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float-slow 10s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 4s ease-in-out infinite;
+  --animate-shimmer: shimmer 3s infinite linear;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.85;
+    filter: brightness(1) drop-shadow(0 0 4px rgba(255, 102, 178, 0.2));
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.1) drop-shadow(0 0 12px rgba(255, 102, 178, 0.6));
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 :root {
   color-scheme: light;
-  color: #2a1020;
-  background: #fff1fa;
-  font-family: "Poppins", system-ui, sans-serif;
+  color: var(--color-brand-deep);
+  background: var(--color-brand-background);
+  font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -34,23 +93,68 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 12% 10%, rgb(255 47 168 / 0.16), transparent 28rem),
-    radial-gradient(circle at 82% 0%, rgb(255 178 221 / 0.44), transparent 24rem),
-    linear-gradient(135deg, #fff1fa 0%, #fff8fd 48%, #ffe2f4 100%);
+  /* Soft pastel fallback that matches the pink/blue sky edges */
+  background-color: #f7ebf8;
+  background-image: url('/assets/fantasy-bg.jpg');
+  /* Using cover scales the image proportionally so it never distorts */
+  background-size: cover;
+  background-position: top center;
+  /* Scrolls away naturally with the content as requested */
+  background-attachment: scroll;
+  background-repeat: no-repeat;
 }
 
-body::before {
-  pointer-events: none;
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.38;
-  background-image: radial-gradient(#ff7cc9 0.75px, transparent 0.75px);
-  background-size: 18px 18px;
+body.catalogue-page {
+  /* The Catalogue gets the default 100% auto so it doesn't get heavily zoomed in.
+     We overlay a gradient that fades to the background color right before the image ends (at 177vw)
+     so there is no hard cut line on mobile or desktop! */
+  background-image: 
+    linear-gradient(to bottom, transparent 0vw, transparent 100vw, #f7ebf8 176vw, #f7ebf8 100%),
+    url('/assets/fantasy-bg.jpg');
+  background-size: 100% 100%, 100% auto;
+  background-repeat: no-repeat, no-repeat;
 }
 
+@media (min-width: 768px) {
+  body {
+    background-size: cover;
+    background-position: top center;
+    background-color: #f7ebf8;
+  }
+  body.catalogue-page {
+    background-size: 100% 100%, 100% auto;
+  }
+}
+
+/* Crystal Glassmorphism Utilities - Upgraded for image backgrounds */
+.crystal-panel {
+  background: rgba(255, 255, 255, 0.65);
+  /* Increased opacity for readability */
+  backdrop-filter: blur(24px);
+  /* Stronger blur */
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.6), 0 8px 32px rgba(176, 145, 242, 0.25);
+  border-radius: 1.5rem;
+}
+
+.crystal-card {
+  background: rgba(255, 255, 255, 0.60);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.5), 0 4px 20px rgba(176, 145, 242, 0.2);
+  border-radius: 1.25rem;
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.crystal-card:hover {
+  background: rgba(255, 255, 255, 0.80);
+  transform: translateY(-4px);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.9), 0 12px 30px rgba(176, 145, 242, 0.3);
+}
+
+/* Base resets & utilities */
 button,
 input,
 textarea,
@@ -74,125 +178,6 @@ button:disabled {
 img {
   display: block;
   max-width: 100%;
-}
-
-.input-field {
-  width: 100%;
-  border-radius: 999px;
-  border: 1px solid rgb(255 159 214 / 0.86);
-  background: rgb(255 255 255 / 0.9);
-  padding: 0.68rem 0.9rem;
-  color: #2a1020;
-  outline: none;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.78);
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-.input-field:focus {
-  border-color: #ff2fa8;
-  box-shadow: 0 0 0 4px rgb(255 47 168 / 0.15), inset 0 1px 0 rgb(255 255 255 / 0.78);
-  transform: translateY(-1px);
-}
-
-textarea.input-field {
-  min-height: 7rem;
-  border-radius: 1rem;
-  resize: vertical;
-}
-
-.section-shell {
-  margin-inline: auto;
-  max-width: 76rem;
-  padding: 2.75rem 1rem;
-}
-
-@media (min-width: 768px) {
-  .section-shell {
-    padding-block: 4rem;
-  }
-}
-
-.section-shell,
-article,
-details,
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(26px) scale(0.985);
-  transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: opacity, transform;
-}
-
-.section-shell.is-revealed,
-article.is-revealed,
-details.is-revealed,
-.scroll-reveal.is-revealed {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-@keyframes toast-pop {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.toast-pop {
-  animation: toast-pop 180ms ease-out both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .section-shell,
-  article,
-  details,
-  .scroll-reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  .toast-pop {
-    animation: none;
-  }
-}
-
-input[type="range"].barbie-slider {
-  accent-color: #ff2fa8;
-  cursor: pointer;
-}
-
-/* Barbie-like Scrollbars */
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #ffe2f4;
-  border-radius: 100vw;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #ff7cc9;
-  border-radius: 100vw;
-  border: 3px solid #ffe2f4;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ff2fa8;
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #ff7cc9 #ffe2f4;
 }
 
 .hide-scrollbar {

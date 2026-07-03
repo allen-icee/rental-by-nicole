@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Carousel } from "@/components/ui/Carousel";
-import { useParallax } from "@/hooks/useParallax";
 import { useEffect, useState } from "react";
 import { getCatalogueData, getTestimonials, getFaqs } from "@/services/catalogue.service";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
@@ -22,7 +21,6 @@ const processSteps = [
 
 export function HomePage() {
   useSettings();
-  const heroImageRef = useParallax<HTMLImageElement>(0.35);
   useTrackPageView();
 
   const [newArrivals, setNewArrivals] = useState<CatalogItem[]>([]);
@@ -62,32 +60,25 @@ export function HomePage() {
     <PublicLayout>
       <main>
         <AnnouncementToast />
-        
-        <section className="relative isolate overflow-hidden bg-white min-h-[85vh] flex items-center">
-          <div className="absolute inset-0 z-0">
-            <img
-              ref={heroImageRef}
-              src="/assets/boutique-hero.png"
-              alt="Elegant rack of gowns and boutique accessories for fashion rental"
-              className="h-[120%] w-full object-cover object-top blur-[2px] origin-top will-change-transform"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent z-0" />
-          <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] z-0" />
 
-          <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10">
-            <div className="max-w-2xl text-left">
-              <p className="text-sm font-bold uppercase tracking-[0.35em] text-brand-primary">
+        <section className="relative isolate overflow-hidden bg-transparent min-h-[85vh] flex items-center">
+
+          <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10 flex items-center justify-center md:justify-start">
+            {/* Cloudy Magical Backdrop */}
+            <div className="absolute inset-0 max-w-3xl bg-white/50 blur-[80px] rounded-full scale-[1.2] -z-10 pointer-events-none translate-x-[5%] md:translate-x-0" />
+            
+            <div className="max-w-2xl text-left relative z-10">
+              <p className="text-sm font-bold uppercase tracking-[0.35em] text-brand-primary drop-shadow-[0_0_10px_rgba(255,255,255,1)]">
                 {siteConfig.name}
               </p>
-              <h1 className="mt-4 font-display text-5xl font-bold leading-tight text-brand-accent bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent md:text-7xl">
+              <h1 className="mt-4 font-display text-5xl font-bold leading-tight text-brand-accent md:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
                 {siteConfig.tagline}
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-pink-950/80 font-medium">
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-pink-950 font-semibold drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
                 Browse our curated collection of dresses, gowns, Filipiniana pieces, boleros, and accessories.
                 When you find the perfect look, simply send an inquiry to begin your rental.
               </p>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row relative z-10">
                 <Link
                   to="/catalogue"
                   className="group relative inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-8 py-4 font-bold text-white shadow-barbie transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_30px_rgba(255,47,168,0.3)] overflow-hidden"
@@ -109,20 +100,21 @@ export function HomePage() {
           </ScrollReveal>
         </section>
 
-        <section className="bg-brand-background/30 overflow-hidden py-16 md:py-24">
-          <ScrollReveal className="mx-auto max-w-7xl px-5">
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <section className="bg-transparent overflow-hidden py-16 md:py-24">
+          <ScrollReveal className="mx-auto max-w-7xl px-5 relative">
+            <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.1] -z-10 pointer-events-none" />
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between relative z-10 py-4">
               <div>
-                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">
+                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
                   New Arrivals
                 </p>
-                <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold text-brand-accent">
+                <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold text-brand-accent drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
                   Fresh styles you'll love to wear
                 </h2>
               </div>
-              <Link to="/catalogue" className="hidden md:inline-flex group items-center gap-1 font-semibold text-brand-accent transition-colors hover:text-brand-primary">
+              <Link to="/catalogue" className="hidden md:inline-flex group items-center gap-1 font-bold text-brand-accent transition-colors hover:text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
                 View all items
-                <Icon icon="mdi:chevron-right" className="size-5 transition-transform group-hover:translate-x-1" />
+                <Icon icon="mdi:chevron-right" className="size-6 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </ScrollReveal>
@@ -132,22 +124,22 @@ export function HomePage() {
               <Carousel autoScrollDelay={3500}>
                 {newArrivals.map((item) => (
                   <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
-                  <div className="overflow-hidden h-80 relative">
-                    <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="absolute bottom-6 left-0 right-0 flex justify-center translate-y-8 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                      <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm text-brand-accent px-5 py-2 rounded-full text-sm font-bold shadow-soft">
-                        Explore Item <Icon icon="mdi:arrow-right" className="size-4" />
-                      </span>
+                    <div className="overflow-hidden h-80 relative">
+                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="absolute bottom-6 left-0 right-0 flex justify-center translate-y-8 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                        <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm text-brand-accent px-5 py-2 rounded-full text-sm font-bold shadow-soft">
+                          Explore Item <Icon icon="mdi:arrow-right" className="size-4" />
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-1 flex-col p-6 items-center text-center">
-                    <span className="rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-pink-100">
-                      {item.availabilityStatus}
-                    </span>
-                    <h3 className="mt-4 font-display text-2xl font-bold text-pink-950 group-hover:text-brand-primary transition-colors">{item.name}</h3>
-                    <p className="mt-3 text-lg font-bold text-brand-accent">{item.priceDisplay}</p>
-                  </div>
+                    <div className="flex flex-1 flex-col p-6 items-center text-center">
+                      <span className="rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-pink-100">
+                        {item.availabilityStatus}
+                      </span>
+                      <h3 className="mt-4 font-display text-2xl font-bold text-pink-950 group-hover:text-brand-primary transition-colors">{item.name}</h3>
+                      <p className="mt-3 text-lg font-bold text-brand-accent">{item.priceDisplay}</p>
+                    </div>
                   </Link>
                 ))}
               </Carousel>
@@ -167,13 +159,14 @@ export function HomePage() {
         </section>
 
         {/* Curated Collections */}
-        <section className="bg-white py-16 md:py-24 overflow-hidden">
+        <section className="bg-transparent py-16 md:py-24 overflow-hidden">
           <div className="mx-auto max-w-7xl px-5">
-            <ScrollReveal className="text-center max-w-2xl mx-auto">
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+            <ScrollReveal className="text-center max-w-2xl mx-auto relative py-6">
+              <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
                 Curated Collection
               </p>
-              <h2 className="mt-4 font-display text-2xl font-semibold text-brand-accent md:text-4xl leading-tight">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl leading-tight drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
                 Discover looks for every moment
               </h2>
             </ScrollReveal>
@@ -206,13 +199,14 @@ export function HomePage() {
         </section>
 
         {/* Rental Process */}
-        <section className="bg-pink-50/60 py-16 md:py-24">
+        <section className="bg-transparent py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5 text-center">
-            <ScrollReveal className="max-w-2xl mx-auto">
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+            <ScrollReveal className="max-w-2xl mx-auto relative py-6 text-center">
+              <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
                 Rental Process
               </p>
-              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
                 From inquiry to confirmation, made simple
               </h2>
             </ScrollReveal>
@@ -246,26 +240,29 @@ export function HomePage() {
         </section>
 
         {/* Customer Feedback */}
-        <section className="bg-white py-16 md:py-24">
+        <section className="bg-transparent py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5 grid gap-12 lg:grid-cols-[1fr_1.5fr] items-center">
-            <ScrollReveal>
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">
-                Customer Feedback
-              </p>
-              <h2 className="mt-3 font-display text-4xl font-semibold text-brand-accent leading-tight">
-                Loved by clients
-              </h2>
-              <p className="mt-5 text-lg text-pink-950/70 leading-relaxed">
-                See how exceptional pieces and dedicated service have helped clients feel their best.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                <Link to="/testimonials" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3.5 font-bold text-white shadow-barbie transition hover:scale-105 hover:bg-brand-primary">
-                  Read More Customer Feedback
-                </Link>
-                <Link to="/contact" className="group inline-flex items-center gap-2 text-sm font-bold text-brand-accent transition hover:text-brand-primary">
-                  Leave Feedback
-                  <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
-                </Link>
+            <ScrollReveal className="relative py-8 md:py-12 text-center md:text-left">
+              <div className="absolute inset-0 bg-white/40 blur-[80px] rounded-[5rem] scale-[1.3] -z-10 pointer-events-none" />
+              <div className="relative z-10">
+                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
+                  Customer Feedback
+                </p>
+                <h2 className="mt-3 font-display text-4xl font-semibold text-brand-accent leading-tight drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
+                  Loved by clients
+                </h2>
+                <p className="mt-5 text-lg text-pink-950 font-medium leading-relaxed drop-shadow-[0_0_10px_rgba(255,255,255,1)]">
+                  See how exceptional pieces and dedicated service have helped clients feel their best.
+                </p>
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 sm:gap-6">
+                  <Link to="/testimonials" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3.5 font-bold text-white shadow-barbie transition hover:scale-105 hover:bg-brand-primary">
+                    Read More Customer Feedback
+                  </Link>
+                  <Link to="/contact" className="group inline-flex items-center gap-2 text-sm font-bold text-brand-accent transition hover:text-brand-primary drop-shadow-[0_0_5px_rgba(255,255,255,1)]">
+                    Leave Feedback
+                    <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
               </div>
             </ScrollReveal>
             <div className="grid gap-6 sm:grid-cols-2">
@@ -298,13 +295,14 @@ export function HomePage() {
         </section>
 
         {/* FAQ Preview - Redesigned Cards */}
-        <section className="bg-brand-background/30 py-16 md:py-24">
+        <section className="bg-transparent py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5">
-            <ScrollReveal className="text-center max-w-2xl mx-auto">
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+            <ScrollReveal className="text-center max-w-2xl mx-auto relative py-6">
+              <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
                 FAQ Preview
               </p>
-              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
                 Find answers to common questions
               </h2>
             </ScrollReveal>
@@ -334,11 +332,12 @@ export function HomePage() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-brand-accent via-brand-primary to-pink-400 text-white">
+        <section className="relative overflow-hidden bg-transparent">
           <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-5 py-28 text-center">
-            <div className="max-w-3xl">
-              <h2 className="font-display text-5xl md:text-6xl font-bold leading-tight">Found the right look?</h2>
-              <p className="mt-6 text-xl md:text-2xl text-white/90 font-medium">Send an inquiry and the details will be confirmed with you personally.</p>
+            <div className="max-w-3xl relative py-8">
+              <div className="absolute inset-0 bg-white/50 blur-[80px] rounded-[5rem] scale-[1.3] -z-10 pointer-events-none" />
+              <h2 className="relative z-10 font-display text-5xl md:text-6xl font-bold leading-tight text-brand-accent drop-shadow-[0_0_12px_rgba(255,255,255,1)]">Found the right look?</h2>
+              <p className="relative z-10 mt-6 text-xl md:text-2xl text-pink-950 font-semibold drop-shadow-[0_0_10px_rgba(255,255,255,1)]">Send an inquiry and the details will be confirmed with you personally.</p>
             </div>
             <Link
               to="/contact"
