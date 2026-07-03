@@ -92,7 +92,7 @@ export function ContactPage() {
               </ScrollReveal>
 
               {/* Consolidated Contact Card */}
-              <ScrollReveal delay={100} className="glass-panel p-6 md:p-8 animate-float-slow">
+              <ScrollReveal delay={100} className="glass-panel p-6 md:p-8">
                 <div className="flex flex-col gap-6">
                   <div className="flex gap-4">
                     <Icon icon="mdi:email-outline" className="size-6 shrink-0 text-brand-primary" />

@@ -207,7 +207,7 @@ export function CataloguePage() {
                 </p>
               ) : null}
             </div>
-            <div className="relative z-20 rounded-[2rem] glass-panel p-3 shadow-crystal animate-float-slow">
+            <div className="relative z-20 rounded-[2rem] glass-panel p-3 shadow-crystal">
               <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
                 <div className="relative">
                   <input

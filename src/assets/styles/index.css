@@ -127,7 +127,8 @@ body.catalogue-page {
 }
 
 /* Crystal Glassmorphism Utilities - Upgraded for image backgrounds */
-.crystal-panel {
+.crystal-panel,
+.glass-panel {
   background: rgba(255, 255, 255, 0.65);
   /* Increased opacity for readability */
   backdrop-filter: blur(24px);
@@ -138,7 +139,8 @@ body.catalogue-page {
   border-radius: 1.5rem;
 }
 
-.crystal-card {
+.crystal-card,
+.glass-card {
   background: rgba(255, 255, 255, 0.60);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
