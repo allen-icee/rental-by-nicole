@@ -60,17 +60,14 @@ export async function getCatalogueData(): Promise<CatalogueData> {
     }
 
     const items = (itemsResult.data ?? []) as ItemRow[];
-    if (items.length === 0) {
-      return fallbackCatalogueData();
-    }
 
     const itemIds = items.map((item) => item.id);
-    const [imagesResult, sizesResult, itemTagsResult, availabilityResult] = await Promise.all([
+    const [imagesResult, sizesResult, itemTagsResult, availabilityResult] = itemIds.length > 0 ? await Promise.all([
       supabase.from("catalog_item_images").select("catalog_item_id,image_url").in("catalog_item_id", itemIds).order("sort_order"),
       supabase.from("catalog_item_sizes").select("id,catalog_item_id,size_label,inventory_quantity").in("catalog_item_id", itemIds).order("sort_order"),
       supabase.from("catalog_item_tags").select("catalog_item_id,tag_id").in("catalog_item_id", itemIds),
       supabase.from("availability_ranges").select("catalog_item_id,start_date,end_date,label").in("catalog_item_id", itemIds).order("start_date")
-    ]);
+    ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
 
     if (imagesResult.error || sizesResult.error || itemTagsResult.error || availabilityResult.error) {
       throw imagesResult.error ?? sizesResult.error ?? itemTagsResult.error ?? availabilityResult.error;
