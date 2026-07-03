@@ -28,10 +28,10 @@ export function FAQPage() {
 
   return (
     <PublicLayout>
-      <main className="min-h-[90vh] bg-brand-background/30 pb-32">
+      <main className="min-h-[90vh] bg-transparent pb-32">
         
-        <ScrollReveal as="section" className="relative overflow-hidden bg-white py-8 md:py-12 shadow-sm border-b border-pink-100">
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-background/60 to-transparent" />
+        <ScrollReveal as="section" className="relative overflow-hidden bg-transparent py-8 md:py-12 border-b border-white/50">
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-background/60 to-transparent mix-blend-overlay" />
           <div className="relative mx-auto max-w-4xl px-5 text-center">
 
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-brand-accent md:text-4xl">
@@ -48,7 +48,7 @@ export function FAQPage() {
               </div>
               <input
                 type="text"
-                className="w-full rounded-full border-2 border-pink-100 bg-white py-3 pl-12 pr-12 text-base font-medium text-brand-accent shadow-soft transition-all duration-300 placeholder:text-pink-950/40 focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 hover:shadow-barbie"
+                className="w-full rounded-full border-2 border-white/60 bg-white/40 backdrop-blur-md py-3 pl-12 pr-12 text-base font-medium text-brand-accent shadow-inner transition-all duration-300 placeholder:text-pink-950/60 focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search for answers..."
@@ -75,9 +75,9 @@ export function FAQPage() {
                   <ScrollReveal
                     key={faq.question}
                     delay={Math.min(index * 50, 500)} 
-                    className={`group relative overflow-hidden rounded-[2rem] border transition-all duration-500 ${isOpen
-                      ? "bg-white border-brand-primary/30 shadow-barbie"
-                      : "bg-white/70 backdrop-blur-sm border-white shadow-soft hover:border-brand-primary/40 hover:shadow-barbie hover:-translate-y-1 hover:bg-white"
+                    className={`group relative overflow-hidden rounded-[2rem] border transition-all duration-500 animate-float ${isOpen
+                      ? "glass-panel border-white/80 shadow-crystal"
+                      : "glass-card border-white/60 shadow-soft hover:border-brand-primary/40 hover:shadow-barbie hover:-translate-y-1 hover:bg-white/80"
                       }`}
                   >
                     {isOpen && (
@@ -122,8 +122,8 @@ export function FAQPage() {
                 );
               })
             ) : (
-              <div className="rounded-[3rem] bg-white p-16 text-center shadow-soft border border-white">
-                <div className="mx-auto grid size-24 place-items-center rounded-full bg-brand-background text-brand-primary mb-8 shadow-sm">
+              <div className="rounded-[3rem] glass-panel p-16 text-center shadow-crystal border border-white">
+                <div className="mx-auto grid size-24 place-items-center rounded-full glass-card text-brand-primary mb-8 shadow-sm">
                   <Icon icon="mdi:comment-search-outline" className="size-12" />
                 </div>
                 <h3 className="font-display text-3xl font-bold text-brand-accent">No results found</h3>

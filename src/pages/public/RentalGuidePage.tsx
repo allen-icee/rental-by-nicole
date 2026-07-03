@@ -47,12 +47,12 @@ export function RentalGuidePage() {
 
   return (
     <PublicLayout>
-      <main className="relative min-h-screen pb-24 bg-gradient-to-b from-brand-background via-white to-brand-background/30">
+      <main className="relative min-h-screen pb-24 bg-transparent">
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-brand-primary/10 blur-[120px]" />
-          <div className="absolute top-[20%] right-[-5%] h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[120px]" />
-          <div className="absolute bottom-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-brand-primary/10 blur-[120px]" />
+          <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-brand-primary/10 blur-[120px] animate-pulse" />
+          <div className="absolute top-[20%] right-[-5%] h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[120px] animate-pulse" />
+          <div className="absolute bottom-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-brand-primary/10 blur-[120px] animate-pulse" />
         </div>
 
         <section className="mx-auto max-w-6xl px-5 py-20 relative z-10">
@@ -99,8 +99,8 @@ export function RentalGuidePage() {
                     </div>
                   </div>
 
-                  <div className="group relative w-full rounded-3xl bg-white/80 backdrop-blur-sm p-6 md:p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-barbie border border-pink-50 overflow-hidden flex-1 flex flex-col">
-                    <div className="absolute -top-4 -right-4 text-brand-secondary/5 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/10">
+                  <div className="group relative w-full rounded-[2.5rem] glass-card p-6 md:p-8 shadow-crystal transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie overflow-hidden flex-1 flex flex-col animate-float" style={{ animationDelay: `${index * 0.5}s` }}>
+                    <div className="absolute -top-4 -right-4 text-brand-primary/10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:text-brand-primary/20">
                       {step.icon === "RN-Logo-Pink" ? (
                         <img src="/assets/RN-Logo-Pink.png" alt="" className="size-32 object-contain opacity-10" />
                       ) : (
@@ -128,8 +128,8 @@ export function RentalGuidePage() {
           </div>
           <div className="grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {guides.map((section, index) => (
-              <ScrollReveal as="article" key={section.title} delay={index * 100} className="rounded-3xl bg-white/60 backdrop-blur-md p-6 shadow-sm hover:shadow-soft transition-shadow border border-pink-50 flex flex-col items-center text-center">
-                <span className="grid size-12 place-items-center rounded-full bg-brand-background text-brand-primary shadow-sm mb-4 border border-pink-100">
+              <ScrollReveal as="article" key={section.title} delay={index * 100} className="rounded-[2.5rem] glass-panel p-6 shadow-crystal hover:shadow-barbie transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center animate-float" style={{ animationDelay: `${index * 0.2}s` }}>
+                <span className="grid size-12 place-items-center rounded-full glass-card text-brand-primary shadow-sm mb-4 border border-white/60">
                   <Icon icon="mdi:information-variant" className="size-6" />
                 </span>
                 <h3 className="font-bold text-brand-accent text-base">{section.title}</h3>
@@ -140,9 +140,10 @@ export function RentalGuidePage() {
         </section>
 
         <ScrollReveal className="mx-auto max-w-4xl px-5 relative z-10" as="section">
-          <div className="rounded-[2.5rem] bg-gradient-to-br from-brand-accent to-pink-600 p-8 md:p-14 shadow-barbie overflow-hidden relative text-center text-white">
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+          <div className="rounded-[3rem] crystal-button p-8 md:p-14 shadow-crystal overflow-hidden relative text-center text-white">
+            <div className="absolute inset-0 bg-brand-primary/20 backdrop-blur-md" />
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-float-slow" />
+            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-48 w-48 rounded-full bg-white/20 blur-2xl animate-float" style={{ animationDelay: '2s' }} />
 
             <div className="relative z-10">
               <img src="/assets/RN-Logo-White.png" alt="" className="size-14 mx-auto mb-5 object-contain drop-shadow-sm" />
@@ -151,13 +152,13 @@ export function RentalGuidePage() {
                 Browse to our catalogue and send an inquiry to begin your rental.
               </p>
 
-              <div className="mt-8">
+              <div className="mt-8 relative z-20">
                 <Link
                   to="/catalogue"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold tracking-widest uppercase text-brand-accent shadow-lg transition-transform hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white/90 backdrop-blur-xl px-8 py-4 text-sm font-bold tracking-widest uppercase text-brand-accent shadow-barbie transition-all duration-500 hover:scale-105 hover:bg-white"
                 >
                   Browse Catalogue
-                  <Icon icon="mdi:arrow-right" className="text-xl" />
+                  <Icon icon="mdi:magic-staff" className="text-xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12" />
                 </Link>
               </div>
             </div>

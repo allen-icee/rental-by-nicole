@@ -207,11 +207,11 @@ export function CataloguePage() {
                 </p>
               ) : null}
             </div>
-            <div className="relative z-20 rounded-2xl bg-white/90 p-3 shadow-barbie">
+            <div className="relative z-20 rounded-[2rem] glass-panel p-3 shadow-crystal animate-float-slow">
               <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
                 <div className="relative">
                   <input
-                    className="w-full rounded-full border-2 border-pink-100 bg-white py-3 pl-12 pr-4 text-sm font-medium focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all placeholder:text-pink-950/40 text-brand-accent"
+                    className="w-full rounded-full border-2 border-white/60 bg-white/40 backdrop-blur-md py-3 pl-12 pr-4 text-sm font-medium focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all placeholder:text-pink-950/60 text-brand-accent shadow-inner"
                     value={search}
                     onChange={(event) => {
                       setSearch(event.target.value);
@@ -252,7 +252,7 @@ export function CataloguePage() {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="flex items-center justify-center rounded-full border-2 border-pink-100 bg-white px-4 py-3 text-brand-accent transition hover:border-brand-primary hover:text-brand-primary hover:shadow-soft focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
+                  className="flex items-center justify-center rounded-full border-2 border-white/80 bg-white/50 px-4 py-3 text-brand-accent transition hover:border-brand-primary hover:text-white hover:bg-brand-primary hover:shadow-soft focus:outline-none focus:ring-4 focus:ring-brand-primary/10 backdrop-blur-md"
                   title="Reset filters"
                   aria-label="Reset filters"
                 >
@@ -280,9 +280,9 @@ export function CataloguePage() {
           ) : visibleItems.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {visibleItems.map((item, index) => (
-                <ScrollReveal as="article" key={item.id} delay={index * 50} className="group overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:shadow-soft border border-pink-50">
+                <ScrollReveal as="article" key={item.id} delay={index * 50} className="group overflow-hidden glass-card transition-all" style={{ animationDelay: `${index * 0.2}s` }}>
                   <button type="button" onClick={() => openItem(item)} className="block w-full text-left transition-transform active:scale-[0.98]">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-brand-background">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-[1.25rem] m-2">
                       <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                       <span
                         className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${availabilityClasses[item.availabilityStatus]}`}
@@ -301,9 +301,9 @@ export function CataloguePage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl bg-white p-10 text-center shadow-soft">
-              <Icon icon="mdi:magnify-close" className="mx-auto size-10 text-brand-primary" />
-              <h2 className="mt-4 font-display text-3xl font-semibold">No matching items</h2>
+            <div className="rounded-[2.5rem] glass-panel p-10 text-center shadow-crystal">
+              <Icon icon="mdi:magnify-close" className="mx-auto size-12 text-brand-primary opacity-60" />
+              <h2 className="mt-4 font-display text-3xl font-semibold">No magical items found</h2>
               <p className="mt-2 text-pink-950/70">Try a different search, category, or tag.</p>
             </div>
           )}
@@ -313,7 +313,7 @@ export function CataloguePage() {
               <button
                 type="button"
                 onClick={() => setPage((current) => current + 1)}
-                className="rounded-full bg-brand-accent px-8 py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-soft transition-transform active:scale-95 hover:shadow-barbie"
+                className="crystal-button rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-crystal transition-transform active:scale-95"
               >
                 Load More
               </button>
@@ -323,12 +323,12 @@ export function CataloguePage() {
 
         {selectedItem ? (
           <div
-            className="fixed inset-0 z-[70] overflow-y-auto bg-pink-950/55 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] overflow-y-auto bg-brand-background/40 p-4 backdrop-blur-xl"
             onClick={() => setSelectedItem(null)}
             data-lenis-prevent="true"
           >
             <div
-              className="mx-auto my-4 max-w-5xl rounded-2xl bg-brand-background shadow-barbie"
+              className="mx-auto my-4 max-w-5xl glass-panel shadow-crystal"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5 min-w-0">
@@ -345,13 +345,13 @@ export function CataloguePage() {
                     <button
                       type="button"
                       onClick={() => openFullscreen(activeImageUrl)}
-                      className="block w-full"
+                      className="block w-full rounded-2xl overflow-hidden shadow-inner border border-white/60"
                       aria-label="Open image viewer"
                     >
                       <img
                         src={activeImageUrl}
                         alt={selectedItem.name}
-                        className="h-[390px] w-full rounded-2xl object-cover"
+                        className="h-[390px] w-full object-cover transition-transform duration-700 hover:scale-105"
                       />
                     </button>
 
@@ -430,10 +430,10 @@ export function CataloguePage() {
                   <div className="mt-4 flex flex-col gap-2 sm:flex-row shrink-0">
                     <Link
                       to={`/contact?item=${encodeURIComponent(selectedItem.name)}`}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-soft transition-transform hover:scale-[1.02]"
+                      className="crystal-button inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-crystal transition-transform hover:scale-[1.02]"
                     >
                       Inquire
-                      <Icon icon="mdi:sparkles" className="size-4" />
+                      <Icon icon="mdi:magic-staff" className="size-4" />
                     </Link>
                     {selectedItem.reelUrl ? (
                       <a
@@ -450,7 +450,7 @@ export function CataloguePage() {
 
                   <div className="mt-5 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
                     {/* Descriptions (Not Collapsible) */}
-                    <div className="rounded-xl border border-pink-100 bg-white/50 p-4 shadow-sm">
+                    <div className="rounded-2xl border border-white/80 bg-white/40 backdrop-blur-md p-4 shadow-sm">
                       <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-pink-950 mb-2">
                         <Icon icon="mdi:information-variant" className="size-4 text-brand-primary" />
                         Descriptions

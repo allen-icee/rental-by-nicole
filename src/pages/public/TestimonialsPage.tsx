@@ -85,10 +85,10 @@ export function TestimonialsPage() {
 
   return (
     <PublicLayout>
-      <main className="min-h-screen bg-brand-background/30">
+      <main className="min-h-screen bg-transparent">
         <ScrollReveal as="section" className="relative overflow-hidden px-5 py-12 md:py-20">
-          <div className="absolute -left-[10%] top-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-primary/10 blur-[100px]" />
-          <div className="absolute -right-[5%] bottom-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-accent/10 blur-[100px]" />
+          <div className="absolute -left-[10%] top-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-primary/10 blur-[100px] animate-pulse" />
+          <div className="absolute -right-[5%] bottom-0 -z-10 h-[400px] w-[400px] rounded-full bg-brand-accent/10 blur-[100px] animate-pulse" />
 
           <div className="mx-auto max-w-7xl">
             <div className="mb-8 flex flex-col gap-6 md:mb-12 md:flex-row md:items-start md:justify-between">
@@ -110,7 +110,7 @@ export function TestimonialsPage() {
                   resetReviewForm();
                   setIsReviewModalOpen(true);
                 }}
-                className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border-2 border-brand-accent/20 bg-white/50 px-8 py-4 text-sm font-bold text-brand-accent shadow-sm transition-all hover:border-brand-primary hover:bg-brand-primary hover:text-white"
+                className="crystal-button group inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-bold text-white shadow-crystal"
               >
                 <Icon
                   icon="mdi:pencil-outline"
@@ -130,11 +130,11 @@ export function TestimonialsPage() {
                     key={item.name + index}
                     type="button"
                     onClick={() => setSelectedTestimonial(item)}
-                    className="group relative flex w-[85vw] max-w-[400px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-pink-100 bg-white/60 p-8 text-left shadow-soft backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-barbie"
+                    className="group relative flex w-[85vw] max-w-[400px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] glass-card p-8 text-left transition-all duration-500 animate-float" style={{ animationDelay: `${index * 1.5}s` }}
                   >
                     <Icon
-                      icon="mdi:format-quote-open"
-                      className="absolute right-6 top-6 text-5xl text-brand-secondary/20 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/40"
+                      icon="mdi:crown"
+                      className="absolute right-6 top-6 text-5xl text-brand-primary/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:text-brand-primary/20"
                     />
 
                     <div>
@@ -203,15 +203,15 @@ export function TestimonialsPage() {
 
         {selectedTestimonial && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-pink-950/40 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-brand-background/40 p-4 backdrop-blur-xl"
             onClick={() => setSelectedTestimonial(null)}
             data-lenis-prevent="true"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[90svh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-brand-background shadow-barbie"
+              className="relative flex max-h-[90svh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] glass-panel shadow-crystal"
             >
-              <div className="flex items-center justify-between border-b border-pink-100 bg-white/90 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
+              <div className="flex items-center justify-between border-b border-white/60 bg-white/40 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">
                     Client Experience
@@ -229,7 +229,7 @@ export function TestimonialsPage() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-10 bg-white" data-lenis-prevent="true">
+              <div className="overflow-y-auto p-5 sm:p-10 bg-white/60" data-lenis-prevent="true">
                 <div className="mb-6 flex gap-1 text-brand-primary">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Icon
@@ -242,8 +242,8 @@ export function TestimonialsPage() {
 
                 <div className="relative">
                   <Icon
-                    icon="mdi:format-quote-open"
-                    className="absolute -left-3 -top-3 text-4xl text-brand-secondary/20"
+                    icon="mdi:crown"
+                    className="absolute -left-3 -top-3 text-4xl text-brand-primary/10"
                   />
                   <p className="relative z-10 text-lg md:text-xl italic leading-relaxed text-pink-950/80">
                     "{selectedTestimonial.comment}"
@@ -273,14 +273,14 @@ export function TestimonialsPage() {
 
         {isReviewModalOpen && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-pink-950/40 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-brand-background/40 p-4 backdrop-blur-xl"
             onClick={() => setIsReviewModalOpen(false)}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[90svh] w-full max-w-xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-brand-background shadow-barbie"
+              className="relative flex max-h-[90svh] w-full max-w-xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] glass-panel shadow-crystal"
             >
-              <div className="flex items-center justify-between border-b border-pink-100 bg-white/90 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
+              <div className="flex items-center justify-between border-b border-white/60 bg-white/40 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
                 <div>
                   <h3 className="font-display text-xl md:text-2xl font-bold text-brand-accent">
                     Share Your Experience
@@ -298,10 +298,10 @@ export function TestimonialsPage() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-8 bg-white hide-scrollbar" data-lenis-prevent="true">
+              <div className="overflow-y-auto p-5 sm:p-8 bg-white/60 hide-scrollbar" data-lenis-prevent="true">
                 <form className="flex flex-col gap-6" onSubmit={handleSubmit(onReviewSubmit)}>
 
-                  <div className="flex flex-col items-center justify-center p-5 md:p-6 rounded-2xl bg-brand-background/30 border border-pink-100 shadow-soft">
+                  <div className="flex flex-col items-center justify-center p-5 md:p-6 rounded-2xl glass-card border border-white/60 shadow-inner">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent mb-4">
                       How was your experience?
                     </label>
@@ -333,7 +333,7 @@ export function TestimonialsPage() {
                       {...register("name", { required: true, minLength: 2 })}
                       type="text"
                       placeholder="e.g. Maria Theresa"
-                      className="w-full rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     />
                   </div>
 
@@ -345,7 +345,7 @@ export function TestimonialsPage() {
                       {...register("comment", { required: true, minLength: 10 })}
                       rows={4}
                       placeholder="Tell us about your event and how you felt in your rental..."
-                      className="w-full resize-none rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full resize-none rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     ></textarea>
                   </div>
 
@@ -357,17 +357,17 @@ export function TestimonialsPage() {
                       {...register("photoUrl")}
                       type="url"
                       placeholder="https://..."
-                      className="w-full rounded-xl md:rounded-2xl border-2 border-pink-50 bg-white px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-soft transition-all focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={!isValid || isSubmittingReview}
-                    className="mt-2 md:mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-6 md:px-8 py-3.5 md:py-4 text-sm font-bold tracking-widest uppercase text-white shadow-barbie transition hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    className="crystal-button mt-2 md:mt-4 flex w-full items-center justify-center gap-2 rounded-full px-6 md:px-8 py-3.5 md:py-4 text-sm font-bold tracking-widest uppercase text-white shadow-crystal transition disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
                   >
                     {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                    <Icon icon="mdi:heart" className="text-lg" />
+                    <Icon icon="mdi:magic-staff" className="text-lg" />
                   </button>
                 </form>
               </div>
