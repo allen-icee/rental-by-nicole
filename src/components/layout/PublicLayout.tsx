@@ -151,7 +151,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col relative z-10">
+      <main className="flex-1 flex flex-col relative">
         {children}
       </main>
 
