@@ -27,13 +27,6 @@ export type Database = {
       }>;
       settings: Table<{
         id: string;
-        business_name: string;
-        tagline: string;
-        logo_url: string | null;
-        hero_banner_url: string | null;
-        footer_text: string | null;
-        phone: string | null;
-        secondary_phone: string | null;
         email: string | null;
         secondary_email: string | null;
         facebook_url: string | null;
@@ -44,7 +37,6 @@ export type Database = {
         seo_description: string | null;
         announcement_text: string | null;
         announcement_is_active: boolean;
-        curated_collection_text: string;
         created_at: string;
         updated_at: string;
       }>;

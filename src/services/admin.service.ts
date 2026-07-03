@@ -502,8 +502,6 @@ export async function updateInquiryStatus(id: string, status: InquiryRow["status
 
 export async function saveSettings(input: {
   id?: string;
-  business_name: string;
-  tagline: string;
   email?: string;
   secondary_email?: string;
   facebook_url?: string;
@@ -516,8 +514,6 @@ export async function saveSettings(input: {
   announcement_is_active?: boolean;
 }) {
   const payload = {
-    business_name: input.business_name,
-    tagline: input.tagline,
     email: input.email || null,
     secondary_email: input.secondary_email || null,
     facebook_url: input.facebook_url || null,

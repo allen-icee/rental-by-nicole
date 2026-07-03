@@ -11,8 +11,6 @@ import { FormToggle } from "@/components/ui/forms/FormToggle";
 
 type SettingsFormData = {
   id?: string;
-  business_name: string;
-  tagline: string;
   email: string;
   secondary_email: string;
   facebook_url: string;
@@ -46,8 +44,6 @@ export function SettingsPage() {
       if (settings) {
         reset({
           id: settings.id,
-          business_name: settings.business_name,
-          tagline: settings.tagline || "",
           email: settings.email || "",
           secondary_email: settings.secondary_email || "",
           facebook_url: settings.facebook_url || "",
@@ -100,10 +96,6 @@ export function SettingsPage() {
 
       <div className="rounded-2xl bg-white p-6 shadow-soft w-full">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
-          <input type="hidden" {...register("business_name")} />
-          <input type="hidden" {...register("tagline")} />
-
           <section>
             <h3 className="text-sm font-semibold text-brand-accent mb-3 border-b border-pink-100 pb-2">Homepage Content</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

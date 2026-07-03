@@ -163,10 +163,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 </div>
                 <div>
                   <p className="font-display text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none">
-                    {settings?.business_name || siteConfig.name}
+                    {siteConfig.name}
                   </p>
                   <p className="mt-1 text-[10px] font-bold text-brand-primary uppercase tracking-[0.2em]">
-                    {settings?.tagline || siteConfig.tagline}
+                    {siteConfig.tagline}
                   </p>
                 </div>
               </div>
@@ -193,7 +193,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
           <div className="mt-10 border-t border-pink-100 pt-6 text-center">
             <p className="text-xs font-semibold text-pink-950/40">
-              © {new Date().getFullYear()} {settings?.business_name || siteConfig.name}. All rights reserved. ⊂⁠(⁠≽^•⩊•^≼⁠)⁠つ
+              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved. ⊂⁠(⁠≽^•⩊•^≼⁠)⁠つ
             </p>
           </div>
         </div>

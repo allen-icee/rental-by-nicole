@@ -61,11 +61,6 @@ CREATE TABLE public.users (
 -- SETTINGS
 CREATE TABLE public.settings (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  business_name text DEFAULT 'Rental By Nicole' NOT NULL,
-  tagline text DEFAULT 'Your Premier Dress & Gown Rental' NOT NULL,
-  logo_url text,
-  hero_banner_url text,
-  footer_text text,
   email text,
   secondary_email text,
   facebook_url text,
@@ -76,7 +71,6 @@ CREATE TABLE public.settings (
   seo_description text,
   announcement_text text,
   announcement_is_active boolean DEFAULT false NOT NULL,
-  curated_collection_text text DEFAULT 'Discover our handpicked selections' NOT NULL,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -381,9 +375,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 5. INITIAL DATA / SEEDING
 -- ==============================================================================
 
--- If you are resetting your public schema but already have an admin account in 
--- Supabase Authentication (auth.users), this will automatically recreate your 
--- admin profile in public.users so you don't lose access!
 INSERT INTO public.users (id, email, username, role)
 SELECT id, email, split_part(email, '@', 1), 'owner'::public.app_role
 FROM auth.users
