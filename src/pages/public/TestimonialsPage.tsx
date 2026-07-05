@@ -4,6 +4,8 @@ import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { getTestimonials } from "@/services/catalogue.service";
+import GradientText from "@/components/ui/GradientText";
+import ShinyText from "@/components/ui/ShinyText";
 import { useToast } from "@/components/ui/toast-context";
 import { submitReview } from "@/services/forms.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -94,10 +96,12 @@ export function TestimonialsPage() {
             <div className="mb-8 flex flex-col gap-6 md:mb-12 md:flex-row md:items-start md:justify-between">
               <div className="max-w-2xl">
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
-                  Customer Feedback
+                  <ShinyText text="Customer Feedback" disabled={false} speed={3} />
                 </p>
                 <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-brand-accent sm:text-5xl lg:text-6xl">
-                  Loved by Clients
+                  <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                    Loved by Clients
+                  </GradientText>
                 </h1>
                 <p className="mt-3 text-base font-medium text-pink-950/70 sm:text-lg">
                   See how exceptional pieces and dedicated service have helped clients feel their best.

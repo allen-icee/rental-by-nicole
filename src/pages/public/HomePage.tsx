@@ -10,6 +10,9 @@ import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 import { useSettings } from "@/contexts/SettingsContext";
 import { siteConfig } from "@/config/site";
 import { AnnouncementToast } from "@/components/ui/AnnouncementToast";
+import GradientText from "@/components/ui/GradientText";
+import ShinyText from "@/components/ui/ShinyText";
+import RotatingText from "@/components/ui/RotatingText";
 import { useTrackPageView } from "@/features/analytics/usePageViews";
 
 const processSteps = [
@@ -24,7 +27,7 @@ export function HomePage() {
   useTrackPageView();
 
   const [newArrivals, setNewArrivals] = useState<CatalogItem[]>([]);
-  const [, setFeaturedItems] = useState<CatalogItem[]>([]);
+  const [featuredItems, setFeaturedItems] = useState<CatalogItem[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);
   const [curatedTags, setCuratedTags] = useState<string[]>([]);
@@ -61,55 +64,64 @@ export function HomePage() {
       <main>
         <AnnouncementToast />
 
-        <section className="relative isolate overflow-hidden bg-transparent min-h-[85vh] flex items-center">
+        <section className="relative isolate bg-transparent min-h-[85vh] flex items-center">
 
-          <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-20 z-10 flex items-center justify-center md:justify-start">
+          <ScrollReveal delay={100} className="relative mx-auto w-full max-w-7xl px-5 py-24 z-10 flex items-center justify-center md:justify-center">
             {/* Cloudy Magical Backdrop */}
-            <div className="absolute inset-0 max-w-3xl bg-white/50 blur-[80px] rounded-full scale-[1.2] -z-10 pointer-events-none translate-x-[5%] md:translate-x-0" />
-            
-            <div className="max-w-2xl text-left relative z-10">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] max-w-[800px] h-[60vh] max-h-[600px] bg-white/60 blur-[100px] rounded-[100%] -z-10 pointer-events-none" />
+
+            <div className="max-w-3xl text-center relative z-10 flex flex-col items-center">
               <p className="text-sm font-bold uppercase tracking-[0.35em] text-brand-primary drop-shadow-[0_0_10px_rgba(255,255,255,1)]">
-                {siteConfig.name}
+                <ShinyText text={siteConfig.name} disabled={false} speed={3} />
               </p>
-              <h1 className="mt-4 font-display text-5xl font-bold leading-tight text-brand-accent md:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
-                {siteConfig.tagline}
+              <h1 className="mt-4 font-display text-5xl font-bold leading-tight md:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] flex justify-center">
+                <span className="relative inline-block">
+                  <Icon
+                    icon="game-icons:crown"
+                    className="absolute -top-3 left-8 md:-top-5 md:left-[3.5rem] -rotate-[20deg] text-4xl md:text-6xl text-[#d11275] z-10 drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] pointer-events-none"
+                  />
+                  <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                    <span style={{ fontFamily: "'Pacifico', cursive", textTransform: 'capitalize', paddingBottom: '0.15em' }}>
+                      {siteConfig.tagline}
+                    </span>
+                  </GradientText>
+                </span>
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-pink-950 font-semibold drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
-                Browse our curated collection of dresses, gowns, Filipiniana pieces, boleros, and accessories.
-                When you find the perfect look, simply send an inquiry to begin your rental.
-              </p>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row relative z-10">
+              <div className="mt-8 max-w-2xl text-lg leading-relaxed text-brand-accent font-bold drop-shadow-[0_0_12px_rgba(255,255,255,1)] flex flex-wrap items-center justify-center gap-2">
+                <span>Browse our curated collections like</span>
+                <RotatingText
+                  texts={newArrivals.length > 0 ? [...newArrivals, ...featuredItems].map(i => i.name) : ['dresses', 'gowns', 'Filipiniana pieces', 'boleros', 'accessories']}
+                  mainClassName="inline-flex overflow-hidden bg-gradient-to-r from-brand-primary to-brand-accent text-white px-4 py-1.5 rounded-xl shadow-barbie border border-white/40"
+                  staggerDuration={0.025}
+                  staggerFrom="last"
+                  rotationInterval={3000}
+                />
+              </div>
+              <div className="mt-16 flex justify-center w-full relative z-10">
                 <Link
                   to="/catalogue"
-                  className="group relative inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent px-8 py-4 font-bold text-white shadow-barbie transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_30px_rgba(255,47,168,0.3)] overflow-hidden"
+                  className="animate-float inline-flex items-center justify-center transition-transform hover:scale-110 text-[#ff66b2] drop-shadow-[0_0_15px_rgba(255,102,178,0.6)] hover:drop-shadow-[0_0_25px_rgba(255,102,178,0.9)]"
+                  aria-label="Go to catalogue"
                 >
-                  <span className="absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300 group-hover:translate-y-0" />
-                  <span className="relative z-10 flex items-center gap-2">
-                    Browse Catalogue
-                    <Icon icon="mdi:arrow-right" className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </Link>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center justify-center rounded-full border-2 border-brand-accent/20 bg-white/90 px-8 py-4 font-bold text-brand-accent backdrop-blur-md transition-all duration-300 hover:border-brand-accent hover:bg-brand-background/90 hover:shadow-soft"
-                >
-                  Send Inquiry
+                  <Icon icon="game-icons:ample-dress" className="size-12 md:size-16" />
                 </Link>
               </div>
             </div>
           </ScrollReveal>
         </section>
 
-        <section className="bg-transparent overflow-hidden py-16 md:py-24">
+        <section id="new-arrivals" className="bg-transparent overflow-hidden py-16 md:py-24">
           <ScrollReveal className="mx-auto max-w-7xl px-5 relative">
             <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.1] -z-10 pointer-events-none" />
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between relative z-10 py-4">
-              <div>
+              <div className="text-center md:text-left">
                 <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
-                  New Arrivals
+                  <ShinyText text="New Arrivals" disabled={false} speed={3} />
                 </p>
-                <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold text-brand-accent drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
-                  Fresh styles you'll love to wear
+                <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
+                  <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                    Fresh styles you'll love to wear
+                  </GradientText>
                 </h2>
               </div>
               <Link to="/catalogue" className="hidden md:inline-flex group items-center gap-1 font-bold text-brand-accent transition-colors hover:text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
@@ -123,22 +135,28 @@ export function HomePage() {
             {newArrivals.length > 0 ? (
               <Carousel autoScrollDelay={3500}>
                 {newArrivals.map((item) => (
-                  <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
-                    <div className="overflow-hidden h-80 relative">
-                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                      <div className="absolute bottom-6 left-0 right-0 flex justify-center translate-y-8 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                        <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm text-brand-accent px-5 py-2 rounded-full text-sm font-bold shadow-soft">
-                          Explore Item <Icon icon="mdi:arrow-right" className="size-4" />
+                  <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[320px] shrink-0 snap-center group transition-transform duration-500 hover:-translate-y-2">
+                    <div className="barbie-card w-full h-full">
+                      <div className="barbie-card-oval">
+                        <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        <div className="absolute inset-0 flex items-center justify-center translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 z-10 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-brand-accent px-4 py-2 rounded-full text-xs uppercase font-bold shadow-soft tracking-widest">
+                            Explore <Icon icon="game-icons:ample-dress" className="size-4" />
+                          </span>
+                        </div>
+                        <span className="absolute left-1/2 -translate-x-1/2 top-4 rounded-full bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-pink-100 shadow-sm z-10">
+                          {item.availabilityStatus}
                         </span>
                       </div>
-                    </div>
-                    <div className="flex flex-1 flex-col p-6 items-center text-center">
-                      <span className="rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-pink-100">
-                        {item.availabilityStatus}
-                      </span>
-                      <h3 className="mt-4 font-display text-2xl font-bold text-pink-950 group-hover:text-brand-primary transition-colors">{item.name}</h3>
-                      <p className="mt-3 text-lg font-bold text-brand-accent">{item.priceDisplay}</p>
+                      <div className="barbie-card-ribbon">
+                        <div className="ribbon-tail ribbon-tail-left"></div>
+                        <div className="ribbon-tail ribbon-tail-right"></div>
+                        <div className="ribbon-content flex flex-col justify-center">
+                          <h3 className="ribbon-title line-clamp-1">{item.name}</h3>
+                          <p className="ribbon-subtitle">{item.priceDisplay}</p>
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -164,10 +182,12 @@ export function HomePage() {
             <ScrollReveal className="text-center max-w-2xl mx-auto relative py-6">
               <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
-                Curated Collection
+                <ShinyText text="Curated Collection" disabled={false} speed={3} />
               </p>
               <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl leading-tight drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
-                Discover looks for every moment
+                <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                  Discover looks for every moment
+                </GradientText>
               </h2>
             </ScrollReveal>
 
@@ -204,10 +224,12 @@ export function HomePage() {
             <ScrollReveal className="max-w-2xl mx-auto relative py-6 text-center">
               <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
-                Rental Process
+                <ShinyText text="Rental Process" disabled={false} speed={3} />
               </p>
               <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
-                From inquiry to confirmation, made simple
+                <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                  From inquiry to confirmation, made simple
+                </GradientText>
               </h2>
             </ScrollReveal>
 
@@ -246,10 +268,12 @@ export function HomePage() {
               <div className="absolute inset-0 bg-white/40 blur-[80px] rounded-[5rem] scale-[1.3] -z-10 pointer-events-none" />
               <div className="relative z-10">
                 <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.24em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
-                  Customer Feedback
+                  <ShinyText text="Customer Feedback" disabled={false} speed={3} />
                 </p>
                 <h2 className="mt-3 font-display text-4xl font-semibold text-brand-accent leading-tight drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
-                  Loved by clients
+                  <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                    Loved by clients
+                  </GradientText>
                 </h2>
                 <p className="mt-5 text-lg text-pink-950 font-medium leading-relaxed drop-shadow-[0_0_10px_rgba(255,255,255,1)]">
                   See how exceptional pieces and dedicated service have helped clients feel their best.
@@ -300,10 +324,12 @@ export function HomePage() {
             <ScrollReveal className="text-center max-w-2xl mx-auto relative py-6">
               <div className="absolute inset-0 bg-white/50 blur-[60px] rounded-[5rem] scale-[1.2] -z-10 pointer-events-none" />
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-brand-primary drop-shadow-[0_0_8px_rgba(255,255,255,1)] relative z-10">
-                FAQ Preview
+                <ShinyText text="FAQ Preview" disabled={false} speed={3} />
               </p>
               <h2 className="mt-4 font-display text-3xl font-semibold text-brand-accent md:text-5xl drop-shadow-[0_0_12px_rgba(255,255,255,1)] relative z-10">
-                Find answers to common questions
+                <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                  Find answers to common questions
+                </GradientText>
               </h2>
             </ScrollReveal>
             <div className="mt-12 md:mt-16 max-w-3xl mx-auto space-y-4">
@@ -336,7 +362,11 @@ export function HomePage() {
           <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-5 py-28 text-center">
             <div className="max-w-3xl relative py-8">
               <div className="absolute inset-0 bg-white/50 blur-[80px] rounded-[5rem] scale-[1.3] -z-10 pointer-events-none" />
-              <h2 className="relative z-10 font-display text-5xl md:text-6xl font-bold leading-tight text-brand-accent drop-shadow-[0_0_12px_rgba(255,255,255,1)]">Found the right look?</h2>
+              <h2 className="relative z-10 font-display text-5xl md:text-6xl font-bold leading-tight text-brand-accent drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
+                <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                  Found the right look?
+                </GradientText>
+              </h2>
               <p className="relative z-10 mt-6 text-xl md:text-2xl text-pink-950 font-semibold drop-shadow-[0_0_10px_rgba(255,255,255,1)]">Send an inquiry and the details will be confirmed with you personally.</p>
             </div>
             <Link

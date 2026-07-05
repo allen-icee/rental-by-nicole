@@ -57,7 +57,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <div className="min-h-screen bg-transparent text-pink-950 flex flex-col relative z-0">
       <AtmosphereBackground />
-      <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
+      <header className="sticky top-0 z-50 border-b border-white/50 bg-white/30 backdrop-blur-xl shadow-[0_8px_30px_rgba(255,47,168,0.06)] transition-all duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:py-4 md:px-8 relative z-50">
 
           <NavLink
@@ -69,7 +69,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               <img src="/assets/RN-Logo-Pink.png" alt="Rental by Nicole Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="block font-display text-xl md:text-2xl font-bold bg-gradient-to-r from-brand-accent to-brand-primary bg-clip-text text-transparent leading-none tracking-tight">
+              <span className="block font-display text-xl md:text-2xl font-bold leading-none tracking-tight text-pink-500/80">
                 {siteConfig.name}
               </span>
               <span className="block text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] text-pink-500/80 mt-1">

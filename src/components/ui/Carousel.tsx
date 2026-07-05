@@ -22,25 +22,27 @@ export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
   };
 
   useEffect(() => {
-    
     checkScrollState();
+    let animationFrameId: number;
 
-    const interval = setInterval(() => {
+    const smoothScroll = () => {
       if (scrollContainerRef.current && !isHovered.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
         const maxScroll = scrollWidth - clientWidth;
         
-        if (scrollLeft >= maxScroll - 10) {
-          scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        if (scrollLeft >= maxScroll - 1) {
+          scrollContainerRef.current.scrollLeft = 0;
         } else {
-          
-          scrollContainerRef.current.scrollBy({ left: 350, behavior: "smooth" });
+          scrollContainerRef.current.scrollLeft += 1;
         }
       }
-    }, autoScrollDelay);
+      animationFrameId = requestAnimationFrame(smoothScroll);
+    };
 
-    return () => clearInterval(interval);
-  }, [autoScrollDelay]);
+    animationFrameId = requestAnimationFrame(smoothScroll);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -60,7 +62,7 @@ export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
       <div 
         ref={scrollContainerRef}
         onScroll={checkScrollState}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-8 pt-4 px-5 md:px-4 hide-scrollbar"
+        className="flex gap-6 overflow-x-auto pb-8 pt-4 px-5 md:px-4 hide-scrollbar"
       >
         {children}
       </div>

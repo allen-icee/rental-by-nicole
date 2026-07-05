@@ -10,6 +10,8 @@ import { submitInquiry } from "@/services/forms.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { useEffect, useState } from "react";
 import { getCatalogueData } from "@/services/catalogue.service";
+import GradientText from "@/components/ui/GradientText";
+import ShinyText from "@/components/ui/ShinyText";
 import { FormMultiSelect } from "@/components/ui/forms/FormMultiSelect";
 
 export function ContactPage() {
@@ -81,10 +83,12 @@ export function ContactPage() {
 
               <ScrollReveal>
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-primary mb-3">
-                  Contact Informations
+                  <ShinyText text="Contact Informations" disabled={false} speed={3} />
                 </p>
                 <h1 className="font-display text-2xl font-bold leading-tight text-brand-accent md:text-3xl">
-                  Don't be shy, send a message.
+                  <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                    Don't be shy, send a message.
+                  </GradientText>
                 </h1>
                 <p className="mt-4 text-base leading-relaxed text-pink-950/70 font-medium">
                   Message us to book a private fitting at our home based location✨

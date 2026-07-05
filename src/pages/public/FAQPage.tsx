@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { getFaqs } from "@/services/catalogue.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import ShinyText from "@/components/ui/ShinyText";
 
 export function FAQPage() {
   const [faqs, setFaqs] = useState<any[]>([]);
@@ -35,7 +36,7 @@ export function FAQPage() {
           <div className="relative mx-auto max-w-4xl px-5 text-center">
 
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-brand-accent md:text-4xl">
-              Frequently Asked Questions
+              <ShinyText text="Frequently Asked Questions" disabled={false} speed={3} />
             </h1>
             <p className="mt-3 text-sm md:text-base leading-relaxed text-pink-950/70 max-w-2xl mx-auto">
               Find everything you need to know about our rental process, availability, fittings, and more.

@@ -1,5 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Pacifico&family=Quicksand:wght@600;700&display=swap");
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
 
 @theme {
   --color-brand-primary: #b091f2;
@@ -190,3 +194,346 @@ img {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Barbie Item Card Styles */
+.barbie-card {
+  position: relative;
+  background: radial-gradient(circle at top, #ff88cc 0%, #f04a9b 45%, #d92f84 100%);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 18px rgba(0,0,0,.25), 0 0 20px rgba(255,215,0,.25);
+  padding: 25px 20px 45px 20px;
+}
+
+/* Sparkles for Barbie Card */
+.barbie-card::before,
+.barbie-card::after {
+  content: "✦";
+  position: absolute;
+  color: #fff;
+  font-size: 1.5rem;
+  opacity: 0.8;
+  text-shadow: 0 0 8px rgba(255,255,255,0.8);
+  pointer-events: none;
+}
+
+.barbie-card::before {
+  top: 15px;
+  left: 20px;
+}
+
+.barbie-card::after {
+  top: 30px;
+  right: 25px;
+  font-size: 1rem;
+}
+
+.barbie-card-oval {
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, #fff8d0, #f3d26a, #b8860b, #ffeeb0, #c69214) border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.barbie-card-oval img {
+  filter: brightness(1.03) contrast(1.05) saturate(1.08);
+}
+
+.barbie-card-oval::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 0 25px rgba(0,0,0,0.5), 
+    inset 0 0 10px rgba(212,175,55,0.3);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* NEW RIBBON STRUCTURE */
+.barbie-card-ribbon {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: 80%;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+}
+
+.ribbon-content {
+  position: relative;
+  width: 100%;
+  background: 
+    linear-gradient(to bottom, #ffffff, #fdf1d6 25%, #eacb85 75%, #d4a945) padding-box,
+    linear-gradient(135deg, #fff8d0, #d4af37, #b8860b, #ffeeb0) border-box;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  text-align: center;
+  padding: 10px 10px;
+  z-index: 2; /* above tails */
+  box-shadow: 
+    0 12px 24px rgba(0,0,0,0.35),
+    inset 0 2px 4px rgba(255,255,255,0.9),
+    inset 0 -3px 6px rgba(184,134,11,0.5);
+}
+
+.ribbon-tail {
+  position: absolute;
+  top: 15px; /* drops below main ribbon */
+  bottom: -5px;
+  width: 40px;
+  z-index: 1; /* behind content */
+}
+
+.ribbon-tail-left {
+  left: -20px;
+}
+
+.ribbon-tail-right {
+  right: -20px;
+}
+
+/* The actual tail background with swallowtail clip-path */
+.ribbon-tail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #eacb85, #c69214);
+  /* Fake the border using inset shadow */
+  box-shadow: inset 0 0 0 2px #d4af37, inset 0 0 5px rgba(255,255,255,0.5);
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+}
+
+.ribbon-tail-left::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 15px 50%, 0 0);
+  border-radius: 5px 0 0 5px;
+}
+
+.ribbon-tail-right::before {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, calc(100% - 15px) 50%, 100% 0);
+  border-radius: 0 5px 5px 0;
+}
+
+/* The fold triangle */
+.ribbon-tail::after {
+  content: "";
+  position: absolute;
+  top: -15px; /* fill the gap above the tail */
+  width: 15px;
+  height: 15px;
+  background: #7a5400; /* dark fold shadow */
+}
+
+.ribbon-tail-left::after {
+  right: 20px; /* aligns with left edge of main ribbon */
+  clip-path: polygon(100% 0, 100% 100%, 0 100%); /* bottom-right triangle */
+}
+
+.ribbon-tail-right::after {
+  left: 20px; /* aligns with right edge of main ribbon */
+  clip-path: polygon(0 0, 100% 100%, 0 100%); /* bottom-left triangle */
+}
+
+/* Typography Hierarchy */
+.ribbon-title {
+  font-family: 'Pacifico', cursive;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #4a2500;
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
+  margin: 0;
+  line-height: 1.4;
+  padding-bottom: 0.15em;
+  text-shadow: 
+    0 1px 1px rgba(255, 255, 255, 0.9),
+    0 -1px 1px rgba(212, 175, 55, 0.5);
+}
+
+@media (min-width: 640px) {
+  .ribbon-title {
+    font-size: 1.75rem;
+  }
+}
+
+.ribbon-subtitle {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #5c3010;
+  margin-top: 2px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.ribbon-note {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #7a4510;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 1px;
+}
+
+/* STORYBOOK MODAL REDESIGN */
+
+.storybook-modal {
+  background: linear-gradient(135deg, #FFFDFE, #FFF4FA, #FCE8F4);
+  border: 4px solid #d4af37;
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 50px rgba(209, 18, 117, 0.2),
+    inset 0 0 0 4px #fdfbf7,
+    inset 0 0 0 5px #d4af37;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Faint decorative background */
+.storybook-modal::before {
+  content: "✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ \A ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ \A ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀ ✦ ❀";
+  position: absolute;
+  inset: -50px;
+  white-space: pre-wrap;
+  font-size: 28px;
+  line-height: 2.5;
+  color: #d4af37;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  text-align: center;
+  user-select: none;
+}
+
+/* Storybook Pages (Panels) */
+.storybook-page {
+  background: #fdfbf7;
+  border: 1px solid #d4af37;
+  border-radius: 4px;
+  padding: 16px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  z-index: 1; /* above decorative background */
+}
+
+/* Tiny ornamental corners */
+.storybook-page::before,
+.storybook-page::after {
+  content: "✿";
+  position: absolute;
+  font-size: 8px;
+  color: #d4af37;
+  line-height: 1;
+}
+
+.storybook-page::before {
+  top: 4px;
+  left: 4px;
+}
+
+.storybook-page::after {
+  bottom: 4px;
+  right: 4px;
+}
+
+.storybook-page-content {
+  position: relative;
+}
+
+/* Decorative Divider */
+.storybook-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #d4af37;
+  margin: 12px 0;
+  opacity: 0.8;
+}
+
+.storybook-divider::before,
+.storybook-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+}
+
+/* Thumbnails */
+.storybook-thumbnail {
+  border: 2px solid #d4af37;
+  border-radius: 4px;
+  padding: 3px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.storybook-thumbnail-active {
+  border-color: #d11275;
+  box-shadow: 0 0 0 1px #d11275, 0 4px 8px rgba(209,18,117,0.3);
+  transform: scale(1.05);
+}
+
+/* Button */
+.storybook-btn {
+  background: #fdfbf7;
+  border: 3px double #d4af37;
+  border-radius: 8px;
+  color: #d11275;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  padding: 14px 28px;
+  position: relative;
+  box-shadow: 
+    0 6px 16px rgba(209, 18, 117, 0.25),
+    inset 0 0 0 2px #fff;
+  transition: all 0.3s ease;
+  z-index: 1;
+  font-family: var(--font-sans);
+}
+
+.storybook-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 20px rgba(209, 18, 117, 0.35),
+    inset 0 0 0 2px #fff;
+  background: #fff;
+  color: #b00f60;
+}
+
+/* Scrollbar */
+.storybook-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.storybook-scrollbar::-webkit-scrollbar-track {
+  background: #fce8f4;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.storybook-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #eacb85, #d4af37);
+  border-radius: 4px;
+  border: 1px solid #c69214;
+}
+
+.storybook-scrollbar {
+  scrollbar-color: #d4af37 #fce8f4;
+  scrollbar-width: thin;
+}

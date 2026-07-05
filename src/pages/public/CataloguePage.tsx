@@ -10,6 +10,8 @@ import { ImageViewer } from "@/components/ui/ImageViewer";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Accordion } from "@/components/ui/Accordion";
+import GradientText from "@/components/ui/GradientText";
+import ShinyText from "@/components/ui/ShinyText";
 
 const pageSize = 12;
 
@@ -191,10 +193,12 @@ export function CataloguePage() {
           <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-accent">
-                Catalogue
+                <ShinyText text="Catalogue" disabled={false} speed={3} />
               </p>
               <h1 className="mt-2 font-display text-3xl font-semibold text-pink-950">
-                Browse rental pieces
+                <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
+                  Browse rental pieces
+                </GradientText>
               </h1>
               <p className="mt-3 leading-7 text-pink-950/70">
                 Explore the collection using categories, tags, and style filters.
@@ -280,21 +284,29 @@ export function CataloguePage() {
           ) : visibleItems.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {visibleItems.map((item, index) => (
-                <ScrollReveal as="article" key={item.id} delay={index * 50} className="group overflow-hidden glass-card transition-all" style={{ animationDelay: `${index * 0.2}s` }}>
-                  <button type="button" onClick={() => openItem(item)} className="block w-full text-left transition-transform active:scale-[0.98]">
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-[1.25rem] m-2">
-                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                      <span
-                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${availabilityClasses[item.availabilityStatus]}`}
-                      >
-                        {item.availabilityStatus}
-                      </span>
-                    </div>
-                    <div className="p-3 sm:p-4">
-                      <h2 className="font-display text-sm sm:text-base lg:text-lg font-bold text-brand-accent line-clamp-2 sm:line-clamp-1">
-                        {item.name}
-                      </h2>
-                      <p className="mt-1 text-xs sm:text-sm font-semibold text-pink-950/70">{item.priceDisplay}</p>
+                <ScrollReveal as="article" key={item.id} delay={index * 50} className="group transition-all" style={{ animationDelay: `${index * 0.2}s` }}>
+                  <button type="button" onClick={() => openItem(item)} className="block w-full text-left transition-transform duration-500 hover:-translate-y-2 active:scale-[0.98]">
+                    <div className="barbie-card w-full h-full">
+                      <div className="barbie-card-oval">
+                        <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                        <span
+                          className={`absolute left-1/2 -translate-x-1/2 top-4 sm:top-5 rounded-full px-2.5 py-1 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm z-10 ${availabilityClasses[item.availabilityStatus]}`}
+                        >
+                          {item.availabilityStatus}
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        <div className="absolute inset-0 flex items-center justify-center translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 z-10 pointer-events-none">
+                          <Icon icon="game-icons:ample-dress" className="size-8 text-white drop-shadow-md" />
+                        </div>
+                      </div>
+                      <div className="barbie-card-ribbon">
+                        <div className="ribbon-tail ribbon-tail-left"></div>
+                        <div className="ribbon-tail ribbon-tail-right"></div>
+                        <div className="ribbon-content flex flex-col justify-center">
+                          <h3 className="ribbon-title line-clamp-1">{item.name}</h3>
+                          <p className="ribbon-subtitle">{item.priceDisplay}</p>
+                        </div>
+                      </div>
                     </div>
                   </button>
                 </ScrollReveal>
@@ -323,12 +335,12 @@ export function CataloguePage() {
 
         {selectedItem ? (
           <div
-            className="fixed inset-0 z-[70] overflow-y-auto bg-brand-background/40 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-[70] overflow-y-auto bg-pink-950/20 p-4 backdrop-blur-md flex items-center"
             onClick={() => setSelectedItem(null)}
             data-lenis-prevent="true"
           >
             <div
-              className="mx-auto my-4 max-w-5xl glass-panel shadow-crystal"
+              className="mx-auto my-auto max-w-5xl storybook-modal w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr] md:p-5 min-w-0">
@@ -392,13 +404,13 @@ export function CataloguePage() {
                       <Icon icon="mdi:fullscreen" className="size-6" />
                     </button>
                   </div>
-                  <div className="mt-3 flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                  <div className="mt-3 flex gap-3 overflow-x-auto pb-3 pt-1 px-1 storybook-scrollbar">
                     {selectedItem.images.map((image, index) => (
                       <button
                         type="button"
                         key={`${image}-${index}`}
                         onClick={() => setActiveImage(index)}
-                        className={`h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 ${activeImage === index ? "border-brand-accent" : "border-transparent"}`}
+                        className={`h-20 w-20 shrink-0 overflow-hidden storybook-thumbnail ${activeImage === index ? "storybook-thumbnail-active" : ""}`}
                       >
                         <img src={image} alt="" className="h-full w-full object-cover" />
                       </button>
@@ -406,107 +418,119 @@ export function CataloguePage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col p-4 md:p-5 lg:p-6 md:max-h-[85svh]">
+                <div className="flex flex-col p-4 md:p-5 lg:p-6 md:max-h-[85svh] z-10 relative">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <span className={`inline-block rounded-full px-2.5 py-1 mb-2 text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white ${availabilityClasses[selectedItem.availabilityStatus]}`}>
-                        {selectedItem.availabilityStatus}
-                      </span>
-                      <h2 className="font-display text-2xl font-bold text-brand-accent leading-tight">
+                    <div className="w-full text-center">
+                      <div className="storybook-divider">
+                        <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-accent`}>
+                          <Icon icon="game-icons:ribbon-medal" className="inline size-3 mr-1" />
+                          {selectedItem.availabilityStatus}
+                        </span>
+                      </div>
+                      <h2 className="text-4xl sm:text-5xl text-brand-accent leading-tight pb-1" style={{ fontFamily: "'Pacifico', cursive", textTransform: 'capitalize' }}>
                         {selectedItem.name}
                       </h2>
-                      <p className="mt-1 text-lg font-semibold text-pink-950/80">{selectedItem.priceDisplay}</p>
+                      <p className="mt-1 text-lg font-bold text-pink-950/80 font-sans tracking-wide">{selectedItem.priceDisplay}</p>
+                      <div className="storybook-divider mt-2 mb-0"></div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setSelectedItem(null)}
-                      className="grid size-8 shrink-0 place-items-center rounded-full bg-pink-50 text-brand-accent transition hover:bg-brand-primary hover:text-white"
+                      className="absolute right-4 top-4 grid size-10 shrink-0 place-items-center rounded-full bg-pink-50 text-brand-accent transition hover:bg-brand-primary hover:text-white z-20 shadow-sm border border-pink-200"
                       aria-label="Close"
                     >
-                      <Icon icon="mdi:close" className="size-4" />
+                      <Icon icon="game-icons:rose" className="size-6" />
                     </button>
                   </div>
 
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row shrink-0">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row shrink-0 px-2">
                     <Link
                       to={`/contact?item=${encodeURIComponent(selectedItem.name)}`}
-                      className="crystal-button inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-crystal transition-transform hover:scale-[1.02]"
+                      className="storybook-btn inline-flex flex-1 items-center justify-center gap-2"
                     >
+                      <Icon icon="game-icons:crown" className="size-5 mb-0.5" />
                       Inquire
-                      <Icon icon="mdi:magic-staff" className="size-4" />
                     </Link>
                     {selectedItem.reelUrl ? (
                       <a
                         href={selectedItem.reelUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-primary/20 bg-white px-4 py-3 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-primary/20 bg-white/50 px-4 py-3 text-sm font-bold uppercase tracking-widest text-brand-accent transition hover:border-brand-primary/50 hover:shadow-soft"
                       >
-                        <Icon icon="mdi:play-circle" className="size-5 text-brand-primary" />
+                        <Icon icon="game-icons:play-button" className="size-5 text-brand-primary" />
                         Watch Reel
                       </a>
                     ) : null}
                   </div>
 
-                  <div className="mt-5 grid gap-4 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 custom-scrollbar">
-                    {/* Descriptions (Not Collapsible) */}
-                    <div className="rounded-2xl border border-white/80 bg-white/40 backdrop-blur-md p-4 shadow-sm">
-                      <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-pink-950 mb-2">
-                        <Icon icon="mdi:information-variant" className="size-4 text-brand-primary" />
-                        Descriptions
-                      </h3>
-                      <p className="mb-3 text-sm text-pink-950/80 leading-relaxed">{selectedItem.description}</p>
-                      <div className="flex gap-1.5 overflow-hidden whitespace-nowrap text-ellipsis">
-                        <span className="shrink-0 rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary">
-                          {selectedItem.category}
-                        </span>
-                        {selectedItem.tags.map((tag) => (
-                          <span key={tag} className="shrink-0 rounded-full bg-pink-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pink-900/70 border border-pink-100">
-                            {tag}
+                  <div className="mt-6 grid gap-5 shrink-0 md:shrink md:flex md:flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:pr-2 storybook-scrollbar px-1 pb-2">
+                    {/* Descriptions */}
+                    <div className="storybook-page">
+                      <div className="storybook-page-content">
+                        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-pink-950 mb-3 font-sans">
+                          <Icon icon="game-icons:flower-twirl" className="size-5 text-brand-primary" />
+                          Description
+                        </h3>
+                        <p className="mb-4 text-sm text-pink-950/80 leading-relaxed font-serif italic text-lg">{selectedItem.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="shrink-0 flex items-center gap-1 rounded-full bg-brand-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-primary">
+                            <Icon icon="game-icons:ribbon-medal" className="size-3" />
+                            {selectedItem.category}
                           </span>
-                        ))}
+                          {selectedItem.tags.map((tag) => (
+                            <span key={tag} className="shrink-0 flex items-center gap-1 rounded-full bg-pink-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-pink-900/70 border border-pink-100">
+                              <Icon icon="game-icons:star-swirl" className="size-3 text-pink-300" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
                     {/* Sizing & Measurements */}
-                    <Accordion
-                      title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"><Icon icon="mdi:ruler" className="size-4 text-brand-primary" /> Sizing & Measurements</span>}
-                    >
-                      <p className="mb-2 text-xs text-pink-950/70"><span className="font-bold text-pink-950">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
-                      <div className="space-y-2">
-                        {selectedItem.measurements.map((measurement, index) => (
-                          <div key={`${measurement.size}-${index}`} className="rounded-lg bg-brand-background/80 p-3">
-                            <p className="text-xs font-bold text-brand-accent mb-1.5">Size {measurement.size}</p>
-                            <div className="grid grid-cols-2 gap-1 text-[11px] text-pink-950/80">
-                              {measurement.bust && measurement.bust !== "N/A" && <p>Bust: {measurement.bust}</p>}
-                              {measurement.chest && measurement.chest !== "N/A" && <p>Chest: {measurement.chest}</p>}
-                              {measurement.waist && measurement.waist !== "N/A" && <p>Waist: {measurement.waist}</p>}
-                              {measurement.hips && measurement.hips !== "N/A" && <p>Hips: {measurement.hips}</p>}
-                              {measurement.length && measurement.length !== "N/A" && <p>Length: {measurement.length}</p>}
-                              {measurement.notes && <p className="col-span-2 mt-0.5 text-brand-primary italic">Note: {measurement.notes}</p>}
+                    <div className="storybook-page">
+                      <Accordion
+                        title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest font-sans"><Icon icon="mdi:ruler" className="size-5 text-brand-primary" /> Sizing & Measurements</span>}
+                      >
+                        <p className="mb-3 text-sm text-pink-950/70 font-serif italic"><span className="font-bold text-pink-950 not-italic">Available Sizes:</span> {selectedItem.sizes.join(", ") || "N/A"}</p>
+                        <div className="space-y-3">
+                          {selectedItem.measurements.map((measurement, index) => (
+                            <div key={`${measurement.size}-${index}`} className="rounded-lg border border-pink-100 bg-white/50 p-3 shadow-sm">
+                              <p className="text-xs font-bold text-brand-accent mb-2 font-sans">Size {measurement.size}</p>
+                              <div className="grid grid-cols-2 gap-2 text-[12px] text-pink-950/80 font-serif">
+                                {measurement.bust && measurement.bust !== "N/A" && <p>Bust: {measurement.bust}</p>}
+                                {measurement.chest && measurement.chest !== "N/A" && <p>Chest: {measurement.chest}</p>}
+                                {measurement.waist && measurement.waist !== "N/A" && <p>Waist: {measurement.waist}</p>}
+                                {measurement.hips && measurement.hips !== "N/A" && <p>Hips: {measurement.hips}</p>}
+                                {measurement.length && measurement.length !== "N/A" && <p>Length: {measurement.length}</p>}
+                                {measurement.notes && <p className="col-span-2 mt-1 text-brand-primary italic">Note: {measurement.notes}</p>}
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </Accordion>
+                          ))}
+                        </div>
+                      </Accordion>
+                    </div>
 
                     {/* Availability Calendar */}
-                    <Accordion
-                      title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"><Icon icon="mdi:calendar-multiselect" className="size-4 text-brand-primary" /> Availability Calendar</span>}
-                    >
-                      {selectedItem.reservedRanges.length > 0 ? (
-                        <ul className="space-y-1.5">
-                          {selectedItem.reservedRanges.map((range, index) => (
-                            <li key={`${range}-${index}`} className="flex items-center gap-2 rounded-md bg-pink-50/70 px-2 py-1.5 text-xs text-brand-accent font-semibold">
-                              <Icon icon="mdi:calendar-remove" className="size-3.5 text-brand-primary" />
-                              Reserved: {range}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold"><Icon icon="mdi:calendar-check" className="size-4" /> Currently no reserved dates.</p>
-                      )}
-                    </Accordion>
+                    <div className="storybook-page">
+                      <Accordion
+                        title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest font-sans"><Icon icon="game-icons:crown" className="size-5 text-brand-primary" /> Availability</span>}
+                      >
+                        {selectedItem.reservedRanges.length > 0 ? (
+                          <ul className="space-y-2 mt-2">
+                            {selectedItem.reservedRanges.map((range, index) => (
+                              <li key={`${range}-${index}`} className="flex items-center gap-2 rounded-md border border-pink-100 bg-white/50 px-3 py-2 text-xs text-brand-accent font-semibold font-sans shadow-sm">
+                                <Icon icon="game-icons:padlock" className="size-4 text-brand-primary" />
+                                Reserved: {range}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="flex items-center gap-2 mt-2 text-sm text-emerald-600 font-semibold font-serif italic"><Icon icon="game-icons:sparkles" className="size-5" /> Currently no reserved dates.</p>
+                        )}
+                      </Accordion>
+                    </div>
                   </div>
                 </div>
               </div>

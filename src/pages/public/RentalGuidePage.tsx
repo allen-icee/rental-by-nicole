@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { getRentalGuides } from "@/services/catalogue.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import ShinyText from "@/components/ui/ShinyText";
 
 const journeySteps = [
   {
@@ -57,7 +58,9 @@ export function RentalGuidePage() {
 
         <section className="mx-auto max-w-6xl px-5 py-20 relative z-10">
           <div className="text-center mb-10">
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">How to Rent?</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">
+              <ShinyText text="How to Rent?" disabled={false} speed={3} />
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-y-16 gap-x-6 md:gap-x-10">
             {journeySteps.map((step, index) => {
@@ -124,7 +127,9 @@ export function RentalGuidePage() {
 
         <section className="mx-auto max-w-6xl px-5 pb-20 relative z-10">
           <div className="text-center mb-10">
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">Things to Know</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-brand-accent">
+              <ShinyText text="Things to Know" disabled={false} speed={3} />
+            </h2>
           </div>
           <div className="grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {guides.map((section, index) => (
