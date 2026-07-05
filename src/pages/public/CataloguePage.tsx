@@ -1,5 +1,5 @@
 // src/pages/public/CataloguePage.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -45,6 +45,7 @@ export function CataloguePage() {
   const [activeImage, setActiveImage] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (tagParam) setTag(tagParam);
@@ -139,6 +140,19 @@ export function CataloguePage() {
 
 
   const visibleItems = filteredItems.slice(0, page * pageSize);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleItems.length < filteredItems.length) {
+          setPage((p) => p + 1);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [visibleItems.length, filteredItems.length]);
   const activeImageUrl = selectedItem?.images[activeImage] ?? "";
 
   function openItem(item: CatalogItem) {
@@ -321,14 +335,11 @@ export function CataloguePage() {
           )}
 
           {visibleItems.length < filteredItems.length && (
-            <div className="mt-8 flex justify-center">
-              <button
-                type="button"
-                onClick={() => setPage((current) => current + 1)}
-                className="crystal-button rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-crystal transition-transform active:scale-95"
-              >
-                Load More
-              </button>
+            <div ref={loaderRef} className="mt-12 flex justify-center py-8">
+              <div className="flex flex-col items-center animate-pulse-glow">
+                <Icon icon="mdi:magic-staff" className="size-8 text-[#d11275] mb-2 animate-bounce" />
+                <span className="font-['Pacifico'] text-[#d11275] tracking-widest text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">Loading more magic...</span>
+              </div>
             </div>
           )}
         </section>
@@ -549,10 +560,11 @@ export function CataloguePage() {
         {showScrollTop && (
           <button
             onClick={scrollToTop}
-            className="fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full bg-brand-primary text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-brand-accent focus:outline-none focus:ring-4 focus:ring-brand-primary/30"
+            className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-white border-4 border-[#eebb4d] text-[#d11275] shadow-[0_4px_15px_rgba(238,187,77,0.5)] transition-all hover:-translate-y-2 hover:bg-[#ff66b2] hover:border-[#ff66b2] hover:text-white hover:shadow-[0_8px_25px_rgba(255,102,178,0.7)] group"
             aria-label="Scroll to top"
           >
-            <Icon icon="mdi:chevron-up" className="size-8" />
+            <Icon icon="game-icons:crown" className="absolute -top-3 -right-2 size-6 text-[#eebb4d] -rotate-12 drop-shadow-sm transition-transform group-hover:scale-110 group-hover:text-white" />
+            <Icon icon="mdi:arrow-up-thick" className="size-7" />
           </button>
         )}
       </main>

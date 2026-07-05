@@ -9,6 +9,23 @@ import ShinyText from "@/components/ui/ShinyText";
 import { useToast } from "@/components/ui/toast-context";
 import { submitReview } from "@/services/forms.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { DiamondCastleHeart } from "@/components/ui/DiamondCastleHeart";
+
+const formatTestimonialDate = (dateStr: string) => {
+  const parts = dateStr.split(" ");
+  if (parts.length >= 2) return `${parts[0].substring(0, 3)} ${parts[1]}`;
+  return dateStr;
+};
+
+const truncateWords = (str: string, max: number) => {
+  const words = str.split(" ");
+  if (words.length <= max) return str;
+  return words.slice(0, max).join(" ") + "...";
+};
+
+const getInitials = (name: string) => {
+  return name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+};
 
 export function TestimonialsPage() {
   const { showToast } = useToast();
@@ -134,47 +151,29 @@ export function TestimonialsPage() {
                     key={item.name + index}
                     type="button"
                     onClick={() => setSelectedTestimonial(item)}
-                    className="group relative flex w-[85vw] max-w-[400px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] glass-card p-8 text-left transition-all duration-500 animate-float" style={{ animationDelay: `${index * 1.5}s` }}
+                    className="group relative shrink-0 snap-center w-[75vw] max-w-[320px] text-center transition-all duration-500 hover:scale-105 focus:outline-none"
                   >
-                    <Icon
-                      icon="mdi:crown"
-                      className="absolute right-6 top-6 text-5xl text-brand-primary/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:text-brand-primary/20"
-                    />
-
-                    <div>
-                      <div className="mb-6 flex gap-1 text-brand-primary">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Icon
-                            key={i}
-                            icon={i < item.rating ? "mdi:star" : "mdi:star-outline"}
-                            className="text-lg"
-                          />
-                        ))}
-                      </div>
-
-                      <p className="text-lg italic leading-relaxed text-pink-950/80 line-clamp-4">
-                        "{item.comment}"
-                      </p>
-                      <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-brand-primary opacity-0 transition-opacity group-hover:opacity-100">
-                        Click to read full review
-                      </p>
-                    </div>
-
-                    <div className="mt-8 flex items-center gap-4 border-t border-pink-50 pt-6">
-                      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-pink-50 text-sm font-bold text-brand-accent shadow-sm border border-pink-100">
-                        {getInitials(item.name)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="text-base font-bold text-pink-950">
-                            {item.name}
-                          </h4>
-                        </div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-pink-950/50 mt-1">
-                          {item.date}
+                    <DiamondCastleHeart className="animate-float" style={{ animationDelay: `${index * 1.5}s` }} rating={item.rating}>
+                      
+                      <div className="relative mt-2">
+                        <p className="text-xs md:text-sm font-serif italic leading-relaxed text-white drop-shadow-sm px-4">
+                          "{truncateWords(item.comment, 5)}"
                         </p>
                       </div>
-                    </div>
+
+                      <div className="mt-2 flex flex-col items-center">
+                        <h4 className="font-display text-xl md:text-2xl font-bold text-white drop-shadow-md">
+                          {item.name.split(' ')[0]}
+                        </h4>
+                        <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">
+                          {formatTestimonialDate(item.date)}
+                        </p>
+                      </div>
+                      
+                      <p className="mt-2 text-[9px] font-bold uppercase tracking-widest text-white bg-white/20 px-3 py-1 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 backdrop-blur-sm border border-white/30">
+                        Read full review
+                      </p>
+                    </DiamondCastleHeart>
                   </button>
                 ))}
               </div>
@@ -207,69 +206,66 @@ export function TestimonialsPage() {
 
         {selectedTestimonial && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-brand-background/40 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-fuchsia-900/20 p-4 backdrop-blur-sm"
             onClick={() => setSelectedTestimonial(null)}
             data-lenis-prevent="true"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[90svh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] glass-panel shadow-crystal"
+              className="relative w-[90%] max-w-sm md:max-w-md bg-gradient-to-br from-white to-pink-50 border border-white rounded-[2rem] shadow-[0_10px_40px_rgba(232,30,140,0.25)] flex flex-col items-center animate-scale-in"
             >
-              <div className="flex items-center justify-between border-b border-white/60 bg-white/40 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">
-                    Client Experience
-                  </p>
-                  <h3 className="mt-1 font-display text-xl md:text-2xl font-bold text-brand-accent">
-                    {selectedTestimonial.name}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedTestimonial(null)}
-                  className="grid size-10 shrink-0 place-items-center rounded-full border border-pink-100 bg-white text-brand-accent shadow-sm transition hover:bg-brand-primary hover:text-white"
-                >
-                  <Icon icon="mdi:close" className="text-xl" />
-                </button>
+              {/* Decorative Corner Sparkles */}
+              <div className="absolute top-4 left-4 text-pink-300">
+                 <Icon icon="mdi:sparkles" className="text-2xl animate-pulse" />
+              </div>
+              <div className="absolute bottom-4 right-4 text-pink-300">
+                 <Icon icon="mdi:star-four-points" className="text-xl animate-pulse" style={{ animationDelay: '1s' }} />
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-10 bg-white/60" data-lenis-prevent="true">
-                <div className="mb-6 flex gap-1 text-brand-primary">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Icon
-                      key={i}
-                      icon={i < selectedTestimonial.rating ? "mdi:star" : "mdi:star-outline"}
-                      className="text-xl"
-                    />
-                  ))}
+              {/* Heart Close Button (Top Right) */}
+              <button
+                type="button"
+                onClick={() => setSelectedTestimonial(null)}
+                className="absolute -top-3 -right-3 md:-top-4 md:-right-4 z-50 text-white hover:scale-110 transition-transform drop-shadow-md bg-[#e81e8c] rounded-full p-1 border-2 border-white"
+              >
+                <div className="relative flex items-center justify-center">
+                  <Icon icon="mdi:cards-heart" className="text-3xl md:text-4xl" />
+                  <Icon icon="mdi:close" className="absolute text-[#e81e8c] text-sm md:text-base font-bold -translate-y-[10%]" />
+                </div>
+              </button>
+
+              <div className="w-full p-6 md:p-8 flex flex-col relative z-10">
+                <div className="w-full flex items-center gap-3 md:gap-4 mb-4 mt-2">
+                  <div className="relative size-12 md:size-14 shrink-0 flex items-center justify-center rounded-full bg-pink-50 border border-pink-100 shadow-sm overflow-hidden">
+                    <img src="/assets/svg/profile-feedback.svg" alt="Profile" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                    <span className="relative z-10 text-[10px] md:text-xs font-bold text-white drop-shadow-md">
+                      {getInitials(selectedTestimonial.name)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col items-start text-left">
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-display text-xl md:text-2xl font-bold">
+                        <ShinyText text={selectedTestimonial.name} color="#e81e8c" shineColor="#ffb6e4" />
+                      </div>
+                      <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-pink-400">
+                        {formatTestimonialDate(selectedTestimonial.date)}
+                      </p>
+                    </div>
+                    <div className="flex gap-1 text-[#e81e8c] drop-shadow-sm mt-1">
+                      <ShinyText 
+                        text={"★".repeat(selectedTestimonial.rating) + "☆".repeat(5 - selectedTestimonial.rating)} 
+                        className="text-lg md:text-xl tracking-widest" 
+                        color="#e81e8c" 
+                        shineColor="#ffb6e4" 
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="relative">
-                  <Icon
-                    icon="mdi:crown"
-                    className="absolute -left-3 -top-3 text-4xl text-brand-primary/10"
-                  />
-                  <p className="relative z-10 text-lg md:text-xl italic leading-relaxed text-pink-950/80">
-                    "{selectedTestimonial.comment}"
-                  </p>
-                </div>
-
-                <div className="mt-10 flex flex-col gap-3 rounded-2xl border border-pink-100 bg-brand-background/50 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">
-                      Date Shared
-                    </p>
-                    <p className="mt-1 text-base font-bold text-brand-accent">
-                      {selectedTestimonial.date}
-                    </p>
-                  </div>
-                  <div className="hidden h-8 w-px bg-pink-100 sm:block" />
-                  <div className="h-px w-full bg-pink-100 sm:hidden" />
-                  <div className="flex items-center gap-2">
-                    <Icon icon="mdi:check-decagram" className="text-brand-primary size-5" />
-                    <span className="text-sm font-bold text-brand-accent">Verified Client</span>
-                  </div>
-                </div>
+                <p className="w-full text-left text-base md:text-lg font-serif italic leading-relaxed text-pink-950 max-h-[35vh] overflow-y-auto custom-scrollbar px-1">
+                  "{selectedTestimonial.comment}"
+                </p>
               </div>
             </div>
           </div>

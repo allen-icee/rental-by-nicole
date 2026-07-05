@@ -24,7 +24,8 @@ html {
   --animate-float: float 6s ease-in-out infinite;
   --animate-float-slow: float-slow 10s ease-in-out infinite;
   --animate-pulse-glow: pulse-glow 4s ease-in-out infinite;
-  --animate-shimmer: shimmer 3s infinite linear;
+  --animate-shimmer: shimmer 6s infinite linear;
+  --animate-shine-line: shine-line 6s infinite linear;
 }
 
 @keyframes float {
@@ -36,6 +37,16 @@ html {
 
   50% {
     transform: translateY(-6px);
+  }
+}
+
+@keyframes shine-line {
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
   }
 }
 
@@ -112,7 +123,7 @@ body.catalogue-page {
   /* The Catalogue gets the default 100% auto so it doesn't get heavily zoomed in.
      We overlay a gradient that fades to the background color right before the image ends (at 177vw)
      so there is no hard cut line on mobile or desktop! */
-  background-image: 
+  background-image:
     linear-gradient(to bottom, transparent 0vw, transparent 100vw, #f7ebf8 176vw, #f7ebf8 100%),
     url('/assets/fantasy-bg.jpg');
   background-size: 100% 100%, 100% auto;
@@ -125,6 +136,7 @@ body.catalogue-page {
     background-position: top center;
     background-color: #f7ebf8;
   }
+
   body.catalogue-page {
     background-size: 100% 100%, 100% auto;
   }
@@ -203,7 +215,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 8px 18px rgba(0,0,0,.25), 0 0 20px rgba(255,215,0,.25);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .25), 0 0 20px rgba(255, 215, 0, .25);
   padding: 25px 20px 45px 20px;
 }
 
@@ -215,7 +227,7 @@ img {
   color: #fff;
   font-size: 1.5rem;
   opacity: 0.8;
-  text-shadow: 0 0 8px rgba(255,255,255,0.8);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
   pointer-events: none;
 }
 
@@ -252,9 +264,9 @@ img {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  box-shadow: 
-    inset 0 0 25px rgba(0,0,0,0.5), 
-    inset 0 0 10px rgba(212,175,55,0.3);
+  box-shadow:
+    inset 0 0 25px rgba(0, 0, 0, 0.5),
+    inset 0 0 10px rgba(212, 175, 55, 0.3);
   pointer-events: none;
   z-index: 5;
 }
@@ -274,26 +286,29 @@ img {
 .ribbon-content {
   position: relative;
   width: 100%;
-  background: 
+  background:
     linear-gradient(to bottom, #ffffff, #fdf1d6 25%, #eacb85 75%, #d4a945) padding-box,
     linear-gradient(135deg, #fff8d0, #d4af37, #b8860b, #ffeeb0) border-box;
   border: 3px solid transparent;
   border-radius: 8px;
   text-align: center;
-  padding: 10px 10px;
-  z-index: 2; /* above tails */
-  box-shadow: 
-    0 12px 24px rgba(0,0,0,0.35),
-    inset 0 2px 4px rgba(255,255,255,0.9),
-    inset 0 -3px 6px rgba(184,134,11,0.5);
+  padding: 4px 8px;
+  z-index: 2;
+  /* above tails */
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -3px 6px rgba(184, 134, 11, 0.5);
 }
 
 .ribbon-tail {
   position: absolute;
-  top: 15px; /* drops below main ribbon */
+  top: 15px;
+  /* drops below main ribbon */
   bottom: -5px;
   width: 40px;
-  z-index: 1; /* behind content */
+  z-index: 1;
+  /* behind content */
 }
 
 .ribbon-tail-left {
@@ -311,8 +326,8 @@ img {
   inset: 0;
   background: linear-gradient(to bottom, #eacb85, #c69214);
   /* Fake the border using inset shadow */
-  box-shadow: inset 0 0 0 2px #d4af37, inset 0 0 5px rgba(255,255,255,0.5);
-  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+  box-shadow: inset 0 0 0 2px #d4af37, inset 0 0 5px rgba(255, 255, 255, 0.5);
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
 }
 
 .ribbon-tail-left::before {
@@ -329,50 +344,56 @@ img {
 .ribbon-tail::after {
   content: "";
   position: absolute;
-  top: -15px; /* fill the gap above the tail */
+  top: -15px;
+  /* fill the gap above the tail */
   width: 15px;
   height: 15px;
-  background: #7a5400; /* dark fold shadow */
+  background: #7a5400;
+  /* dark fold shadow */
 }
 
 .ribbon-tail-left::after {
-  right: 20px; /* aligns with left edge of main ribbon */
-  clip-path: polygon(100% 0, 100% 100%, 0 100%); /* bottom-right triangle */
+  right: 20px;
+  /* aligns with left edge of main ribbon */
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  /* bottom-right triangle */
 }
 
 .ribbon-tail-right::after {
-  left: 20px; /* aligns with right edge of main ribbon */
-  clip-path: polygon(0 0, 100% 100%, 0 100%); /* bottom-left triangle */
+  left: 20px;
+  /* aligns with right edge of main ribbon */
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  /* bottom-left triangle */
 }
 
 /* Typography Hierarchy */
 .ribbon-title {
   font-family: 'Pacifico', cursive;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 400;
   color: #4a2500;
   letter-spacing: 0.5px;
   text-transform: capitalize;
   margin: 0;
-  line-height: 1.4;
-  padding-bottom: 0.15em;
-  text-shadow: 
+  line-height: 1.1;
+  padding-bottom: 0.1em;
+  text-shadow:
     0 1px 1px rgba(255, 255, 255, 0.9),
     0 -1px 1px rgba(212, 175, 55, 0.5);
 }
 
 @media (min-width: 640px) {
   .ribbon-title {
-    font-size: 1.75rem;
+    font-size: 1.2rem;
   }
 }
 
 .ribbon-subtitle {
   font-family: 'Quicksand', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #5c3010;
-  margin-top: 2px;
+  margin-top: 0px;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
@@ -392,7 +413,7 @@ img {
   background: linear-gradient(135deg, #FFFDFE, #FFF4FA, #FCE8F4);
   border: 4px solid #d4af37;
   border-radius: 12px;
-  box-shadow: 
+  box-shadow:
     0 20px 50px rgba(209, 18, 117, 0.2),
     inset 0 0 0 4px #fdfbf7,
     inset 0 0 0 5px #d4af37;
@@ -423,8 +444,9 @@ img {
   border-radius: 4px;
   padding: 16px;
   position: relative;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  z-index: 1; /* above decorative background */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1;
+  /* above decorative background */
 }
 
 /* Tiny ornamental corners */
@@ -476,14 +498,14 @@ img {
   border-radius: 4px;
   padding: 3px;
   background: #fff;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: all 0.3s ease;
 }
 
 .storybook-thumbnail-active {
   border-color: #d11275;
-  box-shadow: 0 0 0 1px #d11275, 0 4px 8px rgba(209,18,117,0.3);
+  box-shadow: 0 0 0 1px #d11275, 0 4px 8px rgba(209, 18, 117, 0.3);
   transform: scale(1.05);
 }
 
@@ -498,7 +520,7 @@ img {
   letter-spacing: 3px;
   padding: 14px 28px;
   position: relative;
-  box-shadow: 
+  box-shadow:
     0 6px 16px rgba(209, 18, 117, 0.25),
     inset 0 0 0 2px #fff;
   transition: all 0.3s ease;
@@ -508,7 +530,7 @@ img {
 
 .storybook-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 8px 20px rgba(209, 18, 117, 0.35),
     inset 0 0 0 2px #fff;
   background: #fff;
@@ -536,4 +558,4 @@ img {
 .storybook-scrollbar {
   scrollbar-color: #d4af37 #fce8f4;
   scrollbar-width: thin;
-}
+}

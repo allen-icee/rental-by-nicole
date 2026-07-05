@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Carousel } from "@/components/ui/Carousel";
+import { DiamondMirrorCard } from "@/components/ui/DiamondMirrorCard";
+import { DiamondCastleHeart } from "@/components/ui/DiamondCastleHeart";
+import { PrincessPlaqueCard } from "@/components/ui/PrincessPlaqueCard";
 import { useEffect, useState } from "react";
 import { getCatalogueData, getTestimonials, getFaqs } from "@/services/catalogue.service";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
@@ -14,6 +17,18 @@ import GradientText from "@/components/ui/GradientText";
 import ShinyText from "@/components/ui/ShinyText";
 import RotatingText from "@/components/ui/RotatingText";
 import { useTrackPageView } from "@/features/analytics/usePageViews";
+
+const formatTestimonialDate = (dateStr: string) => {
+  const parts = dateStr.split(" ");
+  if (parts.length >= 2) return `${parts[0].substring(0, 3)} ${parts[1]}`;
+  return dateStr;
+};
+
+const truncateWords = (str: string, max: number) => {
+  const words = str.split(" ");
+  if (words.length <= max) return str;
+  return words.slice(0, max).join(" ") + "...";
+};
 
 const processSteps = [
   { title: "Browse the Collection", desc: "Find the perfect dress or gown." },
@@ -196,22 +211,8 @@ export function HomePage() {
                 <ScrollReveal
                   key={collection}
                   delay={index * 100}
-                  className="group relative flex flex-col items-center justify-center p-6 md:p-8 md:w-[220px] bg-gradient-to-br from-brand-accent to-pink-600 rounded-[2rem] shadow-soft transition-all duration-300 hover:-translate-y-2 hover:shadow-barbie aspect-[1/1] md:aspect-[1/1.2] overflow-hidden"
-                  as={Link}
-                  to={`/catalogue?tag=${encodeURIComponent(collection)}`}
                 >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <span className="grid size-10 md:size-12 place-items-center rounded-full bg-white/20 backdrop-blur-sm text-white mb-3 md:mb-4 p-2">
-                      <img src="/assets/RN-Logo-White.png" alt="" className="w-full h-full object-contain drop-shadow-sm" />
-                    </span>
-                    <p className="font-display text-lg md:text-xl font-bold text-white text-balance leading-tight group-hover:text-pink-100 transition-colors">
-                      {collection}
-                    </p>
-                    <p className="mt-2 md:mt-3 text-[10px] font-bold uppercase tracking-widest text-white/80 flex items-center gap-1 group-hover:text-white transition-colors">
-                      Explore <Icon icon="mdi:arrow-right" className="size-3 md:size-4 transition-transform group-hover:translate-x-1" />
-                    </p>
-                  </div>
+                  <DiamondMirrorCard collection={collection} />
                 </ScrollReveal>
               ))}
             </div>
@@ -234,28 +235,31 @@ export function HomePage() {
             </ScrollReveal>
 
             <div className="mt-16 md:mt-20 relative">
-              <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-brand-background via-brand-primary/30 to-brand-background" />
-              <div className="md:hidden absolute top-10 bottom-10 left-[48px] w-[2px] bg-gradient-to-b from-brand-background via-brand-primary/30 to-brand-background" />
+              <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-[3px] bg-[linear-gradient(110deg,#eebb4d,45%,#fff,55%,#eebb4d)] bg-[length:200%_100%] animate-shine-line shadow-[0_0_8px_rgba(238,187,77,0.8)]" />
+              <div className="md:hidden absolute top-10 bottom-10 left-8 w-[3px] bg-[linear-gradient(110deg,#eebb4d,45%,#fff,55%,#eebb4d)] bg-[length:200%_100%] animate-shine-line shadow-[0_0_8px_rgba(238,187,77,0.8)]" />
 
-              <div className="grid gap-10 md:gap-6 md:grid-cols-4 relative z-10">
+              <div className="grid gap-10 md:gap-6 md:grid-cols-4 relative z-10 mt-6">
                 {processSteps.map((step, index) => (
                   <ScrollReveal key={step.title} delay={index * 150} className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center gap-6 md:gap-0">
-                    <span className="shrink-0 grid size-16 md:size-20 place-items-center rounded-full bg-white border-4 border-pink-50 shadow-soft font-sans font-medium text-2xl md:text-3xl text-brand-primary transition-all duration-500 group-hover:scale-110 group-hover:border-brand-primary group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-barbie">
+                    <span className="shrink-0 grid size-16 md:size-20 place-items-center rounded-full bg-white border-4 border-[#eebb4d] shadow-[0_4px_10px_rgba(238,187,77,0.5)] font-sans font-bold text-2xl md:text-3xl text-[#d11275] transition-all duration-500 group-hover:scale-110 group-hover:border-[#ff66b2] group-hover:bg-[#ff66b2] group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,102,178,0.8)]">
                       {index + 1}
                     </span>
-                    <div className="mt-1 md:mt-6">
-                      <h3 className="font-bold text-xl text-brand-accent md:px-2">{step.title}</h3>
-                      <p className="mt-1 md:mt-2 text-xs md:text-sm text-pink-950/70 md:px-4 leading-relaxed">{step.desc}</p>
+                    <div className="mt-1 md:mt-6 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-2 border border-pink-100 shadow-sm">
+                      <h3 className="font-['Pacifico'] text-xl text-[#d11275]">{step.title}</h3>
                     </div>
                   </ScrollReveal>
                 ))}
               </div>
             </div>
 
-            <div className="mt-12 text-center relative z-10">
-              <Link to="/rental-guide" className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-bold uppercase tracking-widest text-xs text-brand-accent shadow-sm border border-pink-100 transition hover:border-brand-primary hover:text-brand-primary hover:shadow-barbie">
-                Explore Full Rental Guide
-                <Icon icon="mdi:arrow-right" className="size-4 transition-transform group-hover:translate-x-1" />
+            <div className="mt-16 text-center relative z-10 max-w-2xl mx-auto">
+              <Link to="/rental-guide" className="block group">
+                <PrincessPlaqueCard className="!p-8 transition-transform duration-500 group-hover:scale-105">
+                  <span className="inline-flex items-center gap-2 font-['Pacifico'] text-2xl text-white drop-shadow-[0_0_10px_rgba(255,255,255,1)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,1)] transition-all">
+                    Explore Full Rental Guide
+                    <Icon icon="mdi:arrow-right" className="size-6 transition-transform group-hover:translate-x-2" />
+                  </span>
+                </PrincessPlaqueCard>
               </Link>
             </div>
           </div>
@@ -291,27 +295,28 @@ export function HomePage() {
             </ScrollReveal>
             <div className="grid gap-6 sm:grid-cols-2">
               {testimonials.slice(0, 2).map((item, index) => (
-                <ScrollReveal key={item.name} delay={index * 200} className="group relative flex flex-col justify-between overflow-hidden rounded-[2.5rem] border border-pink-100 bg-white/60 p-8 text-left shadow-soft backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-barbie">
-                  <Icon icon="mdi:format-quote-open" className="absolute right-6 top-6 text-5xl text-brand-secondary/20 transition-transform duration-500 group-hover:scale-110 group-hover:text-brand-secondary/40" />
+                <ScrollReveal key={item.name} delay={index * 200} className="group relative w-full max-w-[320px] mx-auto text-center transition-all duration-500 hover:scale-105">
+                  <DiamondCastleHeart className="animate-float" style={{ animationDelay: `${index * 1.5}s` }} rating={item.rating}>
+                    
+                    <div className="relative mt-2">
+                      <p className="text-xs md:text-sm font-serif italic leading-relaxed text-white drop-shadow-sm px-4">
+                        "{truncateWords(item.comment, 5)}"
+                      </p>
+                    </div>
 
-                  <div>
-                    <div className="mb-6 flex gap-1 text-brand-primary">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Icon key={i} icon={i < item.rating ? "mdi:star" : "mdi:star-outline"} className="text-lg" />
-                      ))}
+                    <div className="mt-2 flex flex-col items-center">
+                      <h4 className="font-display text-xl md:text-2xl font-bold text-white drop-shadow-md">
+                        {item.name.split(' ')[0]}
+                      </h4>
+                      <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">
+                        {formatTestimonialDate(item.date)}
+                      </p>
                     </div>
-                    <p className="text-lg italic leading-relaxed text-pink-950/80 line-clamp-4">"{item.comment}"</p>
-                  </div>
-
-                  <div className="mt-8 flex items-center gap-4 border-t border-pink-50 pt-6">
-                    <div className="grid size-12 shrink-0 place-items-center rounded-full bg-pink-50 text-sm font-bold text-brand-accent shadow-sm border border-pink-100">
-                      {getInitials(item.name)}
-                    </div>
-                    <div>
-                      <h4 className="text-base font-bold text-pink-950">{item.name}</h4>
-                      <p className="text-xs font-bold uppercase tracking-widest text-pink-950/50 mt-1">{item.date}</p>
-                    </div>
-                  </div>
+                    
+                    <p className="mt-2 text-[9px] font-bold uppercase tracking-widest text-white bg-white/20 px-3 py-1 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 backdrop-blur-sm border border-white/30">
+                      Read full review
+                    </p>
+                  </DiamondCastleHeart>
                 </ScrollReveal>
               ))}
             </div>
