@@ -172,13 +172,13 @@ export function InquiriesPage() {
       <div className="flex flex-col overflow-hidden rounded-[1.5rem] border border-pink-100 bg-white shadow-soft">
         <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-pink-50 bg-pink-50/50 text-[10px] uppercase tracking-widest text-brand-primary">
+            <thead className="border-b border-pink-200 bg-pink-100/80 text-[10px] font-extrabold uppercase tracking-widest text-brand-accent">
               <tr>
-                <th className="px-5 py-4 font-bold">Sender</th>
-                <th className="hidden px-5 py-4 font-bold md:table-cell">Details</th>
-                <th className="hidden px-5 py-4 font-bold lg:table-cell">Message</th>
-                <th className="px-5 py-4 font-bold">Status</th>
-                <th className="px-5 py-4 text-right font-bold">Actions</th>
+                <th className="px-5 py-4 font-extrabold text-center">Sender</th>
+                <th className="hidden px-5 py-4 font-extrabold md:table-cell text-center">Details</th>
+                <th className="hidden px-5 py-4 font-extrabold lg:table-cell text-center">Message</th>
+                <th className="px-5 py-4 font-extrabold text-center">Status</th>
+                <th className="px-5 py-4 font-extrabold text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-pink-50">
@@ -190,14 +190,14 @@ export function InquiriesPage() {
                 </tr>
               ) : (
                 paginatedItems.map((item) => (
-                  <tr key={item.id} className="transition-colors hover:bg-pink-50/30">
-                    <td className="px-5 py-3.5">
+                  <tr key={item.id} className="transition-colors hover:bg-pink-100/60 even:bg-pink-50">
+                    <td className="px-5 py-3.5 text-center">
                       <div className="font-bold text-pink-950">{item.name}</div>
                       <a href={`mailto:${item.email}`} className="mt-0.5 block text-[11px] font-medium text-brand-primary hover:underline">
                         {item.email || "No email"}
                       </a>
                     </td>
-                    <td className="hidden px-5 py-3.5 md:table-cell">
+                    <td className="hidden px-5 py-3.5 md:table-cell text-center">
                       <div className="font-semibold text-pink-950">
                         {item.selected_item_id ? "Item Inquiry" : "General Inquiry"}
                       </div>
@@ -205,12 +205,12 @@ export function InquiriesPage() {
                         {item.phone} / {new Date(item.created_at).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="hidden px-5 py-3.5 lg:table-cell">
-                      <p className="max-w-[420px] truncate text-xs font-medium text-pink-950/70">
+                    <td className="hidden px-5 py-3.5 lg:table-cell text-center">
+                      <p className="max-w-[420px] truncate text-xs font-medium text-pink-950/70 mx-auto">
                         {item.message}
                       </p>
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 text-center">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider ${
                           item.status === "completed"
@@ -223,8 +223,8 @@ export function InquiriesPage() {
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <div className="flex justify-end gap-1.5">
+                    <td className="px-5 py-3.5 text-center">
+                      <div className="flex justify-center gap-1.5">
                         <button
                           onClick={() => updateStatus(item, item.status === "new" ? "contacted" : item.status === "contacted" ? "completed" : "new")}
                           disabled={updatingId === item.id}

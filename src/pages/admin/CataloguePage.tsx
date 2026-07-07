@@ -35,107 +35,6 @@ export function CataloguePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  // Reserve Availability Modal State
-  const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
-  const [reservingItem, setReservingItem] = useState<CatalogRow | null>(null);
-  const [existingReservations, setExistingReservations] = useState<any[]>([]);
-  const [isReserveLoading, setIsReserveLoading] = useState(false);
-  
-  const { control: reserveControl, handleSubmit: handleReserveSubmit, reset: resetReserve, setValue: setReserveValue, watch: watchReserve, formState: { isSubmitting: isReserveSubmitting, isValid: isReserveValid, isDirty: isReserveDirty } } = useForm({
-    mode: "onChange",
-    defaultValues: {
-      start_date: "",
-      end_date: "",
-      customer_name: "",
-      label: "",
-      availability_status: "available" as CatalogRow["availability_status"]
-    }
-  });
-
-  const reserveStartDate = watchReserve("start_date");
-
-  useEffect(() => {
-    if (reserveStartDate && reservingItem?.rental_days) {
-      const start = new Date(reserveStartDate);
-      start.setDate(start.getDate() + reservingItem.rental_days);
-      setReserveValue("end_date", start.toISOString().split("T")[0], { shouldValidate: true, shouldDirty: true });
-    }
-  }, [reserveStartDate, reservingItem, setReserveValue]);
-
-  async function onReserveSubmit(data: any) {
-    if (!reservingItem) return;
-    try {
-      await saveAvailability({
-        catalog_item_id: reservingItem.id,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        customer_name: data.customer_name,
-        label: data.label,
-      });
-      if (reservingItem.availability_status !== data.availability_status) {
-        await handleAvailabilityChange(reservingItem.id, data.availability_status);
-      } else {
-        fetchData();
-      }
-      showToast({ tone: "success", title: "Success", message: "Dates reserved successfully." });
-      
-      // Refresh reservations
-      loadReservations(reservingItem);
-      
-      // Reset form but keep status
-      resetReserve({
-        start_date: "",
-        end_date: "",
-        customer_name: "",
-        label: "",
-        availability_status: data.availability_status
-      });
-    } catch (error) {
-      console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to reserve dates." });
-    }
-  }
-
-  async function loadReservations(item: CatalogRow) {
-    setIsReserveLoading(true);
-    try {
-      const details = await fetchItemDetails(item.id);
-      setExistingReservations(details.reservedRanges || []);
-    } catch (err) {
-      console.error(err);
-      showToast({ tone: "error", title: "Error", message: "Failed to load existing reservations." });
-    } finally {
-      setIsReserveLoading(false);
-    }
-  }
-
-  async function handleOpenReserveModal(item: CatalogRow) {
-    setReservingItem(item);
-    setExistingReservations([]);
-    resetReserve({
-      start_date: "",
-      end_date: "",
-      customer_name: "",
-      label: "",
-      availability_status: item.availability_status
-    });
-    setIsReserveModalOpen(true);
-    await loadReservations(item);
-  }
-
-  async function handleDeleteReservation(id: string) {
-    try {
-      await deleteAvailability(id);
-      showToast({ tone: "success", title: "Success", message: "Reservation deleted." });
-      if (reservingItem) {
-        await loadReservations(reservingItem);
-      }
-    } catch (error) {
-      console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to delete reservation." });
-    }
-  }
-
   const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<CatalogFormInput>({
     mode: "onChange"
   });
@@ -158,8 +57,8 @@ export function CataloguePage() {
           "catalog_items",
           currentPage,
           pageSize,
-          "created_at",
-          false,
+          "name",
+          true,
           searchQuery,
           ["name", "slug"]
         ),
@@ -274,9 +173,6 @@ export function CataloguePage() {
           item.id === id ? { ...item, availability_status: newStatus } : item
         )
       );
-      if (reservingItem?.id === id) {
-        setReservingItem(prev => prev ? { ...prev, availability_status: newStatus } : null);
-      }
       await updateCatalogAvailabilityStatus(id, newStatus);
       showToast({ tone: "success", title: "Updated", message: "Item availability changed." });
     } catch (error) {
@@ -309,53 +205,66 @@ export function CataloguePage() {
   }
 
   const columns: Column<CatalogRow>[] = [
-    { header: "Name", accessorKey: "name", className: "font-medium" },
+    { header: "Name", accessorKey: "name", className: "font-medium text-center" },
     {
       header: "Category",
+      className: "text-center",
       cell: (row) => {
         const cat = categories.find((c) => c.id === row.category_id);
         return cat ? cat.name : <span className="text-pink-950/40">None</span>;
       },
     },
-    { header: "Price", accessorKey: "price_display" },
+    { header: "Price", accessorKey: "price_display", className: "text-center" },
     {
       header: "Featured",
+      className: "text-center",
       cell: (row) => (
-        <button 
+        <button
           onClick={() => handleToggleFeatured(row.id, row.featured)}
-          className={`p-1 rounded transition-colors ${row.featured ? "text-yellow-400 hover:text-yellow-500" : "text-gray-300 hover:text-yellow-400"}`}
           title="Toggle Featured"
+          className={`relative inline-flex h-6 w-12 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 mx-auto ${
+            row.featured ? "bg-yellow-400" : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
-          <Icon icon="mdi:star" className="size-5" />
+          <span
+            className={`flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 ease-in-out ${
+              row.featured ? "translate-x-6 text-yellow-500" : "translate-x-0.5 text-gray-400"
+            }`}
+          >
+            <Icon icon="mdi:star" className="size-3.5" />
+          </span>
         </button>
       ),
     },
     {
       header: "New Arrival",
+      className: "text-center",
       cell: (row) => (
-        <button 
+        <button
           onClick={() => handleToggleNewArrival(row.id, row.is_new_arrival)}
-          className={`p-1 rounded transition-colors ${row.is_new_arrival ? "text-pink-500 hover:text-pink-600" : "text-gray-300 hover:text-pink-500"}`}
           title="Toggle New Arrival"
+          className={`relative inline-flex h-6 w-12 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 mx-auto ${
+            row.is_new_arrival ? "bg-pink-500" : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
-          <Icon icon="mdi:sparkles" className="size-5" />
+          <span
+            className={`flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 ease-in-out ${
+              row.is_new_arrival ? "translate-x-6 text-pink-500" : "translate-x-0.5 text-gray-400"
+            }`}
+          >
+            <Icon icon="mdi:sparkles" className="size-3.5" />
+          </span>
         </button>
       ),
     },
     {
       header: "Actions",
+      className: "text-center",
       cell: (row) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleOpenReserveModal(row)}
-            className="text-brand-accent hover:text-brand-primary transition-colors"
-            title="Reserve Dates"
-          >
-            <Icon icon="mdi:calendar-lock" className="size-5" />
-          </button>
+        <div className="flex justify-center gap-2">
           <button
             onClick={() => handleOpenModal(row)}
-            className="text-brand-primary hover:text-brand-accent transition-colors"
+            className="p-1 text-gray-400 hover:text-brand-primary transition-colors"
             title="Edit Item"
           >
             <Icon icon="mdi:pencil" className="size-5" />
@@ -514,13 +423,6 @@ export function CataloguePage() {
               <div className="border-t border-pink-100 pt-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-pink-950">Sizes & Measurements</h3>
-                  <button
-                    type="button"
-                    onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", chest: "", waist: "", hips: "", length: "", notes: "" })}
-                    className="text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
-                  >
-                    <Icon icon="mdi:plus" /> Add Size
-                  </button>
                 </div>
                 {sizeFields.length === 0 && <p className="text-sm text-pink-950/60 italic mb-4">No sizes added yet.</p>}
                 <div className="space-y-4">
@@ -550,6 +452,13 @@ export function CataloguePage() {
                     </div>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => appendSize({ size_label: "", inventory_quantity: 1, sort_order: sizeFields.length, bust: "", chest: "", waist: "", hips: "", length: "", notes: "" })}
+                  className="mt-4 w-full py-2 text-xs font-semibold text-brand-primary bg-pink-50/50 hover:bg-pink-100 rounded-lg flex items-center justify-center gap-1 transition-colors border border-dashed border-pink-200"
+                >
+                  <Icon icon="mdi:plus" className="size-4" /> Add Size
+                </button>
               </div>
 
               <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
@@ -579,113 +488,6 @@ export function CataloguePage() {
         message="Are you sure you want to delete this item? All images, sizes, and availability ranges will be lost. This cannot be undone."
         onConfirm={handleDelete}
       />
-
-      <AdminModal
-        isOpen={isReserveModalOpen}
-        onClose={() => setIsReserveModalOpen(false)}
-        title={`Reserve Dates: ${reservingItem?.name}`}
-        maxWidth="lg"
-      >
-        <div className="space-y-4">
-          {/* Existing Reservations Section */}
-          <div>
-            <h3 className="text-sm font-bold text-brand-accent uppercase tracking-wider mb-3">Existing Reservations</h3>
-            {isReserveLoading ? (
-              <p className="text-sm text-pink-950/60 italic">Loading...</p>
-            ) : existingReservations.length === 0 ? (
-              <p className="text-sm text-pink-950/60 italic">No existing reservations for this item.</p>
-            ) : (
-              <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                {existingReservations.map(res => (
-                  <li key={res.id} className="flex items-center justify-between p-3 bg-pink-50/50 rounded-lg border border-pink-100 text-sm">
-                    <div>
-                      <div className="font-semibold text-pink-950">
-                        {new Date(res.start_date).toLocaleDateString()} - {new Date(res.end_date).toLocaleDateString()}
-                      </div>
-                      <div className="text-xs text-pink-950/70">
-                        {res.customer_name || 'No customer name'} {res.label && `(${res.label})`}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteReservation(res.id)}
-                      className="text-red-400 hover:text-red-600 transition-colors"
-                      title="Delete Reservation"
-                    >
-                      <Icon icon="mdi:trash-can-outline" className="size-5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <hr className="border-pink-100" />
-
-          {/* Add New Reservation Form */}
-          <form onSubmit={handleReserveSubmit(onReserveSubmit)} className="space-y-4">
-            <h3 className="text-sm font-bold text-brand-accent uppercase tracking-wider">Add New Reservation</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                name="start_date"
-                control={reserveControl}
-                type="date"
-                label="Start Date"
-                required
-              />
-              <FormInput
-                name="end_date"
-                control={reserveControl}
-                type="date"
-                label="End Date (Auto-computes)"
-                required
-              />
-            </div>
-
-            <FormInput
-              name="customer_name"
-              control={reserveControl}
-              label="Customer Name (Optional)"
-              placeholder="e.g. Jane Doe"
-            />
-
-            <FormInput
-              name="label"
-              control={reserveControl}
-              label="Label (Optional)"
-              placeholder="e.g. Cleaning, Unavailable"
-            />
-
-            <FormSelect
-              name="availability_status"
-              control={reserveControl}
-              label="Update Item Availability"
-              searchable={false}
-              options={[
-                { value: "available", label: "Available" },
-                { value: "reserved", label: "Reserved" },
-                { value: "unavailable", label: "Unavailable" }
-              ]}
-            />
-
-            <div className="pt-6 flex justify-end gap-3 border-t border-pink-100">
-              <button
-                type="button"
-                onClick={() => setIsReserveModalOpen(false)}
-                className="rounded-xl px-6 py-3 font-semibold text-pink-950 hover:bg-pink-50 transition-colors"
-              >
-                Close
-              </button>
-              <FormSubmitButton 
-                isDirty={isReserveDirty} 
-                isValid={isReserveValid} 
-                isSubmitting={isReserveSubmitting} 
-                isSubmitSuccessful={false} 
-                defaultText="Save Reservation"
-              />
-            </div>
-          </form>
-        </div>
-      </AdminModal>
     </div>
   );
 }

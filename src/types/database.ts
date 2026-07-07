@@ -45,6 +45,7 @@ export type Database = {
         name: string;
         slug: string;
         description: string | null;
+        classification: string;
         sort_order: number;
         is_active: boolean;
         created_at: string;
@@ -199,19 +200,59 @@ export type Database = {
         metadata: Json;
         created_at: string;
       }>;
-      rentals: Table<{
-        id: string;
-        tracking_number: string;
-        date: string;
-        customer_name: string;
-        rented_items: { item_id: string; item_name: string; quantity: number; unit_price: number; amount: number }[];
-        amount: number;
-        total_income: number;
-        status: "paid and verified" | "pending" | "unpaid";
-        payment_method: string | null;
-        created_at: string;
-        updated_at: string;
-      }>;
+      rentals: Table<
+        {
+          id: string;
+          tracking_number: string;
+          date: string;
+          customer_name: string;
+          rented_items: { item_id: string; item_name: string; quantity: number; unit_price: number; amount: number }[];
+          amount: number;
+          total_income: number;
+          status: "paid and verified" | "pending" | "unpaid";
+          payment_method: string | null;
+          type?: string;
+          accessories?: any[] | null;
+          days?: number;
+          downpayment: number;
+          security_deposit: number;
+          delivery_method: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          tracking_number: string;
+          date: string;
+          customer_name: string;
+          rented_items: { item_id: string; item_name: string; quantity: number; unit_price: number; amount: number }[];
+          amount: number;
+          total_income: number;
+          status?: "paid and verified" | "pending" | "unpaid";
+          payment_method?: string | null;
+          type?: string;
+          accessories?: any[] | null;
+          days?: number;
+          downpayment?: number;
+          security_deposit?: number;
+          delivery_method?: string | null;
+        },
+        {
+          tracking_number?: string;
+          date?: string;
+          customer_name?: string;
+          rented_items?: { item_id: string; item_name: string; quantity: number; unit_price: number; amount: number }[];
+          amount?: number;
+          total_income?: number;
+          status?: "paid and verified" | "pending" | "unpaid";
+          payment_method?: string | null;
+          type?: string;
+          accessories?: any[] | null;
+          days?: number;
+          downpayment?: number;
+          security_deposit?: number;
+          delivery_method?: string | null;
+        }
+      >;
       page_views: Table<{
         id: string;
         path: string;

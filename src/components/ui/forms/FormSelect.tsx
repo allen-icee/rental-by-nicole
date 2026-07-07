@@ -17,6 +17,7 @@ type FormSelectProps<T extends FieldValues> = {
   placeholder?: string;
   required?: boolean;
   searchable?: boolean;
+  placement?: "top" | "bottom";
   rules?: Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">;
 };
 
@@ -29,7 +30,8 @@ export function FormSelect<T extends FieldValues>({
   placeholder = "Select an option",
   required,
   rules,
-  searchable = true
+  searchable = true,
+  placement = "bottom"
 }: FormSelectProps<T>) {
   const {
     field: { onChange, onBlur, value },
@@ -95,9 +97,9 @@ export function FormSelect<T extends FieldValues>({
         </button>
 
         <div
-          className={`absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-pink-100 bg-white shadow-barbie transition-all duration-200 origin-top ${
+          className={`absolute z-[100] w-full overflow-hidden rounded-xl border border-pink-100 bg-white shadow-barbie transition-all duration-200 ${
             isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
-          }`}
+          } ${placement === "top" ? "bottom-full mb-2 origin-bottom" : "top-full mt-2 origin-top"}`}
         >
           {searchable && (
             <div className="p-2 border-b border-pink-50 bg-pink-50/30">

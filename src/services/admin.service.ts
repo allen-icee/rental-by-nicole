@@ -102,7 +102,8 @@ export async function getPaginatedData<T extends keyof Tables>(
   orderBy: string,
   ascending: boolean = true,
   searchQuery?: string,
-  searchColumns?: string[]
+  searchColumns?: string[],
+  secondaryOrderBy?: { column: string, ascending: boolean }
 ): Promise<{ data: Tables[T]["Row"][]; count: number }> {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -117,9 +118,12 @@ export async function getPaginatedData<T extends keyof Tables>(
     query = query.or(orFilter);
   }
 
-  const { data, count, error } = await query
-    .order(orderBy, { ascending })
-    .range(from, to);
+  let finalQuery = query.order(orderBy, { ascending });
+  if (secondaryOrderBy) {
+    finalQuery = finalQuery.order(secondaryOrderBy.column, { ascending: secondaryOrderBy.ascending });
+  }
+
+  const { data, count, error } = await finalQuery.range(from, to);
 
   if (error) throw error;
   return { data: data as any, count: count || 0 };
@@ -157,13 +161,14 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export async function saveCategory(input: { id?: string; name: string; slug: string; description?: string; sort_order: number; is_active: boolean }) {
+export async function saveCategory(input: { id?: string; name: string; slug: string; description?: string; sort_order: number; is_active: boolean; classification?: string }) {
   const payload = {
     name: input.name,
     slug: input.slug || slugify(input.name),
     description: input.description || null,
     sort_order: input.sort_order,
-    is_active: input.is_active
+    is_active: input.is_active,
+    classification: input.classification || 'Dress'
   };
 
   return input.id

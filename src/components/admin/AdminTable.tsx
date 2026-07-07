@@ -42,10 +42,10 @@ export function AdminTable<T>({
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-soft">
       <table className="w-full text-left text-sm text-pink-950">
-        <thead className="bg-brand-background/50 text-xs uppercase text-brand-accent border-b border-pink-100">
+        <thead className="bg-pink-100/80 text-xs uppercase text-brand-accent border-b border-pink-100">
           <tr>
             {columns.map((col, i) => (
-              <th key={i} className={`px-6 py-4 font-semibold ${col.className || ""}`}>
+              <th key={i} className={`px-6 py-4 font-extrabold text-center ${col.className || ""}`}>
                 {col.header}
               </th>
             ))}
@@ -53,7 +53,7 @@ export function AdminTable<T>({
         </thead>
         <tbody className="divide-y divide-pink-100">
           {data.map((row) => (
-            <tr key={keyExtractor(row)} className="hover:bg-brand-background/30 transition-colors">
+            <tr key={keyExtractor(row)} className="transition-colors hover:bg-pink-100/60 even:bg-pink-50">
               {columns.map((col, i) => (
                 <td key={i} className={`px-6 py-4 ${col.className || ""}`}>
                   {col.cell

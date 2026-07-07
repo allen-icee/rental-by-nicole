@@ -12,12 +12,14 @@ import { FormInput } from "@/components/ui/forms/FormInput";
 import { FormTextarea } from "@/components/ui/forms/FormTextarea";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { FormToggle } from "@/components/ui/forms/FormToggle";
+import { FormSelect } from "@/components/ui/forms/FormSelect";
 
 type CategoryFormData = {
   id?: string;
   name: string;
   slug: string;
   description: string;
+  classification: string;
   sort_order: number;
   is_active: boolean;
 };
@@ -82,6 +84,7 @@ export function CategoriesPage() {
         name: item.name,
         slug: item.slug,
         description: item.description || "",
+        classification: item.classification || "Dress",
         sort_order: item.sort_order,
         is_active: item.is_active,
       });
@@ -91,6 +94,7 @@ export function CategoriesPage() {
         name: "",
         slug: "",
         description: "",
+        classification: "Dress",
         sort_order: data.length > 0 ? Math.max(...data.map((d) => d.sort_order)) + 1 : 1,
         is_active: true,
       });
@@ -130,11 +134,13 @@ export function CategoriesPage() {
   }
 
   const columns: Column<CategoryRow>[] = [
-    { header: "Name", accessorKey: "name", className: "font-medium" },
-    { header: "Slug", accessorKey: "slug" },
-    { header: "Sort Order", accessorKey: "sort_order" },
+    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
+    { header: "Name", accessorKey: "name", className: "font-medium text-center" },
+    { header: "Classification", accessorKey: "classification", className: "text-center" },
+    { header: "Slug", accessorKey: "slug", className: "text-center" },
     {
       header: "Status",
+      className: "text-center",
       cell: (row) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
@@ -147,6 +153,7 @@ export function CategoriesPage() {
     },
     {
       header: "Actions",
+      className: "text-center",
       cell: (row) => (
         <div className="flex gap-2">
           <button
@@ -230,6 +237,17 @@ export function CategoriesPage() {
             maxLength={500}
             rows={3}
             placeholder="A short description of this category..."
+          />
+
+          <FormSelect
+            name="classification"
+            control={control}
+            label="Classification"
+            searchable={false}
+            options={[
+              { value: "Dress", label: "Dress (e.g. Gowns, Suits)" },
+              { value: "Accessory", label: "Accessory (e.g. Bags, Jewelry)" }
+            ]}
           />
 
           <FormInput

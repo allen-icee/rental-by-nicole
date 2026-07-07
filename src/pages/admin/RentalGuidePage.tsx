@@ -156,11 +156,12 @@ export function RentalGuidePage() {
   }
 
   const columns: Column<any>[] = [
-    { header: "Title", accessorKey: "title", className: "font-medium" },
-    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon" }] : []),
-    { header: "Sort Order", accessorKey: "sort_order" },
+    { header: "Title", accessorKey: "title", className: "font-medium text-center" },
+    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon", className: "text-center" } as Column<any>] : []),
+    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
     {
       header: "Status",
+      className: "text-center",
       cell: (row) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
@@ -173,6 +174,7 @@ export function RentalGuidePage() {
     },
     {
       header: "Actions",
+      className: "text-center",
       cell: (row) => (
         <div className="flex gap-2">
           <button

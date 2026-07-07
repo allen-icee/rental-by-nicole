@@ -12,6 +12,7 @@ const router = createBrowserRouter([...publicRoutes, ...adminRoutes]);
 export function App() {
   useEffect(() => {
     const lenis = new Lenis();
+    (window as any).lenis = lenis;
 
     function raf(time: number) {
       lenis.raf(time);
@@ -22,6 +23,7 @@ export function App() {
 
     return () => {
       lenis.destroy();
+      delete (window as any).lenis;
     };
   }, []);
 

@@ -166,14 +166,14 @@ export function ReviewsPage() {
       <div className="flex flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-soft">
         <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-pink-100 bg-pink-50/50 text-xs uppercase tracking-widest text-pink-950/60">
+            <thead className="border-b border-pink-200 bg-pink-100/80 text-xs font-extrabold uppercase tracking-widest text-brand-accent">
               <tr>
-                <th className="px-6 py-5 font-bold">Customer</th>
-                <th className="hidden px-6 py-5 font-bold md:table-cell">Date</th>
-                <th className="px-6 py-5 font-bold">Rating</th>
-                <th className="px-6 py-5 font-bold">Status</th>
-                <th className="hidden px-6 py-5 font-bold lg:table-cell">Review</th>
-                <th className="px-6 py-5 text-right font-bold">Action</th>
+                <th className="px-6 py-5 font-extrabold text-center">Customer</th>
+                <th className="hidden px-6 py-5 font-extrabold md:table-cell text-center">Date</th>
+                <th className="px-6 py-5 font-extrabold text-center">Rating</th>
+                <th className="px-6 py-5 font-extrabold text-center">Status</th>
+                <th className="hidden px-6 py-5 font-extrabold lg:table-cell text-center">Review</th>
+                <th className="px-6 py-5 font-extrabold text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-pink-100/50">
@@ -191,8 +191,8 @@ export function ReviewsPage() {
                 </tr>
               ) : (
                 paginatedItems.map((item) => (
-                  <tr key={item.id} className="transition-colors hover:bg-pink-50/30">
-                    <td className="px-6 py-4">
+                  <tr key={item.id} className="transition-colors hover:bg-pink-100/60 even:bg-pink-50">
+                    <td className="px-6 py-4 text-center">
                       <div className="font-bold text-pink-950">
                         {item.name}
                       </div>
@@ -201,14 +201,14 @@ export function ReviewsPage() {
                       </div>
                     </td>
 
-                    <td className="hidden px-6 py-4 md:table-cell">
+                    <td className="hidden px-6 py-4 md:table-cell text-center">
                       <div className="font-semibold text-pink-950/70">
                         {new Date(item.created_at).toLocaleDateString()}
                       </div>
                     </td>
 
-                    <td className="px-6 py-4">
-                      <div className="flex gap-0.5 text-yellow-400">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex justify-center gap-0.5 text-yellow-400">
                         {Array.from({ length: 5 }).map((_, index) => (
                           <Icon
                             key={index}
@@ -219,7 +219,7 @@ export function ReviewsPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
                           item.status === "approved"
@@ -233,14 +233,14 @@ export function ReviewsPage() {
                       </span>
                     </td>
 
-                    <td className="hidden px-6 py-4 lg:table-cell">
-                      <p className="max-w-[300px] truncate text-xs font-medium text-pink-950/70">
+                    <td className="hidden px-6 py-4 lg:table-cell text-center">
+                      <p className="max-w-[300px] truncate text-xs font-medium text-pink-950/70 mx-auto">
                         "{item.comment}"
                       </p>
                     </td>
 
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex justify-center gap-2">
                         <button
                           onClick={() => setViewTarget(item)}
                           className="grid size-9 place-items-center rounded-xl bg-pink-50 text-brand-primary transition-colors hover:bg-brand-primary hover:text-white"

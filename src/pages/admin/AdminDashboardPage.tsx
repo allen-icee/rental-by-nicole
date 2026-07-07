@@ -219,56 +219,58 @@ export function AdminDashboardPage() {
       {/* METRICS SECTION */}
       {metrics && !isLoading && (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-soft min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-950/60">Total Bookings</p>
-              <p className="mt-2 text-2xl font-bold text-brand-accent truncate" title={metrics.totalRentals.toString()}>
+          <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="rounded-2xl border border-pink-100 bg-white p-4 sm:p-5 shadow-soft">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-950/60">Total Bookings</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-brand-accent truncate" title={metrics.totalRentals.toString()}>
                 {new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(metrics.totalRentals)}
               </p>
             </div>
-            <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-soft min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-950/60">Total Sales / Profit</p>
-              <p className="mt-2 text-2xl font-bold text-green-600 truncate" title={`₱${metrics.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
+            <div className="rounded-2xl border border-pink-100 bg-white p-4 sm:p-5 shadow-soft">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-950/60">Sales / Profit</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-green-600 truncate" title={`₱${metrics.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
                 ₱{new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(metrics.totalProfit)}
               </p>
             </div>
-            <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-soft min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-950/60">Income This Month</p>
-              <p className="mt-2 text-2xl font-bold text-brand-primary truncate" title={`₱${metrics.totalIncomeThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
+            <div className="rounded-2xl border border-pink-100 bg-white p-4 sm:p-5 shadow-soft">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-950/60">This Month</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-brand-primary truncate" title={`₱${metrics.totalIncomeThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
                 ₱{new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(metrics.totalIncomeThisMonth)}
               </p>
             </div>
-            <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-soft min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-950/60">Income Today</p>
-              <p className="mt-2 text-2xl font-bold text-brand-primary truncate" title={`₱${metrics.totalIncomeToday.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
+            <div className="rounded-2xl border border-pink-100 bg-white p-4 sm:p-5 shadow-soft">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-950/60">Income Today</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-brand-primary truncate" title={`₱${metrics.totalIncomeToday.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
                 ₱{new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(metrics.totalIncomeToday)}
               </p>
             </div>
-            <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-soft min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-950/60">Total Visitors</p>
-              <p className="mt-2 text-2xl font-bold text-blue-600 truncate" title={(totalVisitors || 0).toString()}>
+            <div className="col-span-2 sm:col-span-1 xl:col-span-1 rounded-2xl border border-pink-100 bg-white p-4 sm:p-5 shadow-soft">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-950/60">Total Visitors</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-blue-600 truncate" title={(totalVisitors || 0).toString()}>
                 {new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(totalVisitors || 0)}
               </p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-pink-100 shadow-soft">
-            <div className="flex flex-wrap items-center gap-3">
-              <Icon icon="mdi:filter-variant" className="text-brand-accent size-5" />
+            <div className="flex flex-wrap items-center gap-3 w-full">
+              <Icon icon="mdi:filter-variant" className="text-brand-accent size-5 hidden sm:block" />
               
               <CustomDropdown
                 value={filterYear}
                 onChange={setFilterYear}
                 options={dynamicYears}
+                className="flex-1 min-w-[120px]"
               />
               
               <CustomDropdown
                 value={filterMonth}
                 onChange={setFilterMonth}
                 options={[{ value: "all", label: "All Months" }, ...months]}
+                className="flex-1 min-w-[120px]"
               />
 
-              <div className="flex items-center gap-2 bg-pink-50 border border-pink-100 rounded-lg pl-3 pr-1 py-1">
+              <div className="flex items-center gap-2 bg-pink-50 border border-pink-100 rounded-lg pl-3 pr-1 py-1 flex-1 min-w-[140px]">
                 <span className="text-xs font-semibold text-pink-950/60 uppercase tracking-wide">Day:</span>
                 <input 
                   type="date"
@@ -285,7 +287,7 @@ export function AdminDashboardPage() {
             </div>
             <button
               onClick={handleExportExcel}
-              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-soft transition-all hover:-translate-y-0.5 hover:bg-green-700"
+              className="flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-soft transition-all hover:-translate-y-0.5 hover:bg-green-700 w-full sm:w-auto shrink-0"
             >
               <Icon icon="mdi:microsoft-excel" className="size-5" />
               Export to XLSX
@@ -347,18 +349,18 @@ export function AdminDashboardPage() {
         Quick Actions
       </h2>
 
-      <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-3 gap-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-7">
         {adminCards.map((card) => (
           <Link
             key={card.title}
             to={card.href}
-            className="group flex flex-col items-center justify-center rounded-2xl border border-pink-100 bg-white/80 p-4 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/40 hover:bg-white hover:shadow-barbie text-center"
+            className="group flex flex-col items-center justify-center rounded-2xl border border-pink-100 bg-white/80 p-3 sm:p-4 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/40 hover:bg-white hover:shadow-barbie text-center"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-pink-50 text-brand-primary transition-all duration-300 group-hover:bg-brand-primary group-hover:text-white group-hover:scale-110 group-hover:shadow-soft mb-3">
-              <Icon icon={card.icon} className="size-5" />
+            <div className="grid size-8 sm:size-10 place-items-center rounded-xl bg-pink-50 text-brand-primary transition-all duration-300 group-hover:bg-brand-primary group-hover:text-white group-hover:scale-110 group-hover:shadow-soft mb-2 sm:mb-3">
+              <Icon icon={card.icon} className="size-4 sm:size-5" />
             </div>
 
-            <h2 className="font-display text-sm font-bold text-brand-accent transition-colors group-hover:text-brand-primary">
+            <h2 className="font-display text-[10px] sm:text-sm leading-tight font-bold text-brand-accent transition-colors group-hover:text-brand-primary">
               {card.title}
             </h2>
           </Link>

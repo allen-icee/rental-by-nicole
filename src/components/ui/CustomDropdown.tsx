@@ -52,7 +52,7 @@ export function CustomDropdown({ value, onChange, options, placeholder = "Select
           isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="max-h-60 overflow-y-auto p-1 scrollbar-hide">
+        <div className="max-h-60 overflow-y-auto p-1 scrollbar-hide" data-lenis-prevent="true">
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm text-pink-950/50 text-center">
               No options

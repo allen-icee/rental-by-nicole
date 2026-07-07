@@ -337,7 +337,7 @@ export function CataloguePage() {
                       <span
                         className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${availabilityClasses[item.availabilityStatus]}`}
                       >
-                        {item.availabilityStatus}
+                        {item.availabilityStatus === 'reserved' ? 'Available for future dates' : item.availabilityStatus}
                       </span>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100">
@@ -467,7 +467,7 @@ export function CataloguePage() {
                       <div className="storybook-divider">
                         <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-accent`}>
                           <Icon icon="game-icons:ribbon-medal" className="inline size-3 mr-1" />
-                          {selectedItem.availabilityStatus}
+                          {selectedItem.availabilityStatus === 'reserved' ? 'Available for future dates' : selectedItem.availabilityStatus}
                         </span>
                       </div>
                       <h2 className="text-4xl sm:text-5xl text-brand-accent leading-tight pb-1" style={{ fontFamily: "'Pacifico', cursive", textTransform: 'capitalize' }}>

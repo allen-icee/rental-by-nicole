@@ -130,11 +130,12 @@ export function FaqPage() {
   }
 
   const columns: Column<FaqRow>[] = [
-    { header: "Question", accessorKey: "question", className: "font-medium" },
-    { header: "Category", accessorKey: "category" },
-    { header: "Sort Order", accessorKey: "sort_order" },
+    { header: "Question", accessorKey: "question", className: "font-medium text-center" },
+    { header: "Category", accessorKey: "category", className: "text-center" },
+    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
     {
       header: "Status",
+      className: "text-center",
       cell: (row) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
@@ -147,6 +148,7 @@ export function FaqPage() {
     },
     {
       header: "Actions",
+      className: "text-center",
       cell: (row) => (
         <div className="flex gap-2">
           <button

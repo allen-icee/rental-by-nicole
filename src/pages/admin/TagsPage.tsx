@@ -126,11 +126,12 @@ export function TagsPage() {
   }
 
   const columns: Column<TagRow>[] = [
-    { header: "Name", accessorKey: "name", className: "font-medium" },
-    { header: "Slug", accessorKey: "slug" },
-    { header: "Sort Order", accessorKey: "sort_order" },
+    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
+    { header: "Name", accessorKey: "name", className: "font-medium text-center" },
+    { header: "Slug", accessorKey: "slug", className: "text-center" },
     {
       header: "Status",
+      className: "text-center",
       cell: (row) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
@@ -143,6 +144,7 @@ export function TagsPage() {
     },
     {
       header: "Actions",
+      className: "text-center",
       cell: (row) => (
         <div className="flex gap-2">
           <button

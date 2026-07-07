@@ -51,7 +51,6 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase
         .from("catalog_items")
         .select("id,category_id,name,slug,description,availability_status,featured,is_new_arrival,price_display,reel_url")
-        .order("featured", { ascending: false })
         .order("name", { ascending: true })
     ]);
 
