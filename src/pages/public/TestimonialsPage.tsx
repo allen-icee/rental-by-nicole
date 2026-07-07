@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { getTestimonials } from "@/services/catalogue.service";
 import GradientText from "@/components/ui/GradientText";
@@ -38,6 +39,14 @@ export function TestimonialsPage() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.openReviewModal) {
+      setIsReviewModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const scroll = (direction: "left" | "right") => {
     if (carouselRef.current) {
@@ -112,7 +121,7 @@ export function TestimonialsPage() {
           <div className="mx-auto max-w-7xl">
             <div className="mb-8 flex flex-col gap-6 md:mb-12 md:flex-row md:items-start md:justify-between">
               <div className="max-w-2xl">
-                <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary">
+                <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">
                   <ShinyText text="Customer Feedback" disabled={false} speed={3} />
                 </p>
                 <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-brand-accent sm:text-5xl lg:text-6xl">
@@ -120,7 +129,7 @@ export function TestimonialsPage() {
                     Loved by Clients
                   </GradientText>
                 </h1>
-                <p className="mt-3 text-base font-medium text-pink-950/70 sm:text-lg">
+                <p className="mt-3 text-base font-bold text-pink-950 sm:text-lg">
                   See how exceptional pieces and dedicated service have helped clients feel their best.
                 </p>
               </div>
@@ -131,7 +140,7 @@ export function TestimonialsPage() {
                   resetReviewForm();
                   setIsReviewModalOpen(true);
                 }}
-                className="crystal-button group inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-bold text-white shadow-crystal"
+                className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white/80 backdrop-blur-md px-8 py-4 text-sm font-bold text-brand-primary shadow-[0_0_12px_rgba(255,255,255,0.6)] transition-all hover:scale-105 hover:bg-white hover:shadow-barbie"
               >
                 <Icon
                   icon="mdi:pencil-outline"
@@ -182,21 +191,39 @@ export function TestimonialsPage() {
                 <button
                   type="button"
                   onClick={() => scroll("left")}
-                  className="grid size-12 place-items-center rounded-full border border-pink-100 bg-white/80 text-brand-accent shadow-sm transition hover:border-brand-primary hover:bg-brand-primary hover:text-white"
+                  className="group grid size-12 place-items-center rounded-full border border-pink-100 bg-white/80 shadow-sm transition hover:border-brand-primary hover:bg-brand-primary"
                 >
-                  <Icon
-                    icon="mdi:chevron-left"
-                    className="text-2xl"
+                  <div 
+                    className="w-6 h-6 bg-brand-accent group-hover:bg-white transition-colors"
+                    style={{
+                      WebkitMaskImage: 'url(/assets/svg/barbie.svg)',
+                      WebkitMaskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      WebkitMaskSize: 'contain',
+                      maskImage: 'url(/assets/svg/barbie.svg)',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                      maskSize: 'contain'
+                    }}
                   />
                 </button>
                 <button
                   type="button"
                   onClick={() => scroll("right")}
-                  className="grid size-12 place-items-center rounded-full border border-pink-100 bg-white/80 text-brand-accent shadow-sm transition hover:border-brand-primary hover:bg-brand-primary hover:text-white"
+                  className="group grid size-12 place-items-center rounded-full border border-pink-100 bg-white/80 shadow-sm transition hover:border-brand-primary hover:bg-brand-primary"
                 >
-                  <Icon
-                    icon="mdi:chevron-right"
-                    className="text-2xl"
+                  <div 
+                    className="w-6 h-6 bg-brand-accent group-hover:bg-white transition-colors scale-x-[-1]"
+                    style={{
+                      WebkitMaskImage: 'url(/assets/svg/barbie.svg)',
+                      WebkitMaskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      WebkitMaskSize: 'contain',
+                      maskImage: 'url(/assets/svg/barbie.svg)',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                      maskSize: 'contain'
+                    }}
                   />
                 </button>
               </div>
@@ -273,32 +300,44 @@ export function TestimonialsPage() {
 
         {isReviewModalOpen && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-brand-background/40 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-fuchsia-900/20 p-4 backdrop-blur-sm"
             onClick={() => setIsReviewModalOpen(false)}
+            data-lenis-prevent="true"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[90svh] w-full max-w-xl flex-col overflow-hidden rounded-3xl md:rounded-[2.5rem] glass-panel shadow-crystal"
+              className="relative w-[90%] max-w-sm md:max-w-md bg-gradient-to-br from-white to-pink-50 border border-white rounded-[2rem] shadow-[0_10px_40px_rgba(232,30,140,0.25)] flex flex-col animate-scale-in max-h-[90svh]"
             >
-              <div className="flex items-center justify-between border-b border-white/60 bg-white/40 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md">
-                <div>
-                  <h3 className="font-display text-xl md:text-2xl font-bold text-brand-accent">
-                    Share Your Experience
-                  </h3>
-                  <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-brand-primary">
-                    We'd love to hear your feedback
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsReviewModalOpen(false)}
-                  className="grid size-10 shrink-0 place-items-center rounded-full border border-pink-100 bg-white text-brand-accent shadow-sm transition hover:bg-brand-primary hover:text-white"
-                >
-                  <Icon icon="mdi:close" className="text-xl" />
-                </button>
+              {/* Decorative Corner Sparkles */}
+              <div className="absolute top-4 left-4 text-pink-300">
+                 <Icon icon="mdi:sparkles" className="text-2xl animate-pulse" />
+              </div>
+              <div className="absolute bottom-4 right-4 text-pink-300">
+                 <Icon icon="mdi:star-four-points" className="text-xl animate-pulse" style={{ animationDelay: '1s' }} />
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-8 bg-white/60 hide-scrollbar" data-lenis-prevent="true">
+              {/* Heart Close Button (Top Right) */}
+              <button
+                type="button"
+                onClick={() => setIsReviewModalOpen(false)}
+                className="absolute -top-3 -right-3 md:-top-4 md:-right-4 z-50 text-white hover:scale-110 transition-transform drop-shadow-md bg-[#e81e8c] rounded-full p-1 border-2 border-white"
+              >
+                <div className="relative flex items-center justify-center">
+                  <Icon icon="mdi:cards-heart" className="text-3xl md:text-4xl" />
+                  <Icon icon="mdi:close" className="absolute text-[#e81e8c] text-sm md:text-base font-bold -translate-y-[10%]" />
+                </div>
+              </button>
+
+              <div className="flex flex-col items-center border-b border-pink-100 bg-white/40 px-5 md:px-6 py-4 md:py-5 backdrop-blur-md rounded-t-[2rem] mt-6">
+                <h3 className="font-display text-xl md:text-2xl font-bold text-brand-accent">
+                  Share Your Experience
+                </h3>
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-brand-primary">
+                  We'd love to hear your feedback
+                </p>
+              </div>
+
+              <div className="overflow-y-auto p-5 sm:p-8 bg-white/20 hide-scrollbar rounded-b-[2rem]" data-lenis-prevent="true">
                 <form className="flex flex-col gap-6" onSubmit={handleSubmit(onReviewSubmit)}>
 
                   <div className="flex flex-col items-center justify-center p-5 md:p-6 rounded-2xl glass-card border border-white/60 shadow-inner">

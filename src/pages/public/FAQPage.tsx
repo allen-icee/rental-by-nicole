@@ -38,13 +38,13 @@ export function FAQPage() {
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-brand-accent md:text-4xl">
               <ShinyText text="Frequently Asked Questions" disabled={false} speed={3} />
             </h1>
-            <p className="mt-3 text-sm md:text-base leading-relaxed text-pink-950/70 max-w-2xl mx-auto">
+            <p className="mt-3 text-sm md:text-base font-medium leading-relaxed text-pink-950 max-w-2xl mx-auto">
               Find everything you need to know about our rental process, availability, fittings, and more.
               Search below or browse.
             </p>
 
             <div className="mt-6 mx-auto max-w-2xl relative group">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-brand-primary">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-pink-950/60">
                 <Icon icon="mdi:magnify" className="size-6 transition-transform duration-300 group-focus-within:scale-110 group-focus-within:text-brand-accent" />
               </div>
               <input
@@ -113,7 +113,7 @@ export function FAQPage() {
                       <div className="overflow-hidden">
                         <div className="px-5 pb-5 md:px-6 pt-2">
                           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-100 to-transparent mb-4" />
-                          <p className="text-sm md:text-base leading-relaxed text-pink-950/70">
+                          <p className="text-sm md:text-base font-medium leading-relaxed text-pink-950">
                             {faq.answer}
                           </p>
                         </div>

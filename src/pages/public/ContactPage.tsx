@@ -29,7 +29,7 @@ export function ContactPage() {
     message: string;
   };
 
-  const { register, handleSubmit, reset, control, formState: { isValid, isSubmitting } } = useForm<ContactFormInputs>({
+  const { register, handleSubmit, reset, control, formState: { isValid, isSubmitting, errors } } = useForm<ContactFormInputs>({
     mode: "onChange",
     defaultValues: {
       rentedItems: itemParam ? [itemParam] : [],
@@ -82,7 +82,7 @@ export function ContactPage() {
             <div className="flex flex-col gap-8 lg:sticky lg:top-24">
 
               <ScrollReveal>
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-primary mb-3">
+                <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary mb-3">
                   <ShinyText text="Contact Informations" disabled={false} speed={3} />
                 </p>
                 <h1 className="font-display text-2xl font-bold leading-tight text-brand-accent md:text-3xl">
@@ -90,8 +90,8 @@ export function ContactPage() {
                     Don't be shy, send a message.
                   </GradientText>
                 </h1>
-                <p className="mt-4 text-base leading-relaxed text-pink-950/70 font-medium">
-                  Message us to book a private fitting at our home based location✨
+                <p className="mt-4 text-sm md:text-base leading-relaxed text-pink-950 font-bold">
+                  Message us to book a private fitting at our home based location
                 </p>
               </ScrollReveal>
 
@@ -130,7 +130,7 @@ export function ContactPage() {
 
               {/* Premium Social Buttons */}
               <ScrollReveal delay={200} className="flex flex-col gap-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-accent mb-1 text-center">Preferred Methods</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] mb-2 text-center">Preferred Methods</p>
                 <div className="flex gap-4">
                   {settings?.facebook_url && (
                     <a
@@ -161,7 +161,7 @@ export function ContactPage() {
             </div>
 
             {/* Right Column: Premium Inquiry Form */}
-            <ScrollReveal delay={300} className="glass-panel p-6 md:p-10 shadow-crystal relative overflow-hidden animate-float">
+            <ScrollReveal delay={300} className="glass-panel p-6 md:p-10 shadow-crystal relative animate-float">
               <div className="absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full bg-brand-primary/20 blur-3xl pointer-events-none" />
 
               <form className="relative z-10 flex flex-col gap-6 md:gap-7" onSubmit={handleSubmit(onSubmit)}>
@@ -178,32 +178,71 @@ export function ContactPage() {
                 <div className="grid gap-6">
                   <div>
                     <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Your Name</label>
-                    <input {...register("name", { required: true, minLength: 2 })} className="w-full rounded-2xl border-2 border-white/60 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10" placeholder="e.g. Maria Theresa" />
+                    <input 
+                      id="name"
+                      {...register("name", { required: "Name is required", minLength: { value: 2, message: "Name must be at least 2 characters" } })} 
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          document.getElementById('email')?.focus();
+                        }
+                      }}
+                      className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.name ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`} 
+                      placeholder="e.g. Maria Theresa" 
+                    />
+                    {errors.name && <p className="mt-2 ml-2 text-xs font-semibold text-red-500">{errors.name.message}</p>}
                   </div>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Email Address</label>
-                  <input {...register("email", { required: true })} className="w-full rounded-2xl border-2 border-white/60 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10" type="email" placeholder="maria@example.com" />
+                  <input 
+                    id="email"
+                    {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Please enter a valid email address" } })} 
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('message')?.focus();
+                      }
+                    }}
+                    className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`} 
+                    type="email" 
+                    placeholder="maria@example.com" 
+                  />
+                  {errors.email && <p className="mt-2 ml-2 text-xs font-semibold text-red-500">{errors.email.message}</p>}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Message</label>
                   <textarea
-                    {...register("message", { required: true, minLength: 10 })}
-                    className="w-full resize-none rounded-2xl border-2 border-white/60 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
+                    id="message"
+                    {...register("message", { required: "Message is required", minLength: { value: 10, message: "Message must be at least 10 characters" } })}
+                    className={`w-full resize-none rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.message ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`}
                     rows={4}
                     placeholder="Tell us your rental dates, fitting preference, or any questions you have..."
                   />
+                  {errors.message && <p className="mt-2 ml-2 text-xs font-semibold text-red-500">{errors.message.message}</p>}
                 </div>
 
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="crystal-button mt-4 flex w-full items-center justify-center gap-2 rounded-full px-8 py-5 text-sm font-bold tracking-widest uppercase text-white shadow-crystal transition-transform disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary hover:bg-brand-accent px-8 py-5 text-sm font-bold tracking-widest uppercase text-white shadow-[0_0_12px_rgba(255,255,255,0.6)] transition-all hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Sending Inquiry..." : "Send Inquiry"}
-                  <Icon icon="mdi:magic-staff" className="text-lg" />
+                  <div 
+                    className="w-6 h-6 bg-white"
+                    style={{
+                      WebkitMaskImage: 'url(/assets/svg/barbie.svg)',
+                      WebkitMaskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      WebkitMaskSize: 'contain',
+                      maskImage: 'url(/assets/svg/barbie.svg)',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                      maskSize: 'contain'
+                    }}
+                  />
                 </button>
               </form>
             </ScrollReveal>

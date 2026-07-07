@@ -209,3 +209,28 @@ export async function getRentalGuides() {
   return import("@/data/site-content").then(m => m.rentalGuideSections);
 }
 
+export async function getRentalTerms() {
+  try {
+    const { data, error } = await supabase.from("rental_terms").select("*").eq("is_published", true).order("sort_order", { ascending: true });
+    if (error) throw error;
+    if (data && data.length > 0) return data;
+  } catch (error) {
+    console.warn("Using fallback rental terms", error);
+  }
+  
+  return [
+    { title: "Condition 1", description: "Rental period is for 2 days only (exact 48 hours)", icon: "mdi:clock-outline", sort_order: 1 },
+    { title: "Condition 2", description: "A 50% down payment is required to secure your slot.", icon: "mdi:cash-register", sort_order: 2 },
+    { title: "Condition 3", description: "P200 security deposit must be paid upon receiving the gown.", icon: "mdi:shield-check", sort_order: 3 },
+    { title: "Condition 4", description: "Security deposit is refundable once the gown is returned in good condition.", icon: "mdi:cash-refund", sort_order: 4 },
+    { title: "Condition 5", description: "No need to laundry the gown before returning.", icon: "mdi:washing-machine-off", sort_order: 5 },
+    { title: "Condition 6", description: "Please handle the gown with proper care and cleanliness.", icon: "mdi:hand-heart", sort_order: 6 },
+    { title: "Condition 7", description: "Any damages, excessive stains, missing accessories, or alterations will be charged accordingly.", icon: "mdi:alert-circle-outline", sort_order: 7 },
+    { title: "Condition 8", description: "Late returns may incur additional fees.", icon: "mdi:calendar-alert", sort_order: 8 },
+    { title: "Condition 9", description: "Reservation/payment is strictly non-refundable once confirmed.", icon: "mdi:cancel", sort_order: 9 },
+    { title: "Condition 10", description: "Kindly return the gown on the agreed date and time.", icon: "mdi:calendar-check", sort_order: 10 },
+    { title: "Condition 11", description: "We are Gerona-based. Meet-ups within Tarlac City are available with a corresponding fee.", icon: "mdi:map-marker", sort_order: 11 },
+    { title: "Condition 12", description: "Shipping via the Grab/Lalamove may also be arranged, with delivery fees to be shouldered by the client.", icon: "mdi:truck-delivery", sort_order: 12 }
+  ];
+}
+

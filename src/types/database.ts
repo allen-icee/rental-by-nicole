@@ -180,6 +180,16 @@ export type Database = {
         created_at: string;
         updated_at: string;
       }>;
+      rental_terms: Table<{
+        id: string;
+        title: string;
+        description: string;
+        icon: string | null;
+        is_published: boolean;
+        sort_order: number;
+        created_at: string;
+        updated_at: string;
+      }>;
       activity_logs: Table<{
         id: string;
         actor_id: string | null;

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, saveGuide, deleteGuide, type GuideRow } from "@/services/admin.service";
+import { getPaginatedData, saveGuide, deleteGuide, saveTerm, deleteTerm, type GuideRow, type TermRow } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -13,17 +13,21 @@ import { FormTextarea } from "@/components/ui/forms/FormTextarea";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { FormToggle } from "@/components/ui/forms/FormToggle";
 
-type GuideFormData = {
+type ActiveTab = "terms" | "guides";
+
+type FormData = {
   id?: string;
   title: string;
-  body: string;
+  bodyOrDescription: string;
+  icon?: string;
   sort_order: number;
   is_published: boolean;
 };
 
 export function RentalGuidePage() {
   const { showToast } = useToast();
-  const [data, setData] = useState<GuideRow[]>([]);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("terms");
+  const [data, setData] = useState<any[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,31 +36,33 @@ export function RentalGuidePage() {
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<GuideRow | null>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<GuideFormData>({
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<FormData>({
     mode: "onChange"
   });
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, searchQuery]);
+  }, [currentPage, pageSize, searchQuery, activeTab]);
 
   async function fetchData() {
     setIsLoading(true);
     try {
+      const table = activeTab === "terms" ? "rental_terms" : "rental_guides";
+      const searchCols = activeTab === "terms" ? ["title", "description"] : ["title", "body"];
       const { data: items, count } = await getPaginatedData(
-        "rental_guides",
+        table,
         currentPage,
         pageSize,
         "sort_order",
         true,
         searchQuery,
-        ["title", "body"]
+        searchCols
       );
       setData(items);
       setTotalItems(count);
@@ -67,19 +73,20 @@ export function RentalGuidePage() {
       }
     } catch (error) {
       console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to load guides." });
+      showToast({ tone: "error", title: "Error", message: "Failed to load data." });
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleOpenModal(item?: GuideRow) {
+  function handleOpenModal(item?: any) {
     if (item) {
       setEditingItem(item);
       reset({
         id: item.id,
         title: item.title,
-        body: item.body,
+        bodyOrDescription: activeTab === "terms" ? item.description : item.body,
+        icon: activeTab === "terms" ? item.icon : "",
         sort_order: item.sort_order,
         is_published: item.is_published,
       });
@@ -87,7 +94,8 @@ export function RentalGuidePage() {
       setEditingItem(null);
       reset({
         title: "",
-        body: "",
+        bodyOrDescription: "",
+        icon: "",
         sort_order: data.length > 0 ? Math.max(...data.map(d => d.sort_order)) + 1 : 1,
         is_published: true,
       });
@@ -95,15 +103,32 @@ export function RentalGuidePage() {
     setIsModalOpen(true);
   }
 
-  async function onSubmit(formData: GuideFormData) {
+  async function onSubmit(formData: FormData) {
     try {
-      await saveGuide(formData);
-      showToast({ tone: "success", title: "Success", message: "Guide saved successfully." });
+      if (activeTab === "terms") {
+        await saveTerm({
+          id: formData.id,
+          title: formData.title,
+          description: formData.bodyOrDescription,
+          icon: formData.icon || null,
+          sort_order: formData.sort_order,
+          is_published: formData.is_published
+        });
+      } else {
+        await saveGuide({
+          id: formData.id,
+          title: formData.title,
+          body: formData.bodyOrDescription,
+          sort_order: formData.sort_order,
+          is_published: formData.is_published
+        });
+      }
+      showToast({ tone: "success", title: "Success", message: "Item saved successfully." });
       setIsModalOpen(false);
       fetchData();
     } catch (error) {
       console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to save guide." });
+      showToast({ tone: "error", title: "Error", message: "Failed to save item." });
     }
   }
 
@@ -115,19 +140,24 @@ export function RentalGuidePage() {
   async function handleDelete() {
     if (!itemToDelete) return;
     try {
-      await deleteGuide(itemToDelete);
-      showToast({ tone: "success", title: "Deleted", message: "Guide removed." });
+      if (activeTab === "terms") {
+        await deleteTerm(itemToDelete);
+      } else {
+        await deleteGuide(itemToDelete);
+      }
+      showToast({ tone: "success", title: "Deleted", message: "Item removed." });
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
       fetchData();
     } catch (error) {
       console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to delete guide." });
+      showToast({ tone: "error", title: "Error", message: "Failed to delete item." });
     }
   }
 
-  const columns: Column<GuideRow>[] = [
+  const columns: Column<any>[] = [
     { header: "Title", accessorKey: "title", className: "font-medium" },
+    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon" }] : []),
     { header: "Sort Order", accessorKey: "sort_order" },
     {
       header: "Status",
@@ -165,9 +195,9 @@ export function RentalGuidePage() {
   return (
     <div>
       <AdminPageHeader
-        title="Rental Guides"
-        description="Manage the instructional guides on the rental process."
-        actionLabel="Add Guide"
+        title="Rental Guidelines & Terms"
+        description="Manage the terms and conditions flowchart and fitting guidelines section."
+        actionLabel={activeTab === "terms" ? "Add Term" : "Add Guide"}
         onAction={() => handleOpenModal()}
       >
         <div className="relative w-full max-w-sm">
@@ -177,7 +207,7 @@ export function RentalGuidePage() {
           />
           <input
             type="text"
-            placeholder="Search guides..."
+            placeholder={`Search ${activeTab === "terms" ? "terms" : "guides"}...`}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -187,6 +217,25 @@ export function RentalGuidePage() {
           />
         </div>
       </AdminPageHeader>
+
+      <div className="mb-6 flex space-x-1 rounded-xl bg-pink-100/50 p-1 max-w-fit">
+        <button
+          onClick={() => { setActiveTab("terms"); setCurrentPage(1); setSearchQuery(""); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+            activeTab === "terms" ? "bg-white text-brand-primary shadow" : "text-pink-600 hover:text-pink-900 hover:bg-white/50"
+          }`}
+        >
+          Terms & Conditions
+        </button>
+        <button
+          onClick={() => { setActiveTab("guides"); setCurrentPage(1); setSearchQuery(""); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+            activeTab === "guides" ? "bg-white text-brand-primary shadow" : "text-pink-600 hover:text-pink-900 hover:bg-white/50"
+          }`}
+        >
+          Fitting Guidelines
+        </button>
+      </div>
 
       <AdminTable
         data={data}
@@ -206,7 +255,7 @@ export function RentalGuidePage() {
       <AdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingItem ? "Edit Guide" : "Add Guide"}
+        title={editingItem ? (activeTab === "terms" ? "Edit Term" : "Edit Guide") : (activeTab === "terms" ? "Add Term" : "Add Guide")}
         maxWidth="2xl"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -219,14 +268,24 @@ export function RentalGuidePage() {
           />
 
           <FormTextarea
-            name="body"
+            name="bodyOrDescription"
             control={control}
-            label="Body"
+            label={activeTab === "terms" ? "Description" : "Body"}
             required
             maxLength={2000}
             rows={5}
-            helperText="Markdown formatting is allowed."
+            helperText={activeTab === "terms" ? "The short description for the term." : "Markdown formatting is allowed."}
           />
+
+          {activeTab === "terms" && (
+            <FormInput
+              name="icon"
+              control={control}
+              label="Icon (Optional)"
+              placeholder="e.g. mdi:check-circle"
+              helperText="Iconify icon name for the flowchart step."
+            />
+          )}
 
           <FormInput
             name="sort_order"
@@ -235,14 +294,13 @@ export function RentalGuidePage() {
             label="Sort Order"
             min={0}
             helperText="Lower numbers appear first."
-
           />
 
           <FormToggle
             name="is_published"
             control={control}
-            label="Active Guide"
-            description="Inactive guides are hidden from customers."
+            label="Active"
+            description="Inactive items are hidden from customers."
           />
 
           <div className="pt-4 flex justify-end gap-3 border-t border-pink-100">
@@ -267,7 +325,7 @@ export function RentalGuidePage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title="Confirm Delete"
-        message="Are you sure you want to delete this guide? This action cannot be undone."
+        message="Are you sure you want to delete this item? This action cannot be undone."
         onConfirm={handleDelete}
       />
     </div>

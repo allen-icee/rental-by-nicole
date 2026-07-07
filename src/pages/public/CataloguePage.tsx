@@ -45,6 +45,7 @@ export function CataloguePage() {
   const [activeImage, setActiveImage] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -203,18 +204,15 @@ export function CataloguePage() {
   return (
     <PublicLayout>
       <main>
-        <ScrollReveal as="section" className="mx-auto max-w-7xl px-4 pt-8 pb-8 relative z-30">
-          <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-accent">
-                <ShinyText text="Catalogue" disabled={false} speed={3} />
-              </p>
-              <h1 className="mt-2 font-display text-3xl font-semibold text-pink-950">
+        <ScrollReveal once={true} as="section" className="mx-auto max-w-7xl px-4 pt-8 pb-8 relative z-30">
+          <div className="flex flex-col items-center text-center gap-8">
+            <div className="max-w-2xl mx-auto flex flex-col items-center">
+              <h1 className="mt-1 font-display text-4xl sm:text-5xl lg:text-6xl font-bold">
                 <GradientText colors={["#d11275", "#ff66b2", "#b091f2", "#d4af37", "#d11275"]} animationSpeed={6}>
                   Browse rental pieces
                 </GradientText>
               </h1>
-              <p className="mt-3 leading-7 text-pink-950/70">
+              <p className="mt-3 leading-7 text-pink-950 font-bold text-base sm:text-lg">
                 Explore the collection using categories, tags, and style filters.
                 Open any item to view measurements and availability.
               </p>
@@ -224,65 +222,99 @@ export function CataloguePage() {
                   catalogue records are added.
                 </p>
               ) : null}
-            </div>
-            <div className="relative z-20 rounded-[2rem] glass-panel p-3 shadow-crystal">
-              <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
-                <div className="relative">
-                  <input
-                    className="w-full rounded-full border-2 border-white/60 bg-white/40 backdrop-blur-md py-3 pl-12 pr-4 text-sm font-medium focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all placeholder:text-pink-950/60 text-brand-accent shadow-inner"
-                    value={search}
-                    onChange={(event) => {
-                      setSearch(event.target.value);
-                      setPage(1);
-                    }}
-                    placeholder="Search dresses, gowns, tags..."
-                  />
-                  <Icon icon="mdi:magnify" className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-pink-950/40" />
+              
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 w-full max-w-2xl relative z-40">
+                <div className="flex w-full gap-3 max-w-md justify-center">
+                  <div className="relative flex-1">
+                    <input
+                      className="w-full rounded-full border-2 border-white/80 bg-white/60 backdrop-blur-md py-3 pl-12 pr-4 text-sm font-medium focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all placeholder:text-pink-950/60 text-brand-accent shadow-soft"
+                      value={search}
+                      onChange={(event) => {
+                        setSearch(event.target.value);
+                        setPage(1);
+                      }}
+                      placeholder="Search dresses, gowns, tags..."
+                    />
+                    <Icon icon="mdi:magnify" className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-pink-950/40" />
+                  </div>
+                  <button 
+                    onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+                    className={`flex-none flex items-center justify-center rounded-full backdrop-blur-md size-[52px] text-brand-primary shadow-soft transition-all hover:scale-105 hover:bg-white hover:shadow-barbie ${isFilterModalOpen ? 'bg-white' : 'bg-white/80'}`}
+                    aria-label="Filter"
+                    title="Filter"
+                  >
+                    <Icon icon="stash:filter-duotone" className="size-6" />
+                  </button>
                 </div>
-                <div className="relative z-50">
-                  <CustomSelect
-                    value={category}
-                    onChange={(val) => {
-                      setCategory(val);
-                      setPage(1);
-                      const newParams = new URLSearchParams(searchParams);
-                      if (val !== "All") newParams.set("category", val);
-                      else newParams.delete("category");
-                      setSearchParams(newParams, { replace: true });
-                    }}
-                    options={["All", ...catalogueData.categories]}
-                  />
-                </div>
-                <div className="relative z-40">
-                  <CustomSelect
-                    value={tag}
-                    onChange={(val) => {
-                      setTag(val);
-                      setPage(1);
-                      const newParams = new URLSearchParams(searchParams);
-                      if (val !== "All") newParams.set("tag", val);
-                      else newParams.delete("tag");
-                      setSearchParams(newParams, { replace: true });
-                    }}
-                    options={["All", ...catalogueData.tags]}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="flex items-center justify-center rounded-full border-2 border-white/80 bg-white/50 px-4 py-3 text-brand-accent transition hover:border-brand-primary hover:text-white hover:bg-brand-primary hover:shadow-soft focus:outline-none focus:ring-4 focus:ring-brand-primary/10 backdrop-blur-md"
-                  title="Reset filters"
-                  aria-label="Reset filters"
-                >
-                  <Icon icon="mdi:refresh" className="size-5" />
-                </button>
+
+                {/* Inline Expandable Filter Panel */}
+                {isFilterModalOpen && (
+                  <div className="w-full mt-2 rounded-[1.5rem] bg-white/90 backdrop-blur-md p-5 md:p-6 text-left shadow-crystal border border-white/50 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <h3 className="text-lg font-bold text-pink-950 mb-4 flex items-center gap-2">
+                      <Icon icon="stash:filter-duotone" className="size-5 text-brand-primary" />
+                      Filters
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="relative z-[60]">
+                        <label className="mb-2 block text-sm font-bold text-pink-950/80">Category</label>
+                        <CustomSelect
+                          value={category}
+                          onChange={(val) => {
+                            setCategory(val);
+                            setPage(1);
+                            const newParams = new URLSearchParams(searchParams);
+                            if (val !== "All") newParams.set("category", val);
+                            else newParams.delete("category");
+                            setSearchParams(newParams, { replace: true });
+                          }}
+                          options={["All", ...catalogueData.categories]}
+                        />
+                      </div>
+                      
+                      <div className="relative z-[50]">
+                        <label className="mb-2 block text-sm font-bold text-pink-950/80">Tag</label>
+                        <CustomSelect
+                          value={tag}
+                          onChange={(val) => {
+                            setTag(val);
+                            setPage(1);
+                            const newParams = new URLSearchParams(searchParams);
+                            if (val !== "All") newParams.set("tag", val);
+                            else newParams.delete("tag");
+                            setSearchParams(newParams, { replace: true });
+                          }}
+                          options={["All", ...catalogueData.tags]}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t border-pink-100 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="flex items-center gap-2 text-sm font-bold text-pink-950/60 hover:text-brand-primary transition-colors"
+                      >
+                        <Icon icon="mdi:refresh" className="size-4" />
+                        Reset Filters
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsFilterModalOpen(false)}
+                        className="rounded-full bg-brand-primary px-6 py-2.5 text-sm font-bold text-white transition hover:bg-brand-accent shadow-[0_0_12px_rgba(255,255,255,0.6)]"
+                      >
+                        Apply Filters
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </ScrollReveal>
 
         <section className="mx-auto max-w-7xl px-4 pb-14">
-          <div className="mb-5 flex items-center justify-between text-sm text-pink-950/65">
+          <div className="mb-6 flex items-center justify-between text-base font-black text-pink-950">
             <span>{loading ? "Loading catalogue..." : `${filteredItems.length} item(s) found`}</span>
             <span>
               Showing {visibleItems.length} of {filteredItems.length}
@@ -298,29 +330,27 @@ export function CataloguePage() {
           ) : visibleItems.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {visibleItems.map((item, index) => (
-                <ScrollReveal as="article" key={item.id} delay={index * 50} className="group transition-all" style={{ animationDelay: `${index * 0.2}s` }}>
-                  <button type="button" onClick={() => openItem(item)} className="block w-full text-left transition-transform duration-500 hover:-translate-y-2 active:scale-[0.98]">
-                    <div className="barbie-card w-full h-full">
-                      <div className="barbie-card-oval">
-                        <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                        <span
-                          className={`absolute left-1/2 -translate-x-1/2 top-4 sm:top-5 rounded-full px-2.5 py-1 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm z-10 ${availabilityClasses[item.availabilityStatus]}`}
-                        >
-                          {item.availabilityStatus}
+                <ScrollReveal once={true} as="article" key={item.id} delay={index * 50} className="group overflow-hidden rounded-xl bg-pink-50 shadow-sm transition-all hover:shadow-soft border border-pink-200/60">
+                  <button type="button" onClick={() => openItem(item)} className="block w-full text-center transition-transform active:scale-[0.98]">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-pink-100/50">
+                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      <span
+                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${availabilityClasses[item.availabilityStatus]}`}
+                      >
+                        {item.availabilityStatus}
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100">
+                        <span className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md border border-white/40 text-white px-4 py-2 rounded-full text-xs font-bold shadow-soft">
+                          Explore <Icon icon="game-icons:ample-dress" className="size-4" />
                         </span>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                        <div className="absolute inset-0 flex items-center justify-center translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 z-10 pointer-events-none">
-                          <Icon icon="game-icons:ample-dress" className="size-8 text-white drop-shadow-md" />
-                        </div>
                       </div>
-                      <div className="barbie-card-ribbon">
-                        <div className="ribbon-tail ribbon-tail-left"></div>
-                        <div className="ribbon-tail ribbon-tail-right"></div>
-                        <div className="ribbon-content flex flex-col justify-center">
-                          <h3 className="ribbon-title line-clamp-1">{item.name}</h3>
-                          <p className="ribbon-subtitle">{item.priceDisplay}</p>
-                        </div>
-                      </div>
+                    </div>
+                    <div className="p-2.5 sm:p-3 flex flex-col items-center">
+                      <h2 className="font-display text-base sm:text-lg lg:text-xl font-black text-pink-950 line-clamp-1">
+                        {item.name}
+                      </h2>
+                      <p className="mt-0.5 text-xs sm:text-sm font-bold text-brand-accent">{item.priceDisplay.replace(/\s*\/\s*/, ' for ')}</p>
                     </div>
                   </button>
                 </ScrollReveal>
@@ -343,6 +373,8 @@ export function CataloguePage() {
             </div>
           )}
         </section>
+
+
 
         {selectedItem ? (
           <div

@@ -10,10 +10,11 @@ type ScrollRevealProps = {
   delay?: number;
   className?: string;
   as?: ElementType | string;
+  once?: boolean;
   [key: string]: any;
 };
 
-export function ScrollReveal({ children, delay = 0, className = "", as = "div", ...props }: ScrollRevealProps) {
+export function ScrollReveal({ children, delay = 0, className = "", as = "div", once = false, ...props }: ScrollRevealProps) {
   if (!motionComponentCache.has(as)) {
     motionComponentCache.set(as, motion(as as any));
   }
@@ -23,7 +24,7 @@ export function ScrollReveal({ children, delay = 0, className = "", as = "div", 
     <Component
       initial={{ opacity: 0, y: 26, scale: 0.985 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, margin: "-10%" }}
+      viewport={{ once, margin: "-10%" }}
       transition={{ 
         duration: 0.7, 
         ease: [0.4, 0, 0.2, 1], 

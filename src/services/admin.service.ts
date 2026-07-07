@@ -18,6 +18,7 @@ export type TagRow = Tables["tags"]["Row"];
 export type CatalogRow = Tables["catalog_items"]["Row"];
 export type AvailabilityRow = Tables["availability_ranges"]["Row"];
 export type GuideRow = Tables["rental_guides"]["Row"];
+export type TermRow = Tables["rental_terms"]["Row"];
 export type FaqRow = Tables["faqs"]["Row"];
 export type ReviewRow = Tables["customer_reviews"]["Row"];
 export type InquiryRow = Tables["inquiries"]["Row"];
@@ -472,6 +473,24 @@ export async function saveGuide(input: { id?: string; title: string; body: strin
 
 export async function deleteGuide(id: string) {
   return supabase.from("rental_guides").delete().eq("id", id);
+}
+
+export async function saveTerm(input: { id?: string; title: string; description: string; icon?: string | null; sort_order: number; is_published: boolean }) {
+  const payload = {
+    title: input.title,
+    description: input.description,
+    icon: input.icon || null,
+    sort_order: input.sort_order,
+    is_published: input.is_published
+  };
+
+  return input.id
+    ? supabase.from("rental_terms").update(payload).eq("id", input.id)
+    : supabase.from("rental_terms").insert(payload);
+}
+
+export async function deleteTerm(id: string) {
+  return supabase.from("rental_terms").delete().eq("id", id);
 }
 
 export async function saveFaq(input: { id?: string; category?: string; question: string; answer: string; sort_order: number; is_published: boolean }) {
