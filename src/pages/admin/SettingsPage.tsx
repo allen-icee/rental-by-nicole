@@ -27,7 +27,7 @@ export function SettingsPage() {
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
 
-  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful }, register } = useForm<SettingsFormData>({
+  const { control, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, isSubmitSuccessful } } = useForm<SettingsFormData>({
     mode: "onChange"
   });
 

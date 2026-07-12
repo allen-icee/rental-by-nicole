@@ -4,10 +4,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type CarouselProps = {
   children: ReactNode;
-  autoScrollDelay?: number;
 };
 
-export function Carousel({ children, autoScrollDelay = 3500 }: CarouselProps) {
+export function Carousel({ children }: CarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isHovered = useRef(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

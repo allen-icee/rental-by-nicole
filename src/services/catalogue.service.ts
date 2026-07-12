@@ -2,6 +2,7 @@
 import { catalogueItems as fallbackItems, categories as fallbackCategories, tags as fallbackTags } from "@/data/site-content";
 import type { CatalogItem } from "@/features/catalogue/types/catalogue";
 import { supabase } from "@/lib/supabase/client";
+import { getManilaDate, formatDateManila } from "../utils/date-utils";
 
 export type CatalogueData = {
   items: CatalogItem[];
@@ -36,22 +37,27 @@ type MeasurementRow = {
   notes: string | null;
 };
 type AvailabilityRow = {
-  catalog_item_id: string;
-  start_date: string | null;
-  end_date: string | null;
-  label: string | null;
+  dress_id: string;
+  start_date: string;
+  end_date: string;
 };
 type ItemTagRow = { catalog_item_id: string; tag_id: string };
 
 export async function getCatalogueData(): Promise<CatalogueData> {
   try {
-    const [categoriesResult, tagsResult, itemsResult] = await Promise.all([
+    const [categoriesResult, tagsResult, itemsResult, fittingsResult] = await Promise.all([
       supabase.from("categories").select("id,name").eq("is_active", true).order("sort_order", { ascending: true }),
       supabase.from("tags").select("id,name").eq("is_active", true).order("sort_order", { ascending: true }),
       supabase
         .from("catalog_items")
         .select("id,category_id,name,slug,description,availability_status,featured,is_new_arrival,price_display,reel_url")
-        .order("name", { ascending: true })
+        .order("name", { ascending: true }),
+      supabase
+        .from("fittings")
+        .select("date,time")
+        .eq("status", "Scheduled")
+        .gte("date", formatDateManila(getManilaDate(), "yyyy-MM-dd"))
+        .order("date")
     ]);
 
     if (categoriesResult.error || tagsResult.error || itemsResult.error) {
@@ -65,7 +71,12 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase.from("catalog_item_images").select("catalog_item_id,image_url").in("catalog_item_id", itemIds).order("sort_order"),
       supabase.from("catalog_item_sizes").select("id,catalog_item_id,size_label,inventory_quantity").in("catalog_item_id", itemIds).order("sort_order"),
       supabase.from("catalog_item_tags").select("catalog_item_id,tag_id").in("catalog_item_id", itemIds),
-      supabase.from("availability_ranges").select("catalog_item_id,start_date,end_date,label").in("catalog_item_id", itemIds).order("start_date")
+      supabase.from("rental_bookings")
+        .select("dress_id,start_date,end_date")
+        .in("dress_id", itemIds)
+        .neq("status", "Cancelled")
+        .neq("status", "Returned")
+        .order("start_date")
     ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
 
     if (imagesResult.error || sizesResult.error || itemTagsResult.error || availabilityResult.error) {
@@ -117,6 +128,23 @@ export async function getCatalogueData(): Promise<CatalogueData> {
         });
           const itemImages = images.filter((image) => image.catalog_item_id === item.id).map((image) => image.image_url);
 
+          const totalInventory = itemSizes.reduce((total, size) => total + size.inventory_quantity, 0);
+
+          const activeRentals = availability.filter((range) => range.dress_id === item.id);
+          
+          const todayStr = formatDateManila(getManilaDate(), "yyyy-MM-dd");
+          const currentlyRented = activeRentals.filter((r) => {
+            return r.start_date <= todayStr && r.end_date >= todayStr;
+          }).length;
+      
+          const remainingQuantity = totalInventory - currentlyRented;
+          const computedAvailabilityStatus = remainingQuantity <= 0 ? "reserved" : `Available (${remainingQuantity} left)`;
+      
+          const scheduledFittings = (fittingsResult?.data ?? []) as {date: string, time: string}[];
+          const fittingRanges = scheduledFittings.map((f) => `Fitting Booked: ${formatDateManila(f.date)} at ${f.time || "TBA"}`);
+          
+          const reservedRanges = activeRentals.map((range) => formatDateRange(range.start_date, range.end_date));
+
           return {
             id: item.id,
             name: item.name,
@@ -128,7 +156,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
               .map((itemTag) => tagById.get(itemTag.tag_id))
               .filter((tagName): tagName is string => Boolean(tagName)),
 
-            availabilityStatus: item.availability_status,
+            availabilityStatus: computedAvailabilityStatus,
             featured: item.featured,
             isNewArrival: item.is_new_arrival,
             priceDisplay: item.price_display,
@@ -136,10 +164,8 @@ export async function getCatalogueData(): Promise<CatalogueData> {
             images: itemImages.length > 0 ? itemImages : [placeholderImage],
             sizes: itemSizes.map((size) => size.size_label),
           measurements: itemMeasurements.length > 0 ? itemMeasurements : [{ size: "One Size", bust: "N/A", waist: "N/A", length: "N/A" }],
-          inventoryQuantity: itemSizes.reduce((total, size) => total + size.inventory_quantity, 0),
-          reservedRanges: availability
-            .filter((range) => range.catalog_item_id === item.id)
-            .map((range) => range.label ?? formatDateRange(range.start_date, range.end_date))
+          inventoryQuantity: totalInventory,
+          reservedRanges: [...reservedRanges, ...fittingRanges]
         } satisfies CatalogItem;
       })
     };
@@ -177,7 +203,7 @@ export async function getTestimonials() {
     if (data && data.length > 0) {
       return data.map(item => ({
         ...item,
-        date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        date: formatDateManila(item.created_at, "MMMM yyyy")
       }));
     }
   } catch (error) {

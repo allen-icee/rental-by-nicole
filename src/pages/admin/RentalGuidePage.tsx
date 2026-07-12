@@ -27,7 +27,7 @@ type FormData = {
 export function RentalGuidePage() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<ActiveTab>("terms");
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<(GuideRow | TermRow)[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,7 +36,7 @@ export function RentalGuidePage() {
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<GuideRow | TermRow | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -79,14 +79,14 @@ export function RentalGuidePage() {
     }
   }
 
-  function handleOpenModal(item?: any) {
+  function handleOpenModal(item?: GuideRow | TermRow) {
     if (item) {
       setEditingItem(item);
       reset({
         id: item.id,
         title: item.title,
-        bodyOrDescription: activeTab === "terms" ? item.description : item.body,
-        icon: activeTab === "terms" ? item.icon : "",
+        bodyOrDescription: activeTab === "terms" ? (item as TermRow).description : (item as GuideRow).body,
+        icon: (activeTab === "terms" ? (item as TermRow).icon : "") || "",
         sort_order: item.sort_order,
         is_published: item.is_published,
       });
@@ -155,9 +155,9 @@ export function RentalGuidePage() {
     }
   }
 
-  const columns: Column<any>[] = [
+  const columns: Column<GuideRow | TermRow>[] = [
     { header: "Title", accessorKey: "title", className: "font-medium text-center" },
-    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon", className: "text-center" } as Column<any>] : []),
+    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon", className: "text-center" } as unknown as Column<GuideRow | TermRow>] : []),
     { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
     {
       header: "Status",

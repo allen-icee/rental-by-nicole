@@ -9,9 +9,13 @@ function cn(...classes: (string | undefined | null | false)[]) {
 
 export interface RotatingTextProps {
   texts: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transition?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initial?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   animate?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exit?: any;
   animatePresenceMode?: 'wait' | 'popLayout' | 'sync';
   animatePresenceInitial?: boolean;
@@ -52,8 +56,11 @@ const RotatingText = forwardRef((props: RotatingTextProps, ref) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
   const splitIntoCharacters = (text: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const segmenter = new (Intl as any).Segmenter('en', { granularity: 'grapheme' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return Array.from(segmenter.segment(text), (segment: any) => segment.segment);
     }
     return Array.from(text);
@@ -161,7 +168,8 @@ const RotatingText = forwardRef((props: RotatingTextProps, ref) => {
   }, [next, rotationInterval, auto]);
 
   return (
-    <motion.span className={cn('text-rotate', mainClassName)} {...rest as any} layout transition={transition}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <motion.span className={cn('text-rotate', mainClassName)} {...rest as any} layout transition={transition as any}>
       <span className="text-rotate-sr-only">{texts[currentTextIndex]}</span>
       <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
         <motion.span
@@ -180,8 +188,9 @@ const RotatingText = forwardRef((props: RotatingTextProps, ref) => {
                     initial={initial}
                     animate={animate}
                     exit={exit}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     transition={{
-                      ...transition,
+                      ...(transition as any),
                       delay: getStaggerDelay(
                         previousCharsCount + charIndex,
                         array.reduce((sum, word) => sum + word.characters.length, 0)

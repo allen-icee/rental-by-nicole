@@ -41,8 +41,8 @@ export function FormImageUpload<T extends FieldValues>({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const previewUrl = (value as any) instanceof File ? URL.createObjectURL(value as any) : typeof value === "string" ? value : null;
-  const fileName = (value as any) instanceof File ? (value as any).name : typeof value === "string" && value ? value.split("/").pop() : null;
+  const previewUrl = (value as any) instanceof File ? URL.createObjectURL(value as File) : typeof value === "string" ? value : null;
+  const fileName = (value as any) instanceof File ? (value as File).name : typeof value === "string" && value ? value.split("/").pop() : null;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

@@ -24,13 +24,11 @@ const truncateWords = (str: string, max: number) => {
   return words.slice(0, max).join(" ") + "...";
 };
 
-const getInitials = (name: string) => {
-  return name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-};
-
 export function TestimonialsPage() {
   const { showToast } = useToast();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedTestimonial, setSelectedTestimonial] = useState<any | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/toast-context";
+import { formatDateManila } from "@/utils/date-utils";
 import { supabase } from "@/lib/supabase/client";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminModal } from "@/components/admin/AdminModal";
@@ -197,13 +198,13 @@ export function ReviewsPage() {
                         {item.name}
                       </div>
                       <div className="mt-0.5 text-[11px] font-medium text-pink-950/50 md:hidden">
-                        {new Date(item.created_at).toLocaleDateString()}
+                        {formatDateManila(item.created_at)}
                       </div>
                     </td>
 
                     <td className="hidden px-6 py-4 md:table-cell text-center">
                       <div className="font-semibold text-pink-950/70">
-                        {new Date(item.created_at).toLocaleDateString()}
+                        {formatDateManila(item.created_at)}
                       </div>
                     </td>
 
@@ -319,7 +320,7 @@ export function ReviewsPage() {
               </div>
               <div className="text-right">
                 <h4 className="text-xs font-bold uppercase tracking-widest text-brand-primary">Date</h4>
-                <p className="mt-1 text-sm font-medium text-pink-950">{new Date(viewTarget.created_at).toLocaleDateString()}</p>
+                <p className="mt-1 text-sm font-medium text-pink-950">{formatDateManila(viewTarget.created_at)}</p>
               </div>
             </div>
 

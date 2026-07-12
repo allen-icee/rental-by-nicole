@@ -11,11 +11,13 @@ type ScrollRevealProps = {
   className?: string;
   as?: ElementType | string;
   once?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
 
 export function ScrollReveal({ children, delay = 0, className = "", as = "div", once = false, ...props }: ScrollRevealProps) {
   if (!motionComponentCache.has(as)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     motionComponentCache.set(as, motion(as as any));
   }
   const Component = motionComponentCache.get(as);

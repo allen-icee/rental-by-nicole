@@ -9,7 +9,9 @@ import ShinyText from "@/components/ui/ShinyText";
 import { PrincessPlaqueCard } from "@/components/ui/PrincessPlaqueCard";
 
 export function RentalGuidePage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [guides, setGuides] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [terms, setTerms] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"terms" | "guidelines">("terms");
 

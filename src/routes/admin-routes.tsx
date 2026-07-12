@@ -15,6 +15,7 @@ const ReviewsPage = lazy(() => import("@/pages/admin/ReviewsPage").then(m => ({ 
 const InquiriesPage = lazy(() => import("@/pages/admin/InquiriesPage").then(m => ({ default: m.InquiriesPage })));
 const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage").then(m => ({ default: m.SettingsPage })));
 const SalesTrackerPage = lazy(() => import("@/pages/admin/SalesTrackerPage").then(m => ({ default: m.SalesTrackerPage })));
+const SchedulePage = lazy(() => import("@/pages/admin/SchedulePage").then(m => ({ default: m.SchedulePage })));
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -44,6 +45,7 @@ export const adminRoutes: RouteObject[] = [
       { path: "reviews", element: <ReviewsPage /> },
       { path: "inquiries", element: <InquiriesPage /> },
       { path: "sales", element: <SalesTrackerPage /> },
+      { path: "schedule", element: <SchedulePage /> },
       { path: "settings", element: <SettingsPage /> }
     ]
   }

@@ -12,6 +12,7 @@ const router = createBrowserRouter([...publicRoutes, ...adminRoutes]);
 export function App() {
   useEffect(() => {
     const lenis = new Lenis();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).lenis = lenis;
 
     function raf(time: number) {
@@ -23,6 +24,7 @@ export function App() {
 
     return () => {
       lenis.destroy();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (window as any).lenis;
     };
   }, []);

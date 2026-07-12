@@ -1,5 +1,5 @@
 // src/features/analytics/usePageViews.ts
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 

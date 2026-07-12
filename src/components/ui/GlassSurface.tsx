@@ -24,6 +24,21 @@ interface GlassSurfaceProps {
   style?: CSSProperties;
 }
 
+const supportsSVGFilters = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return false;
+  }
+
+  const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+  const isFirefox = /Firefox/.test(navigator.userAgent);
+
+  if (isWebkit || isFirefox) {
+    return false;
+  }
+
+  return true;
+};
+
 const GlassSurface = ({
   children,
   width = '100%',
@@ -107,6 +122,7 @@ const GlassSurface = ({
     });
 
     gaussianBlurRef.current?.setAttribute('stdDeviation', displace.toString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     width,
     height,
@@ -137,33 +153,17 @@ const GlassSurface = ({
     return () => {
       resizeObserver.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     setTimeout(updateDisplacementMap, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width, height]);
 
   useEffect(() => {
     setSvgSupported(supportsSVGFilters());
   }, []);
-
-  const supportsSVGFilters = () => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return false;
-    }
-
-    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    const isFirefox = /Firefox/.test(navigator.userAgent);
-
-    if (isWebkit || isFirefox) {
-      return false;
-    }
-
-    const div = document.createElement('div');
-    div.style.backdropFilter = `url(#${filterId})`;
-
-    return div.style.backdropFilter !== '';
-  };
 
   const containerStyle = {
     ...style,

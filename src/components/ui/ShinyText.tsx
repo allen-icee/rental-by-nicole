@@ -94,6 +94,7 @@ const ShinyText = ({
     directionRef.current = direction === 'left' ? 1 : -1;
     elapsedRef.current = 0;
     progress.set(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction]);
 
   const backgroundPosition = useTransform(progress, p => `${150 - p * 2}% center`);
@@ -117,6 +118,7 @@ const ShinyText = ({
   return (
     <motion.span
       className={`shiny-text ${className}`}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       style={{ ...gradientStyle, backgroundPosition } as any}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

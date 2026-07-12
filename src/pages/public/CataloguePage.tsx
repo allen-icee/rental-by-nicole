@@ -11,7 +11,6 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Accordion } from "@/components/ui/Accordion";
 import GradientText from "@/components/ui/GradientText";
-import ShinyText from "@/components/ui/ShinyText";
 
 const pageSize = 12;
 
@@ -335,7 +334,7 @@ export function CataloguePage() {
                     <div className="relative aspect-[3/4] overflow-hidden bg-pink-100/50">
                       <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                       <span
-                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${availabilityClasses[item.availabilityStatus]}`}
+                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${(item.availabilityStatus.toLowerCase().startsWith('available') ? availabilityClasses.available : availabilityClasses[item.availabilityStatus as keyof typeof availabilityClasses] ?? availabilityClasses.unavailable)}`}
                       >
                         {item.availabilityStatus === 'reserved' ? 'Available for future dates' : item.availabilityStatus}
                       </span>

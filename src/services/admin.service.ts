@@ -126,6 +126,7 @@ export async function getPaginatedData<T extends keyof Tables>(
   const { data, count, error } = await finalQuery.range(from, to);
 
   if (error) throw error;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return { data: data as any, count: count || 0 };
 }
 

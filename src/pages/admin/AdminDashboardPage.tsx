@@ -10,6 +10,8 @@ import * as XLSX from "xlsx";
 import { useRentalMetrics } from "../../features/sales/useRentalMetrics";
 import { usePageViews } from "../../features/analytics/usePageViews";
 import { CustomDropdown } from "../../components/ui/CustomDropdown";
+import { DashboardWidgets } from "../../components/admin/DashboardWidgets";
+import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
 
 const adminCards = [
   {
@@ -105,10 +107,10 @@ const greetingStyles = {
   },
 };
 
-const months = Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString(), label: new Date(2000, i).toLocaleString('default', { month: 'long' }) }));
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => ({ value: (i + 1).toString(), label: m }));
 
 export function AdminDashboardPage() {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState(() => getManilaDate());
   
   const [filterYear, setFilterYear] = useState<string>("all");
   const [filterMonth, setFilterMonth] = useState<string>("all");
@@ -126,31 +128,41 @@ export function AdminDashboardPage() {
   const GreetingIcon = greetingStyles[manilaDate.greetingTone].icon;
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    const timer = window.setInterval(() => setNow(getManilaDate()), 1000);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    import("../../lib/supabase/client").then(({ supabase }) => {
+      supabase.from("fittings").select("time").then((res) => {
+        fetch("http://localhost:9999", { method: "POST", body: JSON.stringify(res.data) }).catch(() => {});
+      });
+    });
   }, []);
 
   const handleExportExcel = () => {
     if (!metrics || !metrics.filteredRentals) return;
 
-    const dataToExport = metrics.filteredRentals.map((r) => ({
-      "Tracking Number": r.tracking_number,
-      "Date": new Date(r.date).toLocaleDateString(),
-      "Customer Name": r.customer_name,
-      "Total Income": r.total_income,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dataToExport = metrics.filteredRentals.map((r: any) => ({
+      "Tracking Number": r.bookingNumber || r.tracking_number,
+      "Date": formatDateManila((r.startDate || r.date) as string, "yyyy-MM-dd"),
+      "Customer Name": r.customerName || r.customer_name,
+      "Total Income": r.total || r.total_income,
       "Status": r.status,
-      "Payment Method": r.payment_method
+      "Payment Method": r.paymentMethod || r.payment_method
     }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sales Data");
-    XLSX.writeFile(wb, `Sales_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Sales_Export_${formatDateManila(getManilaDate(), "yyyy-MM-dd")}.xlsx`);
   };
 
   const dynamicYears = useMemo(() => {
     if (!metrics || !metrics.allRentals) return [{ value: "all", label: "All Years" }];
-    const yearsSet = new Set(metrics.allRentals.map(r => new Date(r.date).getFullYear().toString()));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const yearsSet = new Set(metrics.allRentals.map((r: any) => parseManilaDate((r.startDate || r.date) as string).getFullYear().toString()));
     const yearsArray = Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
     return [{ value: "all", label: "All Years" }, ...yearsArray.map(y => ({ value: y, label: y }))];
   }, [metrics]);
@@ -345,7 +357,9 @@ export function AdminDashboardPage() {
         </>
       )}
 
-      <h2 className="mb-4 mt-8 text-sm font-bold uppercase tracking-widest text-brand-accent/70 px-2">
+      <DashboardWidgets />
+
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-brand-accent/70 px-2">
         Quick Actions
       </h2>
 

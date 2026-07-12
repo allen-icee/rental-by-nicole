@@ -68,6 +68,7 @@ export function FormMultipleImageUpload<T extends FieldValues>({
     return () => {
       urlsToRevoke.forEach(url => URL.revokeObjectURL(url));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const handleDragOver = (e: React.DragEvent) => {

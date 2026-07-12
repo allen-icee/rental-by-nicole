@@ -3,7 +3,8 @@ import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/toast-context";
 import { signOutOwner } from "@/services/auth.service";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AdminNotificationBell } from "./AdminNotificationBell";
 
 type NavItem = { path: string; label: string; icon: string; exact?: boolean; subItems?: NavItem[] };
 
@@ -24,6 +25,7 @@ const navItems: NavItem[] = [
   { path: "/admin/reviews", label: "Reviews", icon: "mdi:star-outline" },
   { path: "/admin/inquiries", label: "Inquiries", icon: "mdi:email-outline" },
   { path: "/admin/sales", label: "Sales Tracker", icon: "mdi:chart-line" },
+  { path: "/admin/schedule", label: "Schedule", icon: "mdi:calendar-month-outline" },
   { path: "/admin/settings", label: "Website Settings", icon: "mdi:cog-outline" },
 ];
 
@@ -167,9 +169,16 @@ export function AdminLayout() {
         />
       )}
 
-      <main className="flex-1 overflow-x-hidden w-full lg:w-auto">
-        <div className="mx-auto w-full max-w-[1600px] p-4 md:p-8 lg:p-10">
-          <Outlet />
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen relative">
+        <div className="sticky top-0 z-20 flex justify-end px-4 py-3 sm:px-6 lg:px-8 pointer-events-none">
+          <div className="pointer-events-auto flex items-center gap-3 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-soft border border-pink-100">
+            <AdminNotificationBell />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto" data-lenis-prevent="true">
+          <div className="mx-auto w-full max-w-[1600px] px-4 pb-12 pt-2 md:px-8 lg:px-10">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

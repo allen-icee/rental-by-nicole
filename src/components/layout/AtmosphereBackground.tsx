@@ -12,11 +12,6 @@ export const AtmosphereBackground = memo(() => {
     await loadSlim(engine);
   };
 
-  // Strict exclusion: Do not render on admin dashboard
-  if (location.pathname.startsWith('/admin')) {
-    return null;
-  }
-
   const particlesOptions = useMemo(() => ({
     background: {
       color: { value: "transparent" }
@@ -79,6 +74,11 @@ export const AtmosphereBackground = memo(() => {
     },
     detectRetina: true,
   }), []);
+
+  // Strict exclusion: Do not render on admin dashboard
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <ParticlesProvider init={init}>

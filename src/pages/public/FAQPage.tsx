@@ -7,6 +7,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import ShinyText from "@/components/ui/ShinyText";
 
 export function FAQPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [faqs, setFaqs] = useState<any[]>([]);
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);

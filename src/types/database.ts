@@ -212,7 +212,7 @@ export type Database = {
           status: "paid and verified" | "pending" | "unpaid";
           payment_method: string | null;
           type?: string;
-          accessories?: any[] | null;
+          accessories?: unknown[] | null;
           days?: number;
           downpayment: number;
           security_deposit: number;
@@ -230,7 +230,7 @@ export type Database = {
           status?: "paid and verified" | "pending" | "unpaid";
           payment_method?: string | null;
           type?: string;
-          accessories?: any[] | null;
+          accessories?: unknown[] | null;
           days?: number;
           downpayment?: number;
           security_deposit?: number;
@@ -246,7 +246,7 @@ export type Database = {
           status?: "paid and verified" | "pending" | "unpaid";
           payment_method?: string | null;
           type?: string;
-          accessories?: any[] | null;
+          accessories?: unknown[] | null;
           days?: number;
           downpayment?: number;
           security_deposit?: number;
@@ -259,6 +259,121 @@ export type Database = {
         session_id: string | null;
         created_at: string;
       }>;
+      customers: Table<{
+        id: string;
+        name: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+      fittings: Table<
+        {
+          id: string;
+          booking_number: string;
+          date: string;
+          time: string | null;
+          representative_customer_id: string | null;
+          representative_name: string;
+          customer_count: number;
+          package_type: string;
+          fee: number;
+          total: number;
+          status: "Scheduled" | "Completed" | "No Show" | "Cancelled";
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          booking_number: string;
+          date: string;
+          time?: string | null;
+          representative_customer_id?: string | null;
+          representative_name: string;
+          customer_count?: number;
+          package_type?: string;
+          fee?: number;
+          total?: number;
+          status?: "Scheduled" | "Completed" | "No Show" | "Cancelled";
+        },
+        {
+          booking_number?: string;
+          date?: string;
+          time?: string | null;
+          representative_customer_id?: string | null;
+          representative_name?: string;
+          customer_count?: number;
+          package_type?: string;
+          fee?: number;
+          total?: number;
+          status?: "Scheduled" | "Completed" | "No Show" | "Cancelled";
+        }
+      >;
+      rental_bookings: Table<
+        {
+          id: string;
+          booking_number: string;
+          start_date: string;
+          rental_days: number;
+          end_date: string | null;
+          customer_id: string | null;
+          customer_name: string;
+          dress_id: string | null;
+          size_id: string | null;
+          accessories: Json;
+          subtotal: number;
+          down_payment: number;
+          security_deposit: number;
+          damage_charge: number;
+          late_fee: number;
+          refund_amount: number;
+          total: number;
+          pickup_mode: string | null;
+          payment_method: string | null;
+          status: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          booking_number: string;
+          start_date: string;
+          rental_days?: number;
+          end_date?: string | null;
+          customer_id?: string | null;
+          customer_name: string;
+          dress_id?: string | null;
+          size_id?: string | null;
+          accessories?: Json;
+          subtotal?: number;
+          down_payment?: number;
+          security_deposit?: number;
+          damage_charge?: number;
+          late_fee?: number;
+          refund_amount?: number;
+          total?: number;
+          pickup_mode?: string | null;
+          payment_method?: string | null;
+          status?: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+        },
+        {
+          booking_number?: string;
+          start_date?: string;
+          rental_days?: number;
+          end_date?: string | null;
+          customer_id?: string | null;
+          customer_name?: string;
+          dress_id?: string | null;
+          size_id?: string | null;
+          accessories?: Json;
+          subtotal?: number;
+          down_payment?: number;
+          security_deposit?: number;
+          damage_charge?: number;
+          late_fee?: number;
+          refund_amount?: number;
+          total?: number;
+          pickup_mode?: string | null;
+          payment_method?: string | null;
+          status?: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+        }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -278,6 +393,8 @@ export type Database = {
       inquiry_status: "new" | "contacted" | "completed" | "archived";
       review_status: "pending" | "approved" | "rejected" | "archived";
       rental_status: "paid and verified" | "pending" | "unpaid";
+      fitting_status_v2: "Scheduled" | "Completed" | "No Show" | "Cancelled";
+      rental_booking_status: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
     };
     CompositeTypes: Record<string, never>;
   };

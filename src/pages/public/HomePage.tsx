@@ -50,7 +50,9 @@ export function HomePage() {
 
   const [newArrivals, setNewArrivals] = useState<CatalogItem[]>([]);
   const [featuredItems, setFeaturedItems] = useState<CatalogItem[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [faqs, setFaqs] = useState<any[]>([]);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [curatedTags, setCuratedTags] = useState<string[]>([]);
@@ -72,15 +74,7 @@ export function HomePage() {
     loadData();
   }, []);
 
-  const getInitials = (name: string) => {
-    if (!name) return "RN";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   return (
     <PublicLayout>
@@ -156,7 +150,7 @@ export function HomePage() {
 
           <ScrollReveal delay={150} className="mx-auto max-w-7xl mt-10">
             {newArrivals.length > 0 ? (
-              <Carousel autoScrollDelay={3500}>
+              <Carousel>
                 {newArrivals.map((item) => (
                   <Link key={item.id} to={`/catalogue?item=${item.id}`} className="w-[75vw] max-w-[280px] shrink-0 snap-center group flex flex-col overflow-hidden rounded-2xl bg-pink-50/90 backdrop-blur-md border border-pink-200/50 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-barbie">
                   <div className="overflow-hidden h-80 relative">
@@ -169,7 +163,7 @@ export function HomePage() {
                     </div>
                   </div>
                   <div className="flex flex-1 flex-col p-4 items-center text-center">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-sm ${availabilityClasses[item.availabilityStatus]}`}>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-sm ${item.availabilityStatus.toLowerCase().startsWith('available') ? availabilityClasses.available : availabilityClasses[item.availabilityStatus as keyof typeof availabilityClasses] ?? availabilityClasses.unavailable}`}>
                       {item.availabilityStatus}
                     </span>
                     <h3 className="mt-2 font-display text-2xl font-black text-pink-950 group-hover:text-brand-primary transition-colors">{item.name}</h3>

@@ -1,113 +1,144 @@
-// src/features/sales/useRentalMetrics.ts
 import { useMemo } from "react";
-import { useRentals } from "./useRentals";
+import { useFittings } from "./useFittings";
+import { useRentalBookings } from "./useRentalBookings";
+import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
 
 export type MetricFilters = {
   year?: string;
   month?: string; // 1-12 or "all"
   day?: string;   // 1-31 or "all"
+  searchQuery?: string;
+  module?: "Fitting" | "Rental" | "All";
 };
 
 export function useRentalMetrics(filters?: MetricFilters) {
-  const { data: rentals, isLoading, error } = useRentals();
+  const { data: fittings, isLoading: isFittingsLoading, error: fittingsError } = useFittings();
+  const { data: rentals, isLoading: isRentalsLoading, error: rentalsError } = useRentalBookings();
 
   const metrics = useMemo(() => {
-    if (!rentals) return null;
+    if (!fittings || !rentals) return null;
 
-    const now = new Date();
+    const now = getManilaDate();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-    const today = now.toDateString();
+    const todayStr = formatDateManila(now, "yyyy-MM-dd");
 
-    let totalIncomeToday = 0;
-    let totalIncomeThisMonth = 0;
-    let totalIncomeThisYear = 0;
-    let globalTotalProfit = 0;
-    let globalTotalRentals = rentals.length;
+    const { year, month, day, searchQuery, module = "All" } = filters || {};
+    const q = searchQuery?.toLowerCase().trim() || "";
 
-    // Filter rentals for charts & export
-    let filteredRentals = rentals;
-    
-    if (filters) {
-      filteredRentals = rentals.filter((r) => {
-        const d = new Date(r.date);
-        if (filters.year && filters.year !== "all" && d.getFullYear().toString() !== filters.year) return false;
-        if (filters.month && filters.month !== "all" && (d.getMonth() + 1).toString() !== filters.month) return false;
-        if (filters.day && filters.day !== "all" && d.getDate().toString() !== filters.day) return false;
+    // Helper to calculate Rental Income according to rules:
+    // "Use subtotal only. Do NOT include Security Deposit, Damage Charges, Late Fees unless actually collected."
+    const getRentalIncome = (r: { subtotal?: number, damageCharge?: number, lateFee?: number }) => {
+      return (r.subtotal || 0) + (r.damageCharge || 0) + (r.lateFee || 0);
+    };
+
+    // 1. Filter Fittings
+    let activeFittings = fittings;
+    if (module === "Rental") {
+      activeFittings = [];
+    } else {
+      activeFittings = fittings.filter(f => {
+        // Fitting Rule: Only Completed fittings count.
+        if (f.status !== "Completed") return false;
+        
+        const d = parseManilaDate(f.date);
+        if (year && year !== "all" && d.getFullYear().toString() !== year) return false;
+        if (month && month !== "all" && (d.getMonth() + 1).toString() !== month) return false;
+        if (day && day !== "all" && d.getDate().toString() !== day) return false;
+        
+        if (q && !(f.representativeName?.toLowerCase().includes(q) || f.bookingNumber?.toLowerCase().includes(q))) {
+          return false;
+        }
         return true;
       });
     }
 
+    // 2. Filter Rentals
+    let activeRentals = rentals;
+    if (module === "Fitting") {
+      activeRentals = [];
+    } else {
+      activeRentals = rentals.filter(r => {
+        if (r.status === "Cancelled") return false;
+        
+        const d = parseManilaDate(r.startDate);
+        if (year && year !== "all" && d.getFullYear().toString() !== year) return false;
+        if (month && month !== "all" && (d.getMonth() + 1).toString() !== month) return false;
+        if (day && day !== "all" && d.getDate().toString() !== day) return false;
+
+        if (q && !(r.customerName?.toLowerCase().includes(q) || r.bookingNumber?.toLowerCase().includes(q))) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    let totalProfit = 0;
+    let totalIncomeThisMonth = 0;
+    let totalIncomeToday = 0;
+
     const monthlyIncomeMap: Record<string, number> = {};
-    const itemPopularityMap: Record<string, number> = {};
 
-    let filteredTotalProfit = 0;
-    let filteredTotalRentals = filteredRentals.length;
+    activeFittings.forEach(f => {
+      const income = f.total || 0;
+      totalProfit += income;
 
-    // First pass: Global Metrics (unfiltered)
-    rentals.forEach((rental) => {
-      if (rental.status === "paid and verified") {
-        const rentalDate = new Date(rental.date);
-        if (rentalDate.toDateString() === today) totalIncomeToday += rental.total_income;
-        if (rentalDate.getMonth() === currentMonth && rentalDate.getFullYear() === currentYear) totalIncomeThisMonth += rental.total_income;
-        if (rentalDate.getFullYear() === currentYear) totalIncomeThisYear += rental.total_income;
-        globalTotalProfit += rental.total_income;
-      }
+      const fd = parseManilaDate(f.date);
+      if (formatDateManila(f.date, "yyyy-MM-dd") === todayStr) totalIncomeToday += income;
+      if (fd.getMonth() === currentMonth && fd.getFullYear() === currentYear) totalIncomeThisMonth += income;
+      
+      const monthName = formatDateManila(f.date, "MMM");
+      monthlyIncomeMap[monthName] = (monthlyIncomeMap[monthName] || 0) + income;
     });
 
-    // Second pass: Filtered Metrics for Charts
-    filteredRentals.forEach((rental) => {
-      if (rental.status === "paid and verified") {
-        filteredTotalProfit += rental.total_income;
-        
-        const rentalDate = new Date(rental.date);
-        const monthName = rentalDate.toLocaleString("default", { month: "short" });
-        monthlyIncomeMap[monthName] = (monthlyIncomeMap[monthName] || 0) + rental.total_income;
-      }
+    activeRentals.forEach(r => {
+      const income = getRentalIncome(r);
+      totalProfit += income;
 
-      const items = Array.isArray(rental.rented_items) ? rental.rented_items : [];
-      items.forEach((item: any) => {
-        const itemName = item.item_name || "Unknown Item";
-        itemPopularityMap[itemName] = (itemPopularityMap[itemName] || 0) + (item.quantity || 1);
-      });
+      const rd = parseManilaDate(r.startDate);
+      if (formatDateManila(r.startDate, "yyyy-MM-dd") === todayStr) totalIncomeToday += income;
+      if (rd.getMonth() === currentMonth && rd.getFullYear() === currentYear) totalIncomeThisMonth += income;
+
+      const monthName = formatDateManila(r.startDate, "MMM");
+      monthlyIncomeMap[monthName] = (monthlyIncomeMap[monthName] || 0) + income;
     });
 
     const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const orderedMonthlyIncome = allMonths.map(month => ({
-      name: month,
-      income: monthlyIncomeMap[month] || 0
+    const orderedMonthlyIncome = allMonths.map(m => ({
+      name: m,
+      income: monthlyIncomeMap[m] || 0
     })).filter(m => m.income > 0);
 
-    const topItemsChart = Object.entries(itemPopularityMap)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-
     return {
-      // Global stats
-      totalIncomeToday,
+      totalRentals: activeFittings.length + activeRentals.length,
+      totalProfit,
       totalIncomeThisMonth,
-      totalIncomeThisYear,
-      globalTotalProfit,
-      globalTotalRentals,
-      
-      // Filtered stats (use these for displaying main stats if filter is active)
-      totalProfit: filteredTotalProfit,
-      totalRentals: filteredTotalRentals,
-      
-      // Charts
+      totalIncomeToday,
       monthlyIncomeChart: orderedMonthlyIncome,
-      topItemsChart,
+      topItemsChart: [],
       
-      // Export Data
-      filteredRentals,
-      allRentals: rentals
+      // Keep for AdminDashboardPage global unfiltered metrics if it asks for them
+      filteredRentals: [
+        ...activeFittings.map(f => ({
+          ...f,
+          startDate: f.date,
+          customerName: f.representativeName,
+          total: f.total
+        })),
+        ...activeRentals
+      ], 
+      allRentals: [...fittings.map(f => ({ ...f, startDate: f.date })), ...rentals],
+      
+      // Fill in legacy property names to avoid breaking AdminDashboardPage
+      globalTotalProfit: totalProfit,
+      globalTotalRentals: activeFittings.length + activeRentals.length,
     };
-  }, [rentals, filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fittings, rentals, filters?.year, filters?.month, filters?.day, filters?.searchQuery, filters?.module]);
 
   return {
     metrics,
-    isLoading,
-    error,
+    isLoading: isFittingsLoading || isRentalsLoading,
+    error: fittingsError || rentalsError,
   };
 }

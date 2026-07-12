@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { getPaginatedData, fetchItemDetails, getAllCategories, getAllTags, saveCatalogItem, deleteCatalogItem, updateCatalogAvailabilityStatus, updateCatalogFeaturedStatus, updateCatalogNewArrivalStatus, saveAvailability, deleteAvailability, type CatalogRow, type CategoryRow, type CatalogFormInput, type TagRow } from "@/services/admin.service";
+import { getPaginatedData, fetchItemDetails, getAllCategories, getAllTags, saveCatalogItem, deleteCatalogItem, updateCatalogFeaturedStatus, updateCatalogNewArrivalStatus, type CatalogRow, type CategoryRow, type CatalogFormInput, type TagRow } from "@/services/admin.service";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminTable, type Column } from "@/components/admin/AdminTable";
 import { AdminPagination } from "@/components/admin/AdminPagination";
@@ -163,22 +163,6 @@ export function CataloguePage() {
     } catch (error) {
       console.error(error);
       showToast({ tone: "error", title: "Error", message: "Failed to delete item." });
-    }
-  }
-
-  async function handleAvailabilityChange(id: string, newStatus: CatalogRow["availability_status"]) {
-    try {
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, availability_status: newStatus } : item
-        )
-      );
-      await updateCatalogAvailabilityStatus(id, newStatus);
-      showToast({ tone: "success", title: "Updated", message: "Item availability changed." });
-    } catch (error) {
-      console.error(error);
-      showToast({ tone: "error", title: "Error", message: "Failed to update availability." });
-      fetchData();
     }
   }
 

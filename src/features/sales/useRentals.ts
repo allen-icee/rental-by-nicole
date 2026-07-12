@@ -17,7 +17,7 @@ export function useRentals() {
         .order("date", { ascending: false });
 
       if (error) throw error;
-      return data as any as Rental[];
+      return data as unknown as Rental[];
     },
   });
 }

@@ -1,6 +1,6 @@
 // src/features/catalogue/types/catalogue.ts
 
-export type AvailabilityStatus = "available" | "reserved" | "unavailable";
+export type AvailabilityStatus = "available" | "reserved" | "unavailable" | string;
 
 export type CatalogItem = {
   id: string;

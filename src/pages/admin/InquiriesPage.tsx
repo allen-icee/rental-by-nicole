@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmModal } from "@/components/admin/AdminModal";
 import { useToast } from "@/components/ui/toast-context";
+import { formatDateManila } from "@/utils/date-utils";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
 
@@ -202,7 +203,7 @@ export function InquiriesPage() {
                         {item.selected_item_id ? "Item Inquiry" : "General Inquiry"}
                       </div>
                       <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-pink-950/50">
-                        {item.phone} / {new Date(item.created_at).toLocaleDateString()}
+                        {item.phone} / {formatDateManila(item.created_at)}
                       </div>
                     </td>
                     <td className="hidden px-5 py-3.5 lg:table-cell text-center">
