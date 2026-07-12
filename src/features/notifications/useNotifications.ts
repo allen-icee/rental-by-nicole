@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useFittings } from '../sales/useFittings';
 import { useRentalBookings } from '../sales/useRentalBookings';
 import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
-import { differenceInDays } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 
 export type NotificationItem = {
   id: string;
@@ -57,7 +57,7 @@ export function useNotifications() {
             type: 'fitting',
             read: readIds.includes(`fitting-today-${f.id}`)
           });
-        } else if (fDate > now && differenceInDays(fDate, now) <= 3) {
+        } else if (fDate > now && differenceInCalendarDays(fDate, now) <= 3) {
           notifs.push({
             id: `fitting-upcoming-${f.id}`,
             title: "Upcoming Fitting",
@@ -98,7 +98,7 @@ export function useNotifications() {
             type: 'pickup',
             read: readIds.includes(`pickup-today-${r.id}`)
           });
-        } else if (startDate > now && differenceInDays(startDate, now) <= 3) {
+        } else if (startDate > now && differenceInCalendarDays(startDate, now) <= 3) {
           notifs.push({
             id: `pickup-upcoming-${r.id}`,
             title: "Upcoming Pickup",

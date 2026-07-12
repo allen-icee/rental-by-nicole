@@ -20,9 +20,10 @@ export const FittingSchema = z.object({
 
 export const RentalBookingSchema = z.object({
   id: z.string().uuid().optional(),
-  bookingNumber: z.string(),
-  startDate: z.string(), // e.g. "YYYY-MM-DD"
-  rentalDays: z.number().int().min(1),
+  bookingNumber: z.string().optional(),
+  startDate: z.string(),
+  time: z.string().nullable().optional(),
+  rentalDays: z.number().int().positive().default(2),
   endDate: z.string().optional().nullable(),
   customerId: z.string().uuid().optional().nullable(),
   customerName: z.string().min(1, "Customer name is required"),

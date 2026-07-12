@@ -14,10 +14,12 @@ import GradientText from "@/components/ui/GradientText";
 
 const pageSize = 12;
 
-const availabilityClasses = {
+const availabilityClasses: Record<string, string> = {
   available: "bg-emerald-100 text-emerald-700",
   reserved: "bg-amber-100 text-amber-700",
-  unavailable: "bg-pink-100 text-brand-accent"
+  unavailable: "bg-pink-100 text-brand-accent",
+  "fully booked today": "bg-amber-100 text-amber-700",
+  "available (see reserved dates)": "bg-emerald-100 text-emerald-700"
 };
 
 const initialCatalogueData: CatalogueData = {
@@ -334,9 +336,9 @@ export function CataloguePage() {
                     <div className="relative aspect-[3/4] overflow-hidden bg-pink-100/50">
                       <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                       <span
-                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${(item.availabilityStatus.toLowerCase().startsWith('available') ? availabilityClasses.available : availabilityClasses[item.availabilityStatus as keyof typeof availabilityClasses] ?? availabilityClasses.unavailable)}`}
+                        className={`absolute left-2 top-2 sm:left-3 sm:top-3 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-sm ${item.availabilityStatus.toLowerCase().startsWith('available') ? availabilityClasses.available : availabilityClasses[item.availabilityStatus.toLowerCase()] ?? availabilityClasses.unavailable}`}
                       >
-                        {item.availabilityStatus === 'reserved' ? 'Available for future dates' : item.availabilityStatus}
+                        {item.availabilityStatus}
                       </span>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100">
@@ -554,17 +556,18 @@ export function CataloguePage() {
                       </Accordion>
                     </div>
 
-                    {/* Availability Calendar */}
+                    {/* Reserved Dates */}
                     <div className="storybook-page">
                       <Accordion
-                        title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest font-sans"><Icon icon="game-icons:crown" className="size-5 text-brand-primary" /> Availability</span>}
+                        title={<span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest font-sans"><Icon icon="game-icons:crown" className="size-5 text-brand-primary" /> Reserved Dates</span>}
                       >
+                        <p className="text-xs text-pink-950/60 mb-2 italic">These dates indicate when specific sizes of this dress are unavailable.</p>
                         {selectedItem.reservedRanges.length > 0 ? (
                           <ul className="space-y-2 mt-2">
                             {selectedItem.reservedRanges.map((range, index) => (
                               <li key={`${range}-${index}`} className="flex items-center gap-2 rounded-md border border-pink-100 bg-white/50 px-3 py-2 text-xs text-brand-accent font-semibold font-sans shadow-sm">
                                 <Icon icon="game-icons:padlock" className="size-4 text-brand-primary" />
-                                Reserved: {range}
+                                {range}
                               </li>
                             ))}
                           </ul>

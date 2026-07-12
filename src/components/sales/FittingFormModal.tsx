@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { FormInput } from "@/components/ui/forms/FormInput";
 import { FormSelect } from "@/components/ui/forms/FormSelect";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
-import { useCreateFitting } from "../../features/sales/useFittings";
+import { useCreateFitting, useFittings } from "../../features/sales/useFittings";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
 import { useToast } from "@/components/ui/toast-context";
 import { getFittingStatusColor } from "./FittingTable";
@@ -22,6 +22,7 @@ interface FittingFormInputs {
 export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { showToast } = useToast();
   const createFitting = useCreateFitting();
+  const { data: fittings } = useFittings();
   const { data: customers } = useCustomers();
   const createCustomer = useCreateCustomer();
 
@@ -78,7 +79,11 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
         }
       }
 
-      const bookingNumber = `FIT-${Date.now()}`;
+      const lastNum = fittings?.reduce((max, r) => {
+        const match = (r.bookingNumber || "").match(/(\d+)$/);
+        return match ? Math.max(max, parseInt(match[1])) : max;
+      }, 0) || 0;
+      const bookingNumber = `FIT-${lastNum + 1}`;
 
       await createFitting.mutateAsync({
         bookingNumber,
@@ -104,9 +109,14 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <FormInput name="representativeName" control={control} label="Customer Name" placeholder="e.g. Maria Theresa" required />
+            <FormInput name="representativeName" control={control} label="Representative Name" placeholder="e.g. Maria Theresa" list="fitting-customers-list" required />
+            <datalist id="fitting-customers-list">
+              {Array.from(new Set(customers?.map(c => c.name) || [])).map(name => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </div>
-          <FormInput name="date" control={control} type="date" label="Date" required />
+          <FormInput name="date" control={control} type="date" label="Fitting Date" required />
           <FormInput name="time" control={control} type="time" label="Time" />
           
           <div className="sm:col-span-2 border-t border-pink-100 pt-4 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">

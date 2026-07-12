@@ -40,6 +40,7 @@ type AvailabilityRow = {
   dress_id: string;
   start_date: string;
   end_date: string;
+  size_id: string | null;
 };
 type ItemTagRow = { catalog_item_id: string; tag_id: string };
 
@@ -72,10 +73,11 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase.from("catalog_item_sizes").select("id,catalog_item_id,size_label,inventory_quantity").in("catalog_item_id", itemIds).order("sort_order"),
       supabase.from("catalog_item_tags").select("catalog_item_id,tag_id").in("catalog_item_id", itemIds),
       supabase.from("rental_bookings")
-        .select("dress_id,start_date,end_date")
+        .select("dress_id,start_date,end_date,size_id")
         .in("dress_id", itemIds)
         .neq("status", "Cancelled")
         .neq("status", "Returned")
+        .gte("end_date", formatDateManila(getManilaDate(), "yyyy-MM-dd"))
         .order("start_date")
     ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
 
@@ -138,12 +140,24 @@ export async function getCatalogueData(): Promise<CatalogueData> {
           }).length;
       
           const remainingQuantity = totalInventory - currentlyRented;
-          const computedAvailabilityStatus = remainingQuantity <= 0 ? "reserved" : `Available (${remainingQuantity} left)`;
+          let computedAvailabilityStatus = "";
+          if (totalInventory === 0) {
+            computedAvailabilityStatus = "Unavailable";
+          } else if (remainingQuantity <= 0) {
+            computedAvailabilityStatus = "Fully Booked Today";
+          } else if (activeRentals.length > 0) {
+            computedAvailabilityStatus = "Available (See reserved dates)";
+          } else {
+            computedAvailabilityStatus = "Available";
+          }
       
           const scheduledFittings = (fittingsResult?.data ?? []) as {date: string, time: string}[];
           const fittingRanges = scheduledFittings.map((f) => `Fitting Booked: ${formatDateManila(f.date)} at ${f.time || "TBA"}`);
           
-          const reservedRanges = activeRentals.map((range) => formatDateRange(range.start_date, range.end_date));
+          const reservedRanges = activeRentals.map((range) => {
+            const sizeLabel = sizes.find((s) => s.id === range.size_id)?.size_label ?? "Unknown Size";
+            return `Reserved (Size ${sizeLabel}): ${formatDateRangeNice(range.start_date, range.end_date)}`;
+          });
 
           return {
             id: item.id,
@@ -184,16 +198,31 @@ function fallbackCatalogueData(): CatalogueData {
   };
 }
 
-function formatDateRange(startDate: string | null, endDate: string | null) {
-  if (!startDate && !endDate) {
-    return "Unavailable date";
+function formatDateRangeNice(startDate: string | null, endDate: string | null) {
+  if (!startDate && !endDate) return "Unavailable date";
+
+  const s = startDate ? new Date(startDate) : null;
+  const e = endDate ? new Date(endDate) : null;
+
+  if (!s || !e || startDate === endDate) {
+    return s ? s.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Unavailable date";
   }
 
-  if (startDate === endDate || !endDate) {
-    return startDate ?? "Unavailable date";
-  }
+  const sMonth = s.toLocaleDateString('en-US', { month: 'short' });
+  const sDay = s.toLocaleDateString('en-US', { day: 'numeric' });
+  const sYear = s.toLocaleDateString('en-US', { year: 'numeric' });
+  
+  const eMonth = e.toLocaleDateString('en-US', { month: 'short' });
+  const eDay = e.toLocaleDateString('en-US', { day: 'numeric' });
+  const eYear = e.toLocaleDateString('en-US', { year: 'numeric' });
 
-  return `${startDate} - ${endDate}`;
+  if (sYear === eYear && sMonth === eMonth) {
+    return `${sMonth} ${sDay}–${eDay}, ${sYear}`;
+  } else if (sYear === eYear) {
+    return `${sMonth} ${sDay} – ${eMonth} ${eDay}, ${sYear}`;
+  } else {
+    return `${sMonth} ${sDay}, ${sYear} – ${eMonth} ${eDay}, ${eYear}`;
+  }
 }
 
 export async function getTestimonials() {

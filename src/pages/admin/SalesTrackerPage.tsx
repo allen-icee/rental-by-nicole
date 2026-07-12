@@ -11,6 +11,7 @@ import { RentalTable } from "../../components/sales/RentalTable";
 import { FittingFormModal } from "../../components/sales/FittingFormModal";
 import { RentalFormModal } from "../../components/sales/RentalFormModal";
 import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
+import { supabase } from "../../lib/supabase/client";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => ({ value: (i + 1).toString(), label: m }));
 
@@ -49,9 +50,10 @@ export function SalesTrackerPage() {
     return [{ value: "all", label: "All Years" }, ...yearsArray.map(y => ({ value: y, label: y }))];
   }, [fittings, rentals]);
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     // Export active module
     let dataToExport: Record<string, unknown>[] = [];
+    
     if (module === "Fitting") {
       const filtered = (fittings || []).filter(f => {
         const d = parseManilaDate(f.date);
@@ -66,15 +68,26 @@ export function SalesTrackerPage() {
       });
       dataToExport = filtered.map(f => ({
         "No.": f.bookingNumber,
-        "Date": formatDateManila(f.date, "yyyy-MM-dd"),
+        "Date": formatDateManila(f.date, "MM/dd/yy"),
         "Time": f.time || "",
-        "Representative Name": f.representativeName || "",
+        "Customer": f.representativeName || "",
         "People": f.customerCount,
-        "Fee": f.fee,
-        "Total": f.total,
-        "Status": f.status
+        "Status": f.status,
+        "Fee": f.fee != null ? `₱${f.fee.toFixed(2)}` : "₱0.00",
+        "Total": f.total != null ? `₱${f.total.toFixed(2)}` : "₱0.00"
       }));
     } else {
+      const dressMap = new Map<string, string>();
+      const sizeMap = new Map<string, string>();
+      try {
+        const { data: dresses } = await supabase.from('catalog_items').select('id, name');
+        const { data: sizes } = await supabase.from('catalog_item_sizes').select('id, size_label');
+        if (dresses) dresses.forEach(d => dressMap.set(d.id, d.name));
+        if (sizes) sizes.forEach(s => sizeMap.set(s.id, s.size_label));
+      } catch (err) {
+        console.error("Error fetching catalogue data for export", err);
+      }
+
       const filtered = (rentals || []).filter(r => {
         const d = parseManilaDate(r.startDate);
         if (filterYear !== "all" && d.getFullYear().toString() !== filterYear) return false;
@@ -86,15 +99,37 @@ export function SalesTrackerPage() {
         }
         return true;
       });
-      dataToExport = filtered.map(r => ({
-        "No.": r.bookingNumber,
-        "Start Date": formatDateManila(r.startDate, "yyyy-MM-dd"),
-        "End Date": r.endDate ? formatDateManila(r.endDate, "yyyy-MM-dd") : "",
-        "Customer": r.customerName,
-        "Days": r.rentalDays,
-        "Total": r.total,
-        "Status": r.status
-      }));
+
+      dataToExport = filtered.map(r => {
+        let accStr = "N/A";
+        if (Array.isArray(r.accessories) && r.accessories.length > 0) {
+          accStr = r.accessories.map(a => typeof a === 'object' && a !== null ? (a as any).name : a).join(", ");
+        } else if (typeof r.accessories === 'string' && (r.accessories as string).trim() !== "") {
+          accStr = r.accessories as string;
+        }
+
+        return {
+          "No.": r.bookingNumber,
+          "Start Date": formatDateManila(r.startDate, "MM/dd/yy"),
+          "Time": r.time || "N/A",
+          "End Date": r.endDate ? formatDateManila(r.endDate, "MM/dd/yy") : "",
+          "Customer": r.customerName,
+          "Dress": dressMap.get(r.dressId || "") || r.dressId || "N/A",
+          "Size": sizeMap.get(r.sizeId || "") || r.sizeId || "N/A",
+          "Accessories": accStr,
+          "Down Payment": r.downPayment != null ? `₱${r.downPayment.toFixed(2)}` : "₱0.00",
+          "Security Deposit": r.securityDeposit != null ? `₱${r.securityDeposit.toFixed(2)}` : "₱0.00",
+          "Mode": r.pickupMode,
+          "Payment": r.paymentMethod,
+          "Status": r.status,
+          "Total": r.total != null ? `₱${r.total.toFixed(2)}` : "₱0.00",
+          "Days": r.rentalDays,
+          "Subtotal": r.subtotal != null ? `₱${r.subtotal.toFixed(2)}` : "₱0.00",
+          "Damage Charge": r.damageCharge != null ? `₱${r.damageCharge.toFixed(2)}` : "₱0.00",
+          "Late Fee": r.lateFee != null ? `₱${r.lateFee.toFixed(2)}` : "₱0.00",
+          "Refund": r.refundAmount != null ? `₱${r.refundAmount.toFixed(2)}` : "₱0.00"
+        };
+      });
     }
 
     if (dataToExport.length === 0) {
@@ -125,39 +160,104 @@ export function SalesTrackerPage() {
       }
 
       let count = 0;
+      
+      const parseCurrency = (val: any) => {
+        if (val == null) return 0;
+        const num = Number(String(val).replace(/[^0-9.-]+/g, ""));
+        return isNaN(num) ? 0 : num;
+      };
+
       if (module === "Fitting") {
+        const { data: dbFits } = await supabase.from("fittings").select("booking_number");
+        let lastFitNum = dbFits?.reduce((max, f) => {
+          const match = (f.booking_number || "").match(/(\d+)$/);
+          return match ? Math.max(max, parseInt(match[1])) : max;
+        }, 0) || 0;
+
         for (const row of jsonData) {
+          let bNum = row["No."];
+          if (!bNum) {
+            lastFitNum++;
+            bNum = `FIT-${lastFitNum}`;
+          }
+
           await createFitting.mutateAsync({
-            bookingNumber: row["No."] || `FIT-${Date.now()}`,
+            bookingNumber: bNum,
             date: row["Date"] || new Date().toISOString().slice(0, 10),
             time: row["Time"] || null,
-            representativeName: row["Representative Name"] || "",
+            representativeName: row["Customer"] || row["Representative Name"] || "",
             customerCount: Number(row["People"]) || 1,
-            fee: Number(row["Fee"]) || 150,
-            total: Number(row["Total"]) || 150,
+            fee: parseCurrency(row["Fee"]) || 150,
+            total: parseCurrency(row["Total"]) || 150,
             status: row["Status"] || "Scheduled"
           } as any);
           count++;
         }
       } else {
+        const dressNameMap = new Map<string, string>();
+        const sizeNameMap = new Map<string, string>();
+        try {
+          const { data: dresses } = await supabase.from('catalog_items').select('id, name');
+          const { data: sizes } = await supabase.from('catalog_item_sizes').select('id, size_label');
+          if (dresses) dresses.forEach(d => dressNameMap.set(d.name.toLowerCase().trim(), d.id));
+          if (sizes) sizes.forEach(s => sizeNameMap.set(s.size_label.toLowerCase().trim(), s.id));
+        } catch (err) {
+          console.error("Error fetching catalogue mapping for import", err);
+        }
+
+        const { data: dbRnts } = await supabase.from("rental_bookings").select("booking_number");
+        let lastRntNum = dbRnts?.reduce((max, r) => {
+          const match = (r.booking_number || "").match(/(\d+)$/);
+          return match ? Math.max(max, parseInt(match[1])) : max;
+        }, 0) || 0;
+
         for (const row of jsonData) {
+          let bNum = row["No."];
+          if (!bNum) {
+            lastRntNum++;
+            bNum = `RNT-${lastRntNum}`;
+          }
+          
+          let accImport: any[] = [];
+          const rawAcc = row["Accessories"];
+          if (rawAcc && String(rawAcc).trim() !== "N/A" && String(rawAcc).trim() !== "") {
+            accImport = String(rawAcc).split(",").map(s => ({ name: s.trim(), price: 0 }));
+          }
+
+          // Handle date parsing (Excel might send MM/DD/YY as a string or an Excel date number)
+          let startDateStr = row["Start Date"];
+          let endDateStr = row["End Date"];
+          if (typeof startDateStr === "number") startDateStr = new Date(Math.round((startDateStr - 25569) * 864e5)).toISOString().slice(0, 10);
+          else if (startDateStr) startDateStr = new Date(startDateStr).toISOString().slice(0, 10);
+          else startDateStr = new Date().toISOString().slice(0, 10);
+
+          if (typeof endDateStr === "number") endDateStr = new Date(Math.round((endDateStr - 25569) * 864e5)).toISOString().slice(0, 10);
+          else if (endDateStr) endDateStr = new Date(endDateStr).toISOString().slice(0, 10);
+          else endDateStr = null;
+
+          const dressIdStr = row["Dress ID"] || dressNameMap.get((row["Dress"] || "").toString().toLowerCase().trim()) || null;
+          const sizeIdStr = row["Size ID"] || sizeNameMap.get((row["Size"] || "").toString().toLowerCase().trim()) || null;
+
           await createRental.mutateAsync({
-            bookingNumber: row["No."] || `RNT-${Date.now()}`,
-            startDate: row["Start Date"] || new Date().toISOString().slice(0, 10),
-            endDate: row["End Date"] || null,
+            bookingNumber: bNum,
+            startDate: startDateStr,
+            time: row["Time"] || null,
+            endDate: endDateStr,
             customerName: row["Customer"] || "Imported Customer",
             rentalDays: Number(row["Days"]) || 2,
-            subtotal: Number(row["Total"]) || 0,
-            downPayment: 0,
-            securityDeposit: 200,
-            damageCharge: 0,
-            lateFee: 0,
-            refundAmount: 0,
-            total: Number(row["Total"]) || 0,
+            dressId: dressIdStr,
+            sizeId: sizeIdStr,
+            accessories: accImport,
+            subtotal: parseCurrency(row["Subtotal"]) || parseCurrency(row["Total"]) || 0,
+            downPayment: parseCurrency(row["Down Payment"]) || 0,
+            securityDeposit: parseCurrency(row["Security Deposit"]) || 200,
+            damageCharge: parseCurrency(row["Damage Charge"]) || 0,
+            lateFee: parseCurrency(row["Late Fee"]) || 0,
+            refundAmount: parseCurrency(row["Refund"]) || 0,
+            total: parseCurrency(row["Total"]) || 0,
+            pickupMode: row["Mode"] || row["Pickup Mode"] || "Pick Up",
+            paymentMethod: row["Payment"] || "Cash",
             status: row["Status"] || "Reserved",
-            paymentMethod: "Cash",
-            pickupMode: "Pick Up",
-            accessories: []
           } as any);
           count++;
         }

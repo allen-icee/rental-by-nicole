@@ -13,6 +13,8 @@ type FormInputProps<T extends FieldValues> = {
   maxLength?: number;
   min?: number;
   max?: number;
+  autoComplete?: string;
+  list?: string;
   rules?: Omit<RegisterOptions<T, Path<T>>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">;
 };
 
@@ -27,6 +29,8 @@ export function FormInput<T extends FieldValues>({
   maxLength,
   min,
   max,
+  autoComplete,
+  list,
   rules
 }: FormInputProps<T>) {
   const {
@@ -72,6 +76,8 @@ export function FormInput<T extends FieldValues>({
           }}
           onBlur={onBlur}
           placeholder={placeholder}
+          autoComplete={autoComplete || "off"}
+          list={list}
           className={`w-full rounded-xl border-2 bg-white/50 px-4 py-3 text-sm text-pink-950 shadow-sm outline-none transition-all duration-300 placeholder:text-pink-950/30 focus:bg-white focus:shadow-soft ${
             error 
               ? "border-red-400 focus:border-red-500" 

@@ -327,7 +327,7 @@ export type Database = {
           total: number;
           pickup_mode: string | null;
           payment_method: string | null;
-          status: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+          status: "Pending" | "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
           created_at: string;
           updated_at: string;
         },
@@ -350,7 +350,7 @@ export type Database = {
           total?: number;
           pickup_mode?: string | null;
           payment_method?: string | null;
-          status?: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+          status?: "Pending" | "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
         },
         {
           booking_number?: string;
@@ -371,7 +371,7 @@ export type Database = {
           total?: number;
           pickup_mode?: string | null;
           payment_method?: string | null;
-          status?: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+          status?: "Pending" | "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
         }
       >;
     };
@@ -394,7 +394,7 @@ export type Database = {
       review_status: "pending" | "approved" | "rejected" | "archived";
       rental_status: "paid and verified" | "pending" | "unpaid";
       fitting_status_v2: "Scheduled" | "Completed" | "No Show" | "Cancelled";
-      rental_booking_status: "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
+      rental_booking_status: "Pending" | "Reserved" | "Ready for Pickup" | "Picked Up" | "Due Today" | "Overdue" | "Returned" | "Cancelled";
     };
     CompositeTypes: Record<string, never>;
   };

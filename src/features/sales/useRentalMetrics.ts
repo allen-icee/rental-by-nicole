@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useFittings } from "./useFittings";
 import { useRentalBookings } from "./useRentalBookings";
 import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../../lib/supabase/client";
 
 export type MetricFilters = {
   year?: string;
@@ -14,6 +16,13 @@ export type MetricFilters = {
 export function useRentalMetrics(filters?: MetricFilters) {
   const { data: fittings, isLoading: isFittingsLoading, error: fittingsError } = useFittings();
   const { data: rentals, isLoading: isRentalsLoading, error: rentalsError } = useRentalBookings();
+  const { data: catalogItems } = useQuery({
+    queryKey: ["catalog_items_minimal"],
+    queryFn: async () => {
+      const { data } = await supabase.from("catalog_items").select("id, name");
+      return data || [];
+    },
+  });
 
   const metrics = useMemo(() => {
     if (!fittings || !rentals) return null;
@@ -38,8 +47,7 @@ export function useRentalMetrics(filters?: MetricFilters) {
       activeFittings = [];
     } else {
       activeFittings = fittings.filter(f => {
-        // Fitting Rule: Only Completed fittings count.
-        if (f.status !== "Completed") return false;
+        if (f.status === "Cancelled" || f.status === "No Show") return false;
         
         const d = parseManilaDate(f.date);
         if (year && year !== "all" && d.getFullYear().toString() !== year) return false;
@@ -91,6 +99,8 @@ export function useRentalMetrics(filters?: MetricFilters) {
       monthlyIncomeMap[monthName] = (monthlyIncomeMap[monthName] || 0) + income;
     });
 
+    const itemsMap: Record<string, number> = {};
+
     activeRentals.forEach(r => {
       const income = getRentalIncome(r);
       totalProfit += income;
@@ -101,6 +111,10 @@ export function useRentalMetrics(filters?: MetricFilters) {
 
       const monthName = formatDateManila(r.startDate, "MMM");
       monthlyIncomeMap[monthName] = (monthlyIncomeMap[monthName] || 0) + income;
+
+      if (r.dressId) {
+        itemsMap[r.dressId] = (itemsMap[r.dressId] || 0) + 1;
+      }
     });
 
     const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -109,13 +123,21 @@ export function useRentalMetrics(filters?: MetricFilters) {
       income: monthlyIncomeMap[m] || 0
     })).filter(m => m.income > 0);
 
+    const topItemsChart = Object.entries(itemsMap)
+      .map(([dressId, count]) => {
+        const item = catalogItems?.find((i: any) => i.id === dressId);
+        return { name: item?.name || "Unknown Item", value: count };
+      })
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+
     return {
       totalRentals: activeFittings.length + activeRentals.length,
       totalProfit,
       totalIncomeThisMonth,
       totalIncomeToday,
       monthlyIncomeChart: orderedMonthlyIncome,
-      topItemsChart: [],
+      topItemsChart,
       
       // Keep for AdminDashboardPage global unfiltered metrics if it asks for them
       filteredRentals: [
@@ -134,7 +156,7 @@ export function useRentalMetrics(filters?: MetricFilters) {
       globalTotalRentals: activeFittings.length + activeRentals.length,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fittings, rentals, filters?.year, filters?.month, filters?.day, filters?.searchQuery, filters?.module]);
+  }, [fittings, rentals, catalogItems, filters?.year, filters?.month, filters?.day, filters?.searchQuery, filters?.module]);
 
   return {
     metrics,

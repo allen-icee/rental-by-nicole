@@ -6,7 +6,7 @@ import { AdminModal } from "@/components/admin/AdminModal";
 import { FormInput } from "@/components/ui/forms/FormInput";
 import { FormSelect } from "@/components/ui/forms/FormSelect";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
-import { useCreateRentalBooking } from "../../features/sales/useRentalBookings";
+import { useCreateRentalBooking, useRentalBookings } from "../../features/sales/useRentalBookings";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
 import { calculateEndDate, calculateDownPayment } from "../../utils/sales-calculations";
 import { useToast } from "@/components/ui/toast-context";
@@ -16,6 +16,7 @@ import { getModeColor, getPaymentColor, getStatusColor } from "./RentalTable";
 interface RentalFormInputs {
   customerName: string;
   startDate: string;
+  time: string;
   rentalDays: number;
   dressId: string;
   sizeId: string;
@@ -30,6 +31,7 @@ interface RentalFormInputs {
 export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { showToast } = useToast();
   const createRental = useCreateRentalBooking();
+  const { data: rentals } = useRentalBookings();
   const { data: customers } = useCustomers();
   const createCustomer = useCreateCustomer();
   const { data: catalogItems } = useQuery({
@@ -57,6 +59,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     defaultValues: {
       customerName: "",
       startDate: new Date().toISOString().slice(0, 10),
+      time: "",
       rentalDays: 2,
       dressId: "",
       sizeId: "",
@@ -102,6 +105,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
       reset({
         customerName: "",
         startDate: new Date().toISOString().slice(0, 10),
+        time: "",
         rentalDays: 2,
         dressId: "",
         sizeId: "",
@@ -139,7 +143,14 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         }
       }
 
-      const bookingNumber = `RNT-${Date.now()}`;
+      // Fetch the latest booking numbers directly from the database to ensure we check all records, not just cached/displayed ones
+      const { data: bookingNumbers } = await supabase.from("rental_bookings").select("booking_number");
+      const lastNum = bookingNumbers?.reduce((max, r) => {
+        const match = (r.booking_number || "").match(/(\d+)$/);
+        return match ? Math.max(max, parseInt(match[1])) : max;
+      }, 0) || 0;
+      
+      const bookingNumber = `RNT-${lastNum + 1}`;
       const endDate = calculateEndDate(data.startDate, data.rentalDays);
       const accList = data.accessories.map(a => {
         const matchingAcc = accs.find((ac: any) => ac.id === a.itemId);
@@ -153,6 +164,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
       await createRental.mutateAsync({
         bookingNumber,
         startDate: data.startDate,
+        time: data.time || null,
         endDate,
         rentalDays: data.rentalDays,
         customerName,
@@ -183,12 +195,18 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   return (
     <AdminModal isOpen={isOpen} onClose={onClose} title="New Rental Record" maxWidth="2xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <FormInput name="customerName" control={control} label="Customer Name" placeholder="e.g. Maria Theresa" required />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <FormInput name="startDate" control={control} type="date" label="Start Date" required />
+          <FormInput name="time" control={control} type="time" label="Time" />
           <FormInput name="rentalDays" control={control} type="number" min={1} label="Rental Days" required />
+          <div className="sm:col-span-3">
+            <FormInput name="customerName" control={control} label="Customer Name" placeholder="e.g. Maria Theresa" list="customers-list" required />
+            <datalist id="customers-list">
+              {Array.from(new Set(customers?.map(c => c.name) || [])).map(name => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
+          </div>
         </div>
 
         <div className="border-t border-pink-100 pt-4 mt-4">
@@ -239,10 +257,10 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-pink-100 pt-4 mt-4">
-          <FormSelect name="pickupMode" control={control} label="Mode" searchable={false} options={[{value:"Pick Up", label:"Pick Up"}, {value:"Delivery", label:"Delivery"}, {value:"Courier", label:"Courier"}, {value:"Meet Up", label:"Meet Up"}]} getColor={getModeColor} />
-          <FormSelect name="paymentMethod" control={control} label="Payment" searchable={false} options={[{ value: "Cash", label: "Cash" }, { value: "GCash", label: "GCash" }, { value: "Bank", label: "Bank" }]} getColor={getPaymentColor} />
           <FormInput name="downPayment" control={control} type="number" min={0} label="Downpayment" />
           <FormInput name="securityDeposit" control={control} type="number" min={0} label="Sec. Deposit" />
+          <FormSelect name="pickupMode" control={control} label="Mode" searchable={false} options={[{value:"Pick Up", label:"Pick Up"}, {value:"Delivery", label:"Delivery"}, {value:"Courier", label:"Courier"}, {value:"Meet Up", label:"Meet Up"}]} getColor={getModeColor} />
+          <FormSelect name="paymentMethod" control={control} label="Payment" searchable={false} options={[{ value: "Cash", label: "Cash" }, { value: "GCash", label: "GCash" }, { value: "Bank", label: "Bank" }]} getColor={getPaymentColor} />
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-pink-100 pt-4 mt-4">
@@ -253,6 +271,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
             searchable={false} 
             getColor={getStatusColor}
             options={[
+              {value: "Pending", label: "Pending"},
               {value: "Reserved", label: "Reserved"},
               {value: "Ready for Pickup", label: "Ready for Pickup"},
               {value: "Picked Up", label: "Picked Up"},

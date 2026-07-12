@@ -12,12 +12,14 @@ import { useToast } from "@/components/ui/toast-context";
 import { ConfirmModal } from "@/components/admin/AdminModal";
 import type { RentalBooking } from "../../types/sales";
 import { createPortal } from "react-dom";
+import { Pagination } from "@/components/ui/Pagination";
 
 export const getModeColor = (mode: string) => {
   switch (mode) {
     case 'Pick Up': return 'bg-purple-100 text-purple-700';
     case 'Delivery': return 'bg-blue-100 text-blue-700';
     case 'Courier': return 'bg-orange-100 text-orange-700';
+    case 'Meet Up': return 'bg-yellow-100 text-yellow-700';
     default: return '';
   }
 };
@@ -34,10 +36,12 @@ export const getPaymentColor = (payment: string) => {
 
 export const getStatusColor = (status: string) => {
   switch (status) {
-    case 'Reserved': return 'bg-yellow-100 text-yellow-700';
+    case 'Pending': return 'bg-pink-100 text-pink-700';
+    case 'Reserved': return 'bg-blue-100 text-blue-700';
     case 'Ready for Pickup': return 'bg-indigo-100 text-indigo-700';
-    case 'Picked Up': return 'bg-blue-100 text-blue-700';
-    case 'Returned': return 'bg-green-100 text-green-700';
+    case 'Picked Up': return 'bg-purple-100 text-purple-700';
+    case 'Due Today': return 'bg-orange-100 text-orange-700';
+    case 'Returned': return 'bg-emerald-100 text-emerald-700';
     case 'Cancelled': return 'bg-gray-100 text-gray-700';
     case 'Overdue': return 'bg-red-100 text-red-700';
     default: return '';
@@ -165,7 +169,7 @@ function InlineCustomerAutocomplete({
     setIsOpen(false);
   };
 
-  const filtered = customers?.filter(c => c.name.toLowerCase().includes(local.toLowerCase())) || [];
+  const filtered = Array.from(new Map((customers?.filter(c => c.name.toLowerCase().includes(local.toLowerCase())) || []).map(c => [c.name.toLowerCase(), c])).values());
 
   const menu = isOpen && rect ? (
     <div
@@ -559,10 +563,12 @@ function InlineColorSelect({
             <div
               key={o}
               onClick={() => { onChange(o); setIsOpen(false); }}
-              className={`px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer flex justify-between items-center transition-all ${isSelected ? getColor(o) : 'hover:bg-pink-50 text-pink-950'}`}
+              className="px-2 py-1.5 cursor-pointer hover:bg-gray-50 flex items-center transition-colors"
             >
-              <span className="truncate">{o}</span>
-              {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+              <div className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold inline-flex items-center gap-2 ${getColor(o)}`}>
+                 <span>{o}</span>
+                 {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+              </div>
             </div>
           )
         })}
@@ -574,7 +580,7 @@ function InlineColorSelect({
     <div className="relative w-full" ref={containerRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
+        className={`w-full border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
       >
         <span className="block truncate">
           {value}
@@ -618,7 +624,13 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
 
   const [pendingUpdate, setPendingUpdate] = useState<{id: string, field: string, val: any, rental: RentalBooking} | null>(null);
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
-  const [sizeWarning, setSizeWarning] = useState<{rentalId: string, sizeId: string, message: string} | null>(null);
+  const [sizeWarning, setSizeWarning] = useState<{ rentalId: string, sizeId: string, message: string } | null>(null);
+
+  const prevRentalsLength = useRef<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // useEffect moved below filteredRentals
 
   const { data: catalogItems } = useQuery({
     queryKey: ["catalog_items_minimal"],
@@ -667,6 +679,25 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
     }
     return true;
   });
+
+  const totalPages = Math.ceil(filteredRentals.length / itemsPerPage);
+  const paginatedRentals = filteredRentals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  useEffect(() => {
+    if (rentals && prevRentalsLength.current !== null && rentals.length > prevRentalsLength.current) {
+      // Record was added! Jump to the last page.
+      const newTotalPages = Math.ceil(filteredRentals.length / itemsPerPage);
+      setCurrentPage(Math.max(1, newTotalPages));
+      
+      // Optionally scroll to the bottom of the table
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 100);
+    }
+    if (rentals) {
+      prevRentalsLength.current = rentals.length;
+    }
+  }, [rentals, filteredRentals.length, itemsPerPage]);
 
   const executeInlineUpdate = (id: string, field: string, val: any, rental: RentalBooking) => {
     const updates: any = { [field]: val };
@@ -736,8 +767,10 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
   };
 
   const handleAddInlineRow = async () => {
-    const lastNum = rentals?.reduce((max, r) => {
-      const match = (r.bookingNumber || "").match(/(\d+)$/);
+    // Fetch the latest booking numbers directly from the database to ensure we check all records
+    const { data: bookingNumbers } = await supabase.from("rental_bookings").select("booking_number");
+    const lastNum = bookingNumbers?.reduce((max, r) => {
+      const match = (r.booking_number || "").match(/(\d+)$/);
       return match ? Math.max(max, parseInt(match[1])) : max;
     }, 0) || 0;
     const newTrk = `RNT-${lastNum + 1}`;
@@ -748,6 +781,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
     await createRental.mutateAsync({
       bookingNumber: newTrk,
       startDate: today,
+      time: "10:00",
       rentalDays: 2,
       endDate: endDate,
       customerName: "",
@@ -791,6 +825,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
             <tr>
               <th className="px-3 py-3 w-20 border border-pink-100 text-center">No.</th>
               <th className="px-2 py-3 w-28 border border-pink-100 text-center">Start Date</th>
+              <th className="px-2 py-3 w-24 border border-pink-100 text-center">Time</th>
               <th className="px-2 py-3 w-28 border border-pink-100 text-center">End Date</th>
               <th className="px-2 py-3 w-40 border border-pink-100 text-center">Customer</th>
               <th className="px-2 py-3 w-48 border border-pink-100 text-center">Dress</th>
@@ -807,11 +842,11 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
           </thead>
           <tbody className="divide-y divide-pink-50">
             {isLoading ? (
-              <tr><td colSpan={14} className="px-4 py-8 text-center text-pink-950/50">Loading rentals...</td></tr>
+              <tr><td colSpan={15} className="px-4 py-8 text-center text-pink-950/50">Loading rentals...</td></tr>
             ) : filteredRentals.length === 0 ? (
-              <tr><td colSpan={14} className="px-4 py-8 text-center text-pink-950/50">No rentals found.</td></tr>
+              <tr><td colSpan={15} className="px-4 py-8 text-center text-pink-950/50">No rentals found.</td></tr>
             ) : (
-              filteredRentals.map((rental) => {
+              paginatedRentals.map((rental) => {
                 const dressSizes = sizes?.filter(s => s.catalog_item_id === rental.dressId) || [];
                 
                 // Calculate size availability
@@ -851,8 +886,15 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                     <td className="px-2 py-2 border border-pink-100">
                       <EditableCell 
                         type="date" 
-                        value={rental.startDate} 
-                        onBlur={(v: string) => handleInlineUpdate(rental.id as string, "startDate", v || new Date().toISOString().slice(0,10), rental)} 
+                        value={rental.startDate ? new Date(rental.startDate).toISOString().slice(0,10) : ""} 
+                        onBlur={(v: string) => handleInlineUpdate(rental.id as string, "startDate", v ? new Date(v).toISOString().slice(0,10) : new Date().toISOString().slice(0,10), rental)} 
+                      />
+                    </td>
+                    <td className="px-2 py-2 border border-pink-100">
+                      <EditableCell 
+                        type="time" 
+                        value={rental.time || ""} 
+                        onBlur={(v: string) => handleInlineUpdate(rental.id as string, "time", v, rental)} 
                       />
                     </td>
                     <td className="px-2 py-2 border border-pink-100">
@@ -935,7 +977,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       <InlineColorSelect 
                         value={rental.status || "Reserved"} 
                         onChange={(v) => handleInlineUpdate(rental.id as string, "status", v, rental)}
-                        options={["Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]}
+                        options={["Pending", "Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]}
                         getColor={getStatusColor}
                       />
                     </td>
@@ -957,6 +999,19 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
           <Icon icon="mdi:plus" /> Add Empty Row
         </button>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 border-t border-pink-100 bg-pink-50/30 text-xs">
+          <span className="text-pink-950/60 font-medium">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredRentals.length)} of {filteredRentals.length} entries
+          </span>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
+        </div>
+      )}
 
       <ConfirmModal 
         isOpen={isDeleteModalOpen} 

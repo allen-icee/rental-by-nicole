@@ -6,6 +6,8 @@ import { useCustomers, useCreateCustomer } from "../../features/customers/useCus
 import { useToast } from "@/components/ui/toast-context";
 import { ConfirmModal } from "@/components/admin/AdminModal";
 import { createPortal } from "react-dom";
+import { supabase } from "../../lib/supabase/client";
+import { Pagination } from "@/components/ui/Pagination";
 
 // Helpers for inline edit
 function EditableCell({ value, onBlur, type = "text", placeholder = "", min, max, className = "" }: any) {
@@ -134,7 +136,7 @@ function InlineCustomerAutocomplete({
     setIsOpen(false);
   };
 
-  const filtered = customers?.filter(c => c.name.toLowerCase().includes(local.toLowerCase())) || [];
+  const filtered = Array.from(new Map((customers?.filter(c => c.name.toLowerCase().includes(local.toLowerCase())) || []).map(c => [c.name.toLowerCase(), c])).values());
 
   const menu = isOpen && rect ? (
     <div
@@ -190,10 +192,10 @@ function InlineCustomerAutocomplete({
 
 export function getFittingStatusColor(status: string) {
   switch (status) {
-    case "Scheduled": return "bg-blue-100 text-blue-800";
-    case "Completed": return "bg-green-100 text-green-800";
-    case "No Show": return "bg-yellow-100 text-yellow-800";
-    case "Cancelled": return "bg-red-100 text-red-800";
+    case "Scheduled": return "bg-blue-100 text-blue-700";
+    case "Completed": return "bg-emerald-100 text-emerald-700";
+    case "No Show": return "bg-red-100 text-red-700";
+    case "Cancelled": return "bg-gray-100 text-gray-700";
     default: return "bg-gray-50 text-gray-600";
   }
 }
@@ -257,10 +259,12 @@ function InlineColorSelect({
             <div
               key={o}
               onClick={() => { onChange(o); setIsOpen(false); }}
-              className={`px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer flex justify-between items-center transition-all ${isSelected ? getColor(o) : 'hover:bg-pink-50 text-pink-950'}`}
+              className="px-2 py-1.5 cursor-pointer hover:bg-gray-50 flex items-center transition-colors"
             >
-              <span className="truncate">{o}</span>
-              {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+              <div className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold inline-flex items-center gap-2 ${getColor(o)}`}>
+                 <span>{o}</span>
+                 {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+              </div>
             </div>
           )
         })}
@@ -272,7 +276,7 @@ function InlineColorSelect({
     <div className="relative w-full" ref={containerRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
+        className={`w-full border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
       >
         <span className="block truncate">
           {value}
@@ -296,6 +300,38 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
+  const prevFittingsLength = useRef<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    if (fittings && prevFittingsLength.current !== null && fittings.length > prevFittingsLength.current) {
+      // Record was added! Jump to the last page.
+      const newTotalPages = Math.ceil((fittings || []).filter(f => {
+        const d = new Date(f.date);
+        if (filterYear !== "all" && d.getFullYear().toString() !== filterYear) return false;
+        if (filterMonth !== "all" && (d.getMonth() + 1).toString() !== filterMonth) return false;
+        if (filterDay !== "all" && d.getDate().toString() !== filterDay) return false;
+        if (searchQuery.trim() !== "") {
+          const q = searchQuery.toLowerCase();
+          const matchesName = f.representativeName?.toLowerCase().includes(q);
+          const matchesTracking = f.bookingNumber?.toLowerCase().includes(q);
+          if (!matchesName && !matchesTracking) return false;
+        }
+        return true;
+      }).length / itemsPerPage);
+      setCurrentPage(Math.max(1, newTotalPages));
+      
+      // Optionally scroll to the bottom of the table
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 100);
+    }
+    if (fittings) {
+      prevFittingsLength.current = fittings.length;
+    }
+  }, [fittings, filterYear, filterMonth, filterDay, searchQuery, itemsPerPage]);
+
   const filteredFittings = (fittings || []).filter(f => {
     const d = new Date(f.date);
     if (filterYear !== "all" && d.getFullYear().toString() !== filterYear) return false;
@@ -310,6 +346,9 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
     }
     return true;
   });
+
+  const totalPages = Math.ceil(filteredFittings.length / itemsPerPage);
+  const paginatedFittings = filteredFittings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleInlineUpdate = (id: string, fieldOrUpdates: string | Record<string, any>, val?: any, fitting?: any) => {
     let updates: any = {};
@@ -332,9 +371,10 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
   };
 
   const handleAddInlineRow = async () => {
-    const lastNum = fittings?.reduce((max, r) => {
-      // In case they are using TRK- or No. prefix
-      const match = (r.bookingNumber || "").match(/(\d+)$/);
+    // Fetch the latest booking numbers directly from the database to ensure we check all records
+    const { data: bookingNumbers } = await supabase.from("fittings").select("booking_number");
+    const lastNum = bookingNumbers?.reduce((max, r) => {
+      const match = (r.booking_number || "").match(/(\d+)$/);
       return match ? Math.max(max, parseInt(match[1])) : max;
     }, 0) || 0;
     const newTrk = `FIT-${lastNum + 1}`;
@@ -393,7 +433,7 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
             ) : filteredFittings.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-8 text-center text-pink-950/50">No fittings found.</td></tr>
             ) : (
-              filteredFittings.map((fitting) => (
+              paginatedFittings.map((fitting) => (
                 <tr key={fitting.id} className="transition-colors hover:bg-pink-100/60 even:bg-pink-50 group">
                   <td className="px-3 py-2 border border-pink-100 font-mono font-medium text-brand-accent/70 text-[10px] text-center">
                     {fitting.bookingNumber}
@@ -455,6 +495,19 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
           <Icon icon="mdi:plus" /> Add Empty Row
         </button>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 border-t border-pink-100 bg-pink-50/30 text-xs">
+          <span className="text-pink-950/60 font-medium">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredFittings.length)} of {filteredFittings.length} entries
+          </span>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
+        </div>
+      )}
 
       <ConfirmModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Delete" message="Are you sure you want to delete this fitting record?" onConfirm={handleDelete} />
     </div>

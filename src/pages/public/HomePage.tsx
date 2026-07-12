@@ -163,7 +163,7 @@ export function HomePage() {
                     </div>
                   </div>
                   <div className="flex flex-1 flex-col p-4 items-center text-center">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-sm ${item.availabilityStatus.toLowerCase().startsWith('available') ? availabilityClasses.available : availabilityClasses[item.availabilityStatus as keyof typeof availabilityClasses] ?? availabilityClasses.unavailable}`}>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-sm ${item.availabilityStatus.toLowerCase().startsWith('available') ? "bg-emerald-100 text-emerald-700" : item.availabilityStatus === "Fully Booked Today" ? "bg-amber-100 text-amber-700" : "bg-pink-100 text-brand-accent"}`}>
                       {item.availabilityStatus}
                     </span>
                     <h3 className="mt-2 font-display text-2xl font-black text-pink-950 group-hover:text-brand-primary transition-colors">{item.name}</h3>

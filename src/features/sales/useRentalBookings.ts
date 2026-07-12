@@ -9,6 +9,7 @@ function mapToRentalBooking(row: any): RentalBooking {
     id: row.id,
     bookingNumber: row.booking_number,
     startDate: row.start_date,
+    time: row.time,
     rentalDays: row.rental_days,
     endDate: row.end_date,
     customerId: row.customer_id,
@@ -37,6 +38,7 @@ function mapToDb(booking: Partial<RentalBooking>): any {
   const mapped: any = { ...booking } as any;
   if (booking.bookingNumber !== undefined) { mapped.booking_number = booking.bookingNumber; delete mapped.bookingNumber; }
   if (booking.startDate !== undefined) { mapped.start_date = booking.startDate; delete mapped.startDate; }
+  if (booking.time !== undefined) { mapped.time = booking.time; }
   if (booking.rentalDays !== undefined) { mapped.rental_days = booking.rentalDays; delete mapped.rentalDays; }
   if (booking.endDate !== undefined) { mapped.end_date = booking.endDate; delete mapped.endDate; }
   if (booking.customerId !== undefined) { mapped.customer_id = booking.customerId; delete mapped.customerId; }
