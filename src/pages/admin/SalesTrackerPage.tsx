@@ -68,9 +68,9 @@ export function SalesTrackerPage() {
         "No.": f.bookingNumber,
         "Date": formatDateManila(f.date, "yyyy-MM-dd"),
         "Time": f.time || "",
-        "Representative": f.representativeName,
-        "Count": f.customerCount,
-        "Package": f.packageType,
+        "Representative Name": f.representativeName || "",
+        "People": f.customerCount,
+        "Fee": f.fee,
         "Total": f.total,
         "Status": f.status
       }));
@@ -131,10 +131,9 @@ export function SalesTrackerPage() {
             bookingNumber: row["No."] || `FIT-${Date.now()}`,
             date: row["Date"] || new Date().toISOString().slice(0, 10),
             time: row["Time"] || null,
-            representativeName: row["Representative"] || "Imported Customer",
-            customerCount: Number(row["Count"]) || 1,
-            packageType: row["Package"] || "Standard",
-            fee: Number(row["Total"]) || 150,
+            representativeName: row["Representative Name"] || "",
+            customerCount: Number(row["People"]) || 1,
+            fee: Number(row["Fee"]) || 150,
             total: Number(row["Total"]) || 150,
             status: row["Status"] || "Scheduled"
           } as any);

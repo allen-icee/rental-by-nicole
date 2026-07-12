@@ -15,8 +15,6 @@ interface FittingFormInputs {
   time: string;
   representativeName: string;
   customerCount: number;
-  stdCount: number;
-  unlCount: number;
   fee: number;
   status: string;
 }
@@ -33,29 +31,16 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
       time: "",
       representativeName: "",
       customerCount: 1,
-      stdCount: 1,
-      unlCount: 0,
       fee: 150,
       status: "Scheduled"
     }
   });
 
   const customerCount = watch("customerCount") || 1;
-  const stdCount = watch("stdCount");
-  const unlCount = watch("unlCount");
 
   // Keep fee synced
   useEffect(() => {
-    setValue("fee", (stdCount * 150) + (unlCount * 300));
-  }, [stdCount, unlCount, setValue]);
-
-  // Adjust counts if customerCount shrinks
-  useEffect(() => {
-    if (stdCount + unlCount > customerCount) {
-      // Just reset to standard if it gets weird
-      setValue("stdCount", customerCount);
-      setValue("unlCount", 0);
-    }
+    setValue("fee", customerCount * 150);
   }, [customerCount, setValue]);
 
   useEffect(() => {
@@ -65,8 +50,6 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
         time: "",
         representativeName: "",
         customerCount: 1,
-        stdCount: 1,
-        unlCount: 0,
         fee: 150,
         status: "Scheduled"
       });
@@ -97,8 +80,6 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
 
       const bookingNumber = `FIT-${Date.now()}`;
 
-      const packageTypeStr = JSON.stringify({ Standard: data.stdCount, Unlimited: data.unlCount });
-
       await createFitting.mutateAsync({
         bookingNumber,
         date: data.date,
@@ -106,7 +87,6 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
         representativeCustomerId: customerId,
         representativeName: customerName,
         customerCount: data.customerCount,
-        packageType: packageTypeStr,
         fee: data.fee,
         total: data.fee,
         status: data.status
@@ -147,50 +127,6 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
                 {value: "Cancelled", label: "Cancelled"}
               ]} 
             />
-          </div>
-
-          <div className="bg-white border border-pink-100 shadow-sm rounded-2xl p-4 flex flex-col gap-3 h-fit">
-            <div className="flex justify-between items-center text-sm bg-pink-50/50 p-2 rounded-xl">
-              <span className="font-bold text-pink-950">Standard <span className="text-pink-950/50 text-xs font-semibold block">₱150</span></span>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => setValue("stdCount", Math.max(0, stdCount - 1))} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:minus" /></button>
-                <span className="w-5 text-center font-bold text-pink-950">{stdCount}</span>
-                <button type="button" onClick={() => setValue("stdCount", stdCount + 1)} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:plus" /></button>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center text-sm bg-pink-50/50 p-2 rounded-xl">
-              <span className="font-bold text-pink-950">Unlimited <span className="text-pink-950/50 text-xs font-semibold block">₱300</span></span>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => setValue("unlCount", Math.max(0, unlCount - 1))} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:minus" /></button>
-                <span className="w-5 text-center font-bold text-pink-950">{unlCount}</span>
-                <button type="button" onClick={() => setValue("unlCount", unlCount + 1)} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:plus" /></button>
-              </div>
-            </div>
-
-            <div className="border-t border-pink-100 pt-3 mt-1 space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-pink-950/70 font-semibold uppercase tracking-wider">Total People</span>
-                <span className="font-bold text-pink-950 bg-pink-100 px-2 py-0.5 rounded">{customerCount}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-pink-950/70 font-semibold uppercase tracking-wider">Remaining</span>
-                <span className={`font-bold px-2 py-0.5 rounded ${customerCount - (stdCount + unlCount) === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                  {customerCount - (stdCount + unlCount)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm mt-2 pt-2 border-t border-pink-50">
-                <span className="text-brand-accent font-bold">Fee Preview</span>
-                <span className="text-brand-primary font-black">₱{(stdCount * 150 + unlCount * 300).toFixed(2)}</span>
-              </div>
-            </div>
-
-            {customerCount - (stdCount + unlCount) !== 0 && (
-              <div className="text-[10px] text-red-600 font-bold text-center mt-1 bg-red-50 p-2 rounded-lg border border-red-100 flex items-center justify-center gap-1">
-                <Icon icon="mdi:alert" className="size-3" />
-                {customerCount - (stdCount + unlCount) > 0 ? `${customerCount - (stdCount + unlCount)} customer(s) not assigned.` : `${Math.abs(customerCount - (stdCount + unlCount))} too many assigned.`}
-              </div>
-            )}
           </div>
         </div>
 

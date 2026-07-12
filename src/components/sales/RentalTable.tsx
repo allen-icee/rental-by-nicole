@@ -919,7 +919,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       <InlineColorSelect 
                         value={rental.pickupMode || "Pick Up"} 
                         onChange={(v) => handleInlineUpdate(rental.id as string, "pickupMode", v, rental)}
-                        options={["Pick Up", "Delivery", "Courier"]}
+                        options={["Pick Up", "Delivery", "Courier", "Meet Up"]}
                         getColor={getModeColor}
                       />
                     </td>

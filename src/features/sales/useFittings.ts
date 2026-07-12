@@ -13,7 +13,6 @@ function mapToFitting(row: any): Fitting {
     representativeCustomerId: row.representative_customer_id,
     representativeName: row.representative_name,
     customerCount: row.customer_count,
-    packageType: row.package_type,
     fee: row.fee,
     total: row.total,
     status: row.status,
@@ -30,7 +29,6 @@ function mapToDb(fitting: Partial<Fitting>): any {
   if (fitting.representativeCustomerId !== undefined) { mapped.representative_customer_id = fitting.representativeCustomerId; delete mapped.representativeCustomerId; }
   if (fitting.representativeName !== undefined) { mapped.representative_name = fitting.representativeName; delete mapped.representativeName; }
   if (fitting.customerCount !== undefined) { mapped.customer_count = fitting.customerCount; delete mapped.customerCount; }
-  if (fitting.packageType !== undefined) { mapped.package_type = fitting.packageType; delete mapped.packageType; }
   if (fitting.createdAt !== undefined) { mapped.created_at = fitting.createdAt; delete mapped.createdAt; }
   if (fitting.updatedAt !== undefined) { mapped.updated_at = fitting.updatedAt; delete mapped.updatedAt; }
   return mapped;

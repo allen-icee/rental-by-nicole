@@ -284,161 +284,7 @@ function InlineColorSelect({
   );
 }
 
-function parsePackageDistribution(packageType: string | undefined | null, customerCount: number = 1) {
-  if (!packageType) return { Standard: customerCount, Unlimited: 0 };
-  if (packageType === 'Standard') return { Standard: customerCount, Unlimited: 0 };
-  if (packageType === 'Unlimited') return { Standard: 0, Unlimited: customerCount };
-  try {
-    const parsed = JSON.parse(packageType);
-    if (typeof parsed === 'object') {
-      return {
-        Standard: Number(parsed.Standard) || 0,
-        Unlimited: Number(parsed.Unlimited) || 0
-      };
-    }
-  } catch {
-    //
-  }
-  return { Standard: customerCount, Unlimited: 0 };
-}
 
-function PackageDistributionEditor({ fitting, onUpdate }: { fitting: any, onUpdate: (pkg: string, fee: number) => void }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-
-  const totalPeople = fitting.customerCount ?? 1;
-
-  const initialDist = parsePackageDistribution(fitting.packageType, totalPeople);
-  const [stdCount, setStdCount] = useState(initialDist.Standard);
-  const [unlCount, setUnlCount] = useState(initialDist.Unlimited);
-
-  useEffect(() => {
-    if (isOpen) {
-      const dist = parsePackageDistribution(fitting.packageType, totalPeople);
-      setStdCount(dist.Standard);
-      setUnlCount(dist.Unlimited);
-    }
-  }, [fitting.packageType, totalPeople, isOpen]);
-
-  const updateRect = () => {
-    if (containerRef.current) {
-      setRect(containerRef.current.getBoundingClientRect());
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updateRect();
-      const handleScroll = () => updateRect();
-      window.addEventListener('scroll', handleScroll, true);
-      return () => window.removeEventListener('scroll', handleScroll, true);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      if (
-        containerRef.current && !containerRef.current.contains(target) &&
-        (!menuRef.current || !menuRef.current.contains(target))
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const assigned = stdCount + unlCount;
-  const remaining = totalPeople - assigned;
-  const liveFee = (stdCount * 150) + (unlCount * 300);
-
-  const handleApply = () => {
-    if (remaining !== 0) return;
-    const newPkg = JSON.stringify({ Standard: stdCount, Unlimited: unlCount });
-    onUpdate(newPkg, liveFee);
-    setIsOpen(false);
-  };
-
-  const currentDist = parsePackageDistribution(fitting.packageType, totalPeople);
-  const currentAssigned = currentDist.Standard + currentDist.Unlimited;
-  const currentRemaining = totalPeople - currentAssigned;
-
-  const displayString = currentRemaining !== 0 
-    ? <span className="text-red-500 font-bold flex items-center gap-1"><Icon icon="mdi:alert-circle" /> {currentRemaining > 0 ? `${currentRemaining} unassigned` : 'Over-assigned'}</span>
-    : <span className="truncate">Std ({currentDist.Standard}), Unl ({currentDist.Unlimited})</span>;
-
-  const menu = isOpen && rect ? (
-    <div
-      ref={menuRef}
-      style={{ position: "fixed", top: rect.bottom + 4, left: rect.left - 50, width: 280, zIndex: 99999 }}
-      className="bg-white border border-pink-100 shadow-barbie rounded-2xl p-4 flex flex-col gap-3"
-    >
-      <div className="flex justify-between items-center text-sm bg-pink-50/50 p-2 rounded-xl">
-        <span className="font-bold text-pink-950">Standard <span className="text-pink-950/50 text-xs font-semibold block">₱150</span></span>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setStdCount(Math.max(0, stdCount - 1))} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:minus" /></button>
-          <span className="w-5 text-center font-bold text-pink-950">{stdCount}</span>
-          <button onClick={() => setStdCount(stdCount + 1)} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:plus" /></button>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center text-sm bg-pink-50/50 p-2 rounded-xl">
-        <span className="font-bold text-pink-950">Unlimited <span className="text-pink-950/50 text-xs font-semibold block">₱300</span></span>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setUnlCount(Math.max(0, unlCount - 1))} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:minus" /></button>
-          <span className="w-5 text-center font-bold text-pink-950">{unlCount}</span>
-          <button onClick={() => setUnlCount(unlCount + 1)} className="flex items-center justify-center w-7 h-7 rounded-lg bg-white border border-pink-100 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-colors shadow-sm"><Icon icon="mdi:plus" /></button>
-        </div>
-      </div>
-
-      <div className="border-t border-pink-100 pt-3 mt-1 space-y-1.5">
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-pink-950/70 font-semibold uppercase tracking-wider">Total People</span>
-          <span className="font-bold text-pink-950 bg-pink-100 px-2 py-0.5 rounded">{totalPeople}</span>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-pink-950/70 font-semibold uppercase tracking-wider">Remaining</span>
-          <span className={`font-bold px-2 py-0.5 rounded ${remaining === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{remaining}</span>
-        </div>
-        <div className="flex justify-between items-center text-sm mt-2 pt-2 border-t border-pink-50">
-          <span className="text-brand-accent font-bold">Fee Preview</span>
-          <span className="text-brand-primary font-black">₱{liveFee.toFixed(2)}</span>
-        </div>
-      </div>
-
-      {remaining !== 0 && (
-        <div className="text-[10px] text-red-600 font-bold text-center mt-1 bg-red-50 p-2 rounded-lg border border-red-100 flex items-center justify-center gap-1">
-          <Icon icon="mdi:alert" className="size-3" />
-          {remaining > 0 ? `${remaining} customer(s) not assigned.` : `${Math.abs(remaining)} too many assigned.`}
-        </div>
-      )}
-
-      <button 
-        onClick={handleApply}
-        disabled={remaining !== 0}
-        className="w-full mt-2 py-2.5 rounded-xl bg-brand-primary text-white font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-accent transition-all shadow-soft flex justify-center items-center gap-1"
-      >
-        <Icon icon="mdi:check-circle" className="size-4" /> Apply Changes
-      </button>
-    </div>
-  ) : null;
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full text-left bg-transparent border ${currentRemaining !== 0 ? 'border-red-300 bg-red-50' : 'border-transparent hover:border-pink-200 focus:border-brand-accent'} focus:ring-1 focus:ring-brand-accent px-2 py-1 text-xs rounded outline-none transition-all flex items-center justify-between`}
-      >
-        {displayString}
-        <Icon icon="mdi:chevron-down" className="size-3 opacity-50" />
-      </button>
-      {menu && createPortal(menu, document.body)}
-    </div>
-  );
-}
 
 export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }: { filterYear: string, filterMonth: string, filterDay: string, searchQuery: string }) {
   const { showToast } = useToast();
@@ -472,15 +318,9 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
       const field = fieldOrUpdates;
       updates[field] = val;
       
-      // If customerCount changes, we do NOT automatically update the packageType.
-      // But we should NOT auto-recalculate fee here because fee is based on package distribution!
-      // The user must open the package editor to reassign the newly added/removed people.
-      // The unassigned warning will show up automatically because `customerCount` !== `assigned`.
-      if (field === 'packageType') {
-        // Fallback for string updates if they somehow trigger a normal change
-        const count = fitting?.customerCount ?? 1;
-        const pkgPrice = val === 'Unlimited' ? 300 : 150;
-        const newFee = pkgPrice * count;
+      if (field === 'customerCount') {
+        const count = Number(val) || 1;
+        const newFee = count * 150;
         updates.fee = newFee;
         updates.total = newFee;
       }
@@ -505,7 +345,7 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
       time: null,
       representativeName: "",
       customerCount: 1,
-      packageType: "Standard",
+
       fee: 150,
       total: 150,
       status: "Scheduled"
@@ -541,7 +381,7 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
               <th className="px-2 py-3 w-24 border border-pink-100 text-center font-extrabold">Time</th>
               <th className="px-2 py-3 w-48 border border-pink-100 text-center font-extrabold">Representative Name</th>
               <th className="px-2 py-3 w-24 border border-pink-100 text-center font-extrabold">People</th>
-              <th className="px-2 py-3 w-32 border border-pink-100 text-center font-extrabold">Package</th>
+
               <th className="px-2 py-3 w-24 border border-pink-100 text-center font-extrabold">Fee</th>
               <th className="px-2 py-3 w-32 border border-pink-100 text-center font-extrabold">Status</th>
               <th className="px-2 py-3 w-10 border border-pink-100 text-center"></th>
@@ -589,18 +429,7 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
                       onBlur={(v: string) => handleInlineUpdate(fitting.id as string, "customerCount", Number(v), fitting)} 
                     />
                   </td>
-                  <td className="px-2 py-2 border border-pink-100 text-center w-36">
-                    <PackageDistributionEditor 
-                      fitting={fitting} 
-                      onUpdate={(newPkg, newFee) => {
-                        handleInlineUpdate(fitting.id as string, {
-                          packageType: newPkg,
-                          fee: newFee,
-                          total: newFee
-                        });
-                      }} 
-                    />
-                  </td>
+
                   <td className="px-2 py-2 font-bold text-green-600 border border-pink-100 text-center bg-green-50/30">
                     ₱{(fitting.fee ?? 0).toFixed(2)}
                   </td>

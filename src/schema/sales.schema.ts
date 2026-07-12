@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const FittingStatusSchema = z.enum(["Scheduled", "Completed", "No Show", "Cancelled"]);
 export const RentalBookingStatusSchema = z.enum(["Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]);
-export const PackageTypeSchema = z.string(); // Can be "Standard", "Unlimited", or JSON string
 
 export const FittingSchema = z.object({
   id: z.string().uuid().optional(),
@@ -11,8 +10,7 @@ export const FittingSchema = z.object({
   time: z.string().optional().nullable(),
   representativeCustomerId: z.string().uuid().optional().nullable(),
   representativeName: z.string().min(1, "Representative name is required"),
-  customerCount: z.number().int().min(1),
-  packageType: PackageTypeSchema,
+  customerCount: z.number().int().positive(),
   fee: z.number().min(0),
   total: z.number().min(0),
   status: FittingStatusSchema,
