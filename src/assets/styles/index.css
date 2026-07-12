@@ -559,3 +559,23 @@ img {
   scrollbar-color: #d4af37 #fce8f4;
   scrollbar-width: thin;
 }
+/* Calendar Mobile Responsiveness */
+@media (max-width: 768px) {
+  .rbn-calendar .rbc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .rbn-calendar .rbc-toolbar-label {
+    margin: 0.5rem 0;
+  }
+  .rbn-calendar .rbc-btn-group {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+  .rbn-calendar .rbc-btn-group button {
+    flex: 1;
+    padding: 0.5rem;
+  }
+}
+

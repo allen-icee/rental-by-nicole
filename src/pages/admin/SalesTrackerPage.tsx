@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Icon } from "@iconify/react";
 import * as XLSX from "xlsx";
 import { useRentalMetrics } from "../../features/sales/useRentalMetrics";
-import { useFittings } from "../../features/sales/useFittings";
-import { useRentalBookings } from "../../features/sales/useRentalBookings";
+import { useFittings, useCreateFitting } from "../../features/sales/useFittings";
+import { useRentalBookings, useCreateRentalBooking } from "../../features/sales/useRentalBookings";
 import { useToast } from "@/components/ui/toast-context";
 import { CustomDropdown } from "../../components/ui/CustomDropdown";
 import { FittingTable } from "../../components/sales/FittingTable";
 import { RentalTable } from "../../components/sales/RentalTable";
+import { FittingFormModal } from "../../components/sales/FittingFormModal";
+import { RentalFormModal } from "../../components/sales/RentalFormModal";
 import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => ({ value: (i + 1).toString(), label: m }));
@@ -21,6 +23,8 @@ export function SalesTrackerPage() {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterDay] = useState<string>("all");
   const [module, setModule] = useState<"Fitting" | "Rental">("Fitting");
+  const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
+  const [isFittingModalOpen, setIsFittingModalOpen] = useState(false);
 
   const { metrics } = useRentalMetrics({
     year: filterYear,
@@ -32,6 +36,9 @@ export function SalesTrackerPage() {
 
   const { data: fittings } = useFittings();
   const { data: rentals } = useRentalBookings();
+  const createFitting = useCreateFitting();
+  const createRental = useCreateRentalBooking();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Determine available years from both sources
   const yearOptions = useMemo(() => {
@@ -101,6 +108,79 @@ export function SalesTrackerPage() {
     XLSX.writeFile(wb, `${module}Tracker_${formatDateManila(getManilaDate(), "yyyy-MM-dd")}.xlsx`);
   };
 
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data, { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const jsonData: any[] = XLSX.utils.sheet_to_json(ws);
+
+      if (jsonData.length === 0) {
+        showToast({ tone: "error", title: "Import Failed", message: "File is empty." });
+        return;
+      }
+
+      let count = 0;
+      if (module === "Fitting") {
+        for (const row of jsonData) {
+          await createFitting.mutateAsync({
+            bookingNumber: row["No."] || `FIT-${Date.now()}`,
+            date: row["Date"] || new Date().toISOString().slice(0, 10),
+            time: row["Time"] || null,
+            representativeName: row["Representative"] || "Imported Customer",
+            customerCount: Number(row["Count"]) || 1,
+            packageType: row["Package"] || "Standard",
+            fee: Number(row["Total"]) || 150,
+            total: Number(row["Total"]) || 150,
+            status: row["Status"] || "Scheduled"
+          } as any);
+          count++;
+        }
+      } else {
+        for (const row of jsonData) {
+          await createRental.mutateAsync({
+            bookingNumber: row["No."] || `RNT-${Date.now()}`,
+            startDate: row["Start Date"] || new Date().toISOString().slice(0, 10),
+            endDate: row["End Date"] || null,
+            customerName: row["Customer"] || "Imported Customer",
+            rentalDays: Number(row["Days"]) || 2,
+            subtotal: Number(row["Total"]) || 0,
+            downPayment: 0,
+            securityDeposit: 200,
+            damageCharge: 0,
+            lateFee: 0,
+            refundAmount: 0,
+            total: Number(row["Total"]) || 0,
+            status: row["Status"] || "Reserved",
+            paymentMethod: "Cash",
+            pickupMode: "Pick Up",
+            accessories: []
+          } as any);
+          count++;
+        }
+      }
+
+      showToast({ tone: "success", title: "Import Successful", message: `Imported ${count} ${module.toLowerCase()} records.` });
+    } catch (err) {
+      console.error(err);
+      showToast({ tone: "error", title: "Import Failed", message: "There was an error parsing the file." });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleAddRecord = () => {
+    if (module === "Fitting") {
+      setIsFittingModalOpen(true);
+    } else {
+      setIsRentalModalOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -155,13 +235,25 @@ export function SalesTrackerPage() {
             <CustomDropdown value={filterMonth} onChange={setFilterMonth} options={[{ value: "all", label: "All Months" }, ...months]} className="flex-1 min-w-[120px]" />
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full xl:w-auto shrink-0">
-          <button onClick={() => showToast({tone: "info", title: "Import", message: "Import has been disabled during the refactor."})} title="Import" className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 sm:px-4 py-2 text-sm font-bold text-white shadow-soft transition-all hover:bg-blue-700 shrink-0">
-            <Icon icon="mdi:upload" className="size-5 shrink-0" /> <span className="hidden sm:inline">Import</span>
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto shrink-0">
+          <button onClick={handleAddRecord} title="Add Record" className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-3 sm:px-4 py-2 text-sm font-bold text-white shadow-soft transition-all hover:bg-brand-primary/90 shrink-0">
+            <Icon icon="mdi:plus" className="size-5 shrink-0" /> <span>Add {module === "Fitting" ? "FIT" : "RNT"} Record</span>
           </button>
-          <button onClick={handleExportExcel} title="Export" className="flex items-center justify-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-xl text-sm font-bold shadow-soft transition-all hover:bg-green-700 shrink-0">
-            <Icon icon="mdi:microsoft-excel" className="size-5 shrink-0" /> <span className="hidden sm:inline">Export</span>
-          </button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <input 
+              type="file" 
+              accept=".xlsx, .xls" 
+              className="hidden" 
+              ref={fileInputRef} 
+              onChange={handleImportExcel} 
+            />
+            <button onClick={() => fileInputRef.current?.click()} title="Import" className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 sm:px-4 py-2 text-sm font-bold text-white shadow-soft transition-all hover:bg-blue-700 shrink-0">
+              <Icon icon="mdi:upload" className="size-5 shrink-0" /> <span>Import</span>
+            </button>
+            <button onClick={handleExportExcel} title="Export" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-xl text-sm font-bold shadow-soft transition-all hover:bg-green-700 shrink-0">
+              <Icon icon="mdi:microsoft-excel" className="size-5 shrink-0" /> <span>Export</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -171,6 +263,10 @@ export function SalesTrackerPage() {
       ) : (
         <RentalTable filterYear={filterYear} filterMonth={filterMonth} filterDay={filterDay} searchQuery={searchQuery} />
       )}
+
+      {/* Modals */}
+      <RentalFormModal isOpen={isRentalModalOpen} onClose={() => setIsRentalModalOpen(false)} />
+      <FittingFormModal isOpen={isFittingModalOpen} onClose={() => setIsFittingModalOpen(false)} />
     </div>
   );
 }

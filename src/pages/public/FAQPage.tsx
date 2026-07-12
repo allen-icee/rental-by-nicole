@@ -87,13 +87,13 @@ export function FAQPage() {
                     )}
                     <button
                       onClick={() => setOpenId(isOpen ? null : faq.question)}
-                      className="relative z-10 w-full text-left px-5 py-5 md:px-6 flex items-start md:items-center justify-between gap-6 outline-none"
+                      className="relative z-10 w-full text-left px-4 py-3 md:px-5 md:py-4 flex items-start md:items-center justify-between gap-3 md:gap-4 outline-none"
                     >
                       <div className="flex-1">
-                        <span className="inline-block rounded-full bg-pink-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-primary border border-pink-100 mb-2 transition-colors duration-300 group-hover:bg-brand-background group-hover:border-brand-primary/20">
+                        <span className="inline-block rounded-full bg-pink-50 px-2 py-0.5 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-brand-primary border border-pink-100 mb-1 transition-colors duration-300 group-hover:bg-brand-background group-hover:border-brand-primary/20">
                           {faq.category}
                         </span>
-                        <h3 className={`font-display text-lg md:text-xl font-bold transition-colors duration-300 ${isOpen ? "text-brand-primary" : "text-brand-accent"}`}>
+                        <h3 className={`font-display text-base md:text-lg font-bold leading-tight transition-colors duration-300 ${isOpen ? "text-brand-primary" : "text-brand-accent"}`}>
                           {faq.question}
                         </h3>
                       </div>
@@ -112,8 +112,8 @@ export function FAQPage() {
                         }`}
                     >
                       <div className="overflow-hidden">
-                        <div className="px-5 pb-5 md:px-6 pt-2">
-                          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-100 to-transparent mb-4" />
+                        <div className="px-4 pb-4 md:px-5 pt-1">
+                          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-100 to-transparent mb-3" />
                           <p className="text-sm md:text-base font-medium leading-relaxed text-pink-950">
                             {faq.answer}
                           </p>

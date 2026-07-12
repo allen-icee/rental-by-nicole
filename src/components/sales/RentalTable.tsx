@@ -13,6 +13,37 @@ import { ConfirmModal } from "@/components/admin/AdminModal";
 import type { RentalBooking } from "../../types/sales";
 import { createPortal } from "react-dom";
 
+export const getModeColor = (mode: string) => {
+  switch (mode) {
+    case 'Pick Up': return 'bg-purple-100 text-purple-700';
+    case 'Delivery': return 'bg-blue-100 text-blue-700';
+    case 'Courier': return 'bg-orange-100 text-orange-700';
+    default: return '';
+  }
+};
+
+export const getPaymentColor = (payment: string) => {
+  switch (payment) {
+    case 'Cash': return 'bg-green-100 text-green-700';
+    case 'GCash': return 'bg-blue-100 text-blue-700';
+    case 'BDO': return 'bg-yellow-100 text-yellow-700';
+    case 'Bank': return 'bg-indigo-100 text-indigo-700';
+    default: return '';
+  }
+};
+
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Reserved': return 'bg-yellow-100 text-yellow-700';
+    case 'Ready for Pickup': return 'bg-indigo-100 text-indigo-700';
+    case 'Picked Up': return 'bg-blue-100 text-blue-700';
+    case 'Returned': return 'bg-green-100 text-green-700';
+    case 'Cancelled': return 'bg-gray-100 text-gray-700';
+    case 'Overdue': return 'bg-red-100 text-red-700';
+    default: return '';
+  }
+};
+
 // Helpers for inline edit
 function EditableCell({ value, onBlur, type = "text", placeholder = "", min, max, className = "" }: any) {
   const [local, setLocal] = useState(value || "");
@@ -188,18 +219,98 @@ function InlineCustomerAutocomplete({
   );
 }
 
-function InlineDressSelect({ value, onChange, options, placeholder, isMissing }: { value: string | null; onChange: (v: string | null) => void; options: {id: string, name: string}[]; placeholder: string; isMissing?: boolean; }) {
-  return (
-    <select 
-      value={value || ""} 
-      onChange={(e) => onChange(e.target.value || null)}
-      className={`w-full bg-transparent outline-none border ${isMissing ? 'border-red-400 bg-red-50' : 'border-transparent hover:border-pink-200'} rounded px-1 py-1 text-xs`}
+function InlineSearchableSelect({ value, onChange, options, placeholder, isMissing }: { value: string | null; onChange: (v: string | null) => void; options: {id: string, name: string}[]; placeholder: string; isMissing?: boolean; }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  const updateRect = () => { if (containerRef.current) setRect(containerRef.current.getBoundingClientRect()); };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateRect();
+      setSearch(""); // Reset search when opened
+      const handleScroll = () => updateRect();
+      window.addEventListener('scroll', handleScroll, true);
+      return () => window.removeEventListener('scroll', handleScroll, true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        containerRef.current && !containerRef.current.contains(target) &&
+        (!menuRef.current || !menuRef.current.contains(target))
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOpt = options.find(o => o.id === value);
+  const filtered = options.filter(o => o.name.toLowerCase().includes(search.toLowerCase()));
+
+  const menu = isOpen && rect ? (
+    <div
+      ref={menuRef}
+      className="absolute z-[100] w-64 bg-white rounded-xl shadow-barbie border border-pink-100 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+      style={{
+        top: rect.bottom + 4,
+        left: rect.left,
+        maxHeight: '300px'
+      }}
+      data-lenis-prevent="true"
     >
-      <option value="" disabled>{placeholder}</option>
-      {options.map(o => (
-        <option key={o.id} value={o.id}>{o.name}</option>
-      ))}
-    </select>
+      <div className="p-2 border-b border-pink-50 sticky top-0 bg-white z-10">
+        <div className="relative">
+          <Icon icon="mdi:magnify" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-pink-950/40 size-4" />
+          <input
+            type="text"
+            autoFocus
+            placeholder="Search dress..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-pink-50/50 rounded-lg outline-none focus:ring-2 focus:ring-brand-accent/20 border border-transparent focus:border-brand-accent transition-all"
+          />
+        </div>
+      </div>
+      <div className="overflow-y-auto p-1 scrollbar-hide overscroll-contain" data-lenis-prevent="true">
+        {filtered.length === 0 ? (
+          <div className="p-3 text-center text-xs text-pink-950/50">No dresses found</div>
+        ) : (
+          filtered.map(o => (
+            <div
+              key={o.id}
+              onClick={() => { onChange(o.id); setIsOpen(false); }}
+              className={`px-3 py-2 text-xs rounded-lg cursor-pointer flex justify-between items-center transition-colors ${value === o.id ? 'bg-brand-primary/10 text-brand-accent font-bold' : 'hover:bg-pink-50 text-pink-950'}`}
+            >
+              <span className="truncate">{o.name}</span>
+              {value === o.id && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-transparent border ${isMissing ? 'border-red-400 bg-red-50' : 'border-transparent hover:border-pink-200'} focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-2 py-1 text-xs rounded outline-none transition-all flex items-center justify-between`}
+      >
+        <span className={`block truncate ${!selectedOpt ? "text-pink-950/40" : ""}`}>
+          {selectedOpt ? selectedOpt.name : placeholder}
+        </span>
+        <Icon icon="mdi:chevron-down" className="size-3 opacity-50 shrink-0 ml-1" />
+      </button>
+      {menu && createPortal(menu, document.body)}
+    </div>
   );
 }
 
@@ -261,11 +372,14 @@ function InlineAccessoriesSelect({
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState("");
 
+  const [search, setSearch] = useState("");
+
   const updateRect = () => { if (containerRef.current) setRect(containerRef.current.getBoundingClientRect()); };
 
   useEffect(() => {
     if (isOpen) {
       updateRect();
+      setSearch("");
       const handleScroll = () => updateRect();
       window.addEventListener('scroll', handleScroll, true);
       return () => window.removeEventListener('scroll', handleScroll, true);
@@ -307,32 +421,52 @@ function InlineAccessoriesSelect({
   };
 
   const selectedLabels = value.map(v => v.name);
+  const filteredOptions = options.filter(o => o.name.toLowerCase().includes(search.toLowerCase()));
 
   const menu = isOpen && rect ? (
     <div 
       ref={menuRef}
       style={{ position: "fixed", top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 250), zIndex: 99999 }}
-      className="max-h-80 flex flex-col bg-white border border-pink-100 shadow-barbie rounded-xl p-2 gap-2" 
+      className="max-h-[28rem] flex flex-col bg-white border border-pink-100 shadow-barbie rounded-xl p-2 gap-2" 
       data-lenis-prevent="true"
     >
-      <div className="font-semibold text-xs text-brand-accent px-1">Catalog Accessories</div>
-      <div className="max-h-40 overflow-y-auto border-b border-pink-50 pb-2">
-        {options.map(opt => {
-          const isSelected = !!value.find(v => v.id === opt.id);
-          return (
-            <div 
-              key={opt.id} 
-              onClick={() => handleToggle(opt)}
-              className="flex items-center gap-2 p-1.5 text-xs hover:bg-pink-50 cursor-pointer rounded-lg"
-            >
-              <div className={`size-3 rounded border flex items-center justify-center shrink-0 ${isSelected ? 'bg-brand-accent border-brand-accent' : 'border-pink-200'}`}>
-                {isSelected && <Icon icon="mdi:check" className="size-2 text-white" />}
+      <div className="font-semibold text-xs text-brand-accent px-1 flex items-center justify-between">
+        Catalog Accessories
+      </div>
+      <div className="px-1">
+        <div className="relative">
+          <Icon icon="mdi:magnify" className="absolute left-2 top-1/2 -translate-y-1/2 text-pink-950/40 size-3.5" />
+          <input
+            type="text"
+            autoFocus
+            placeholder="Search accessories..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-7 pr-2 py-1.5 text-[10px] bg-pink-50/50 rounded-lg outline-none focus:ring-1 focus:ring-brand-accent/20 border border-pink-100 focus:border-brand-accent transition-all"
+          />
+        </div>
+      </div>
+      <div className="max-h-48 overflow-y-auto border-b border-pink-50 pb-2 overscroll-contain" data-lenis-prevent="true">
+        {filteredOptions.length === 0 ? (
+          <div className="p-2 text-center text-[10px] text-pink-950/50">No accessories found</div>
+        ) : (
+          filteredOptions.map(opt => {
+            const isSelected = !!value.find(v => v.id === opt.id);
+            return (
+              <div 
+                key={opt.id} 
+                onClick={() => handleToggle(opt)}
+                className="flex items-center gap-2 p-1.5 text-xs hover:bg-pink-50 cursor-pointer rounded-lg"
+              >
+                <div className={`size-3 rounded border flex items-center justify-center shrink-0 ${isSelected ? 'bg-brand-accent border-brand-accent' : 'border-pink-200'}`}>
+                  {isSelected && <Icon icon="mdi:check" className="size-2 text-white" />}
+                </div>
+                <span className="truncate flex-1">{opt.name}</span>
+                <span className="text-pink-950/50">₱{opt.price || 0}</span>
               </div>
-              <span className="truncate flex-1">{opt.name}</span>
-              <span className="text-pink-950/50">₱{opt.price || 0}</span>
-            </div>
-          )
-        })}
+            )
+          })
+        )}
       </div>
 
       <div className="font-semibold text-xs text-brand-accent px-1 mt-1">Custom Accessories</div>
@@ -360,6 +494,92 @@ function InlineAccessoriesSelect({
       >
         <span className="line-clamp-2 leading-tight">{selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder}</span>
         <Icon icon="mdi:chevron-down" className="size-3 text-pink-950/40 shrink-0" />
+      </button>
+      {menu && createPortal(menu, document.body)}
+    </div>
+  );
+}
+
+function InlineColorSelect({ 
+  value, 
+  onChange, 
+  options, 
+  getColor 
+}: { 
+  value: string; 
+  onChange: (v: string) => void; 
+  options: string[]; 
+  getColor: (v: string) => string; 
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  const updateRect = () => { if (containerRef.current) setRect(containerRef.current.getBoundingClientRect()); };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateRect();
+      const handleScroll = () => updateRect();
+      window.addEventListener('scroll', handleScroll, true);
+      return () => window.removeEventListener('scroll', handleScroll, true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        containerRef.current && !containerRef.current.contains(target) &&
+        (!menuRef.current || !menuRef.current.contains(target))
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const menu = isOpen && rect ? (
+    <div
+      ref={menuRef}
+      className="absolute z-[100] w-48 bg-white rounded-xl shadow-barbie border border-pink-100 overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-100"
+      style={{
+        top: rect.bottom + 4,
+        left: rect.left,
+        maxHeight: '300px'
+      }}
+      data-lenis-prevent="true"
+    >
+      <div className="overflow-y-auto scrollbar-hide overscroll-contain flex flex-col gap-1" data-lenis-prevent="true">
+        {options.map(o => {
+          const isSelected = value === o;
+          return (
+            <div
+              key={o}
+              onClick={() => { onChange(o); setIsOpen(false); }}
+              className={`px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer flex justify-between items-center transition-all ${isSelected ? getColor(o) : 'hover:bg-pink-50 text-pink-950'}`}
+            >
+              <span className="truncate">{o}</span>
+              {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
+      >
+        <span className="block truncate">
+          {value}
+        </span>
+        <Icon icon="mdi:chevron-down" className="size-3 opacity-50 shrink-0 ml-1" />
       </button>
       {menu && createPortal(menu, document.body)}
     </div>
@@ -653,7 +873,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       />
                     </td>
                     <td className="px-2 py-2 border border-pink-100">
-                      <InlineDressSelect 
+                      <InlineSearchableSelect 
                         value={rental.dressId || null} 
                         options={dresses} 
                         placeholder="Select dress"
@@ -696,42 +916,28 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       />
                     </td>
                     <td className="px-2 py-2 border border-pink-100 text-center">
-                      <select 
+                      <InlineColorSelect 
                         value={rental.pickupMode || "Pick Up"} 
-                        onChange={(e) => handleInlineUpdate(rental.id as string, "pickupMode", e.target.value, rental)}
-                        className="w-full bg-transparent outline-none border border-transparent hover:border-pink-200 rounded px-1 py-1 text-xs"
-                      >
-                        <option value="Pick Up">Pick Up</option>
-                        <option value="Delivery">Delivery</option>
-                        <option value="Courier">Courier</option>
-                      </select>
+                        onChange={(v) => handleInlineUpdate(rental.id as string, "pickupMode", v, rental)}
+                        options={["Pick Up", "Delivery", "Courier"]}
+                        getColor={getModeColor}
+                      />
                     </td>
                     <td className="px-2 py-2 border border-pink-100 text-center">
-                      <select 
+                      <InlineColorSelect 
                         value={rental.paymentMethod || "Cash"} 
-                        onChange={(e) => handleInlineUpdate(rental.id as string, "paymentMethod", e.target.value, rental)}
-                        className="w-full bg-transparent outline-none border border-transparent hover:border-pink-200 rounded px-1 py-1 text-xs"
-                      >
-                        <option value="Cash">Cash</option>
-                        <option value="GCash">GCash</option>
-                        <option value="BDO">BDO</option>
-                        <option value="Bank">Bank</option>
-                      </select>
+                        onChange={(v) => handleInlineUpdate(rental.id as string, "paymentMethod", v, rental)}
+                        options={["Cash", "GCash", "BDO", "Bank"]}
+                        getColor={getPaymentColor}
+                      />
                     </td>
                     <td className="px-2 py-2 border border-pink-100 text-center">
-                      <select 
+                      <InlineColorSelect 
                         value={rental.status || "Reserved"} 
-                        onChange={(e) => handleInlineUpdate(rental.id as string, "status", e.target.value, rental)}
-                        className="w-full bg-transparent outline-none border border-transparent hover:border-pink-200 rounded px-1 py-1 text-xs font-semibold"
-                      >
-                        <option value="Reserved">Reserved</option>
-                        <option value="Ready for Pickup">Ready for Pickup</option>
-                        <option value="Picked Up">Picked Up</option>
-                        <option value="Due Today">Due Today</option>
-                        <option value="Overdue">Overdue</option>
-                        <option value="Returned">Returned</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
+                        onChange={(v) => handleInlineUpdate(rental.id as string, "status", v, rental)}
+                        options={["Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]}
+                        getColor={getStatusColor}
+                      />
                     </td>
                     <td className="px-2 py-2 font-bold text-green-600 border border-pink-100 text-center bg-green-50/30">
                       ₱{(rental.total ?? 0).toFixed(2)}

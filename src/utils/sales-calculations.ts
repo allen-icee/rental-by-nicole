@@ -35,7 +35,7 @@ export function calculateDownPayment(
   subtotal: number,
   downPaymentPercentage: number = 0.5
 ): number {
-  return subtotal * downPaymentPercentage;
+  return Math.round(subtotal * downPaymentPercentage);
 }
 
 export function calculateRentalTotal(

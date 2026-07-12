@@ -130,9 +130,9 @@ export function FaqPage() {
   }
 
   const columns: Column<FaqRow>[] = [
+    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
     { header: "Question", accessorKey: "question", className: "font-medium text-center" },
     { header: "Category", accessorKey: "category", className: "text-center" },
-    { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
     {
       header: "Status",
       className: "text-center",

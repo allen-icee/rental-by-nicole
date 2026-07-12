@@ -335,10 +335,10 @@ export function TestimonialsPage() {
                 </p>
               </div>
 
-              <div className="overflow-y-auto p-5 sm:p-8 bg-white/20 hide-scrollbar rounded-b-[2rem]" data-lenis-prevent="true">
-                <form className="flex flex-col gap-6" onSubmit={handleSubmit(onReviewSubmit)}>
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 bg-white/20 hide-scrollbar rounded-b-[2rem]" data-lenis-prevent="true">
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit(onReviewSubmit)}>
 
-                  <div className="flex flex-col items-center justify-center p-5 md:p-6 rounded-2xl glass-card border border-white/60 shadow-inner">
+                  <div className="flex flex-col items-center justify-center p-4 rounded-2xl glass-card border border-white/60 shadow-inner">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent mb-4">
                       How was your experience?
                     </label>
@@ -362,46 +362,57 @@ export function TestimonialsPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">
-                      Your Name
+                      Your Name <span className="text-[#e81e8c]">*</span>
                     </label>
                     <input
-                      {...register("name", { required: true, minLength: 2 })}
+                      {...register("name", { required: true, minLength: 2, maxLength: 50 })}
+                      required
+                      minLength={2}
+                      maxLength={50}
                       type="text"
                       placeholder="e.g. Maria Theresa"
-                      className="w-full rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full rounded-xl border-2 border-white/60 bg-white/40 px-4 py-2.5 text-sm text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">
-                      Your Feedback
+                      Your Feedback <span className="text-[#e81e8c]">*</span>
                     </label>
                     <textarea
-                      {...register("comment", { required: true, minLength: 10 })}
-                      rows={4}
+                      {...register("comment", { required: true, minLength: 10, maxLength: 500 })}
+                      required
+                      minLength={10}
+                      maxLength={500}
+                      rows={3}
                       placeholder="Tell us about your event and how you felt in your rental..."
-                      className="w-full resize-none rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full resize-none rounded-xl border-2 border-white/60 bg-white/40 px-4 py-2.5 text-sm text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     ></textarea>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">
-                      Photo Link (Optional)
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2 text-pink-950/60">
+                      Photo Link <span className="text-[9px] lowercase opacity-80">(optional)</span>
                     </label>
                     <input
-                      {...register("photoUrl")}
+                      {...register("photoUrl", { 
+                        pattern: {
+                          value: /^$|^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+                          message: "Please enter a valid URL"
+                        }
+                      })}
                       type="url"
                       placeholder="https://..."
-                      className="w-full rounded-xl md:rounded-2xl border-2 border-white/60 bg-white/40 px-5 md:px-6 py-3 md:py-4 text-sm md:text-base text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
+                      className="w-full rounded-xl border-2 border-white/60 bg-white/40 px-4 py-2.5 text-sm text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    disabled={!isValid || isSubmittingReview}
-                    className="crystal-button mt-2 md:mt-4 flex w-full items-center justify-center gap-2 rounded-full px-6 md:px-8 py-3.5 md:py-4 text-sm font-bold tracking-widest uppercase text-white shadow-crystal transition disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    disabled={!isValid || rating === 0 || isSubmittingReview}
+                    className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ff66b2] via-[#e81e8c] to-[#d11275] bg-[length:200%_auto] hover:bg-right active:scale-[0.98] px-6 py-3 text-sm font-bold tracking-widest uppercase text-white shadow-[0_8px_20px_rgba(232,30,140,0.3)] hover:shadow-[0_12px_25px_rgba(232,30,140,0.5)] hover:-translate-y-0.5 transition-all duration-500 disabled:opacity-50 disabled:bg-none disabled:bg-gray-300 disabled:hover:bg-gray-300 disabled:hover:-translate-y-0 disabled:active:scale-100 disabled:cursor-not-allowed disabled:shadow-none"
                   >
                     {isSubmittingReview ? "Submitting..." : "Submit Review"}
                     <Icon icon="mdi:magic-staff" className="text-lg" />

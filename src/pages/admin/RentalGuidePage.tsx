@@ -108,7 +108,7 @@ export function RentalGuidePage() {
       if (activeTab === "terms") {
         await saveTerm({
           id: formData.id,
-          title: formData.title,
+          title: `Condition ${formData.sort_order}`,
           description: formData.bodyOrDescription,
           icon: formData.icon || null,
           sort_order: formData.sort_order,
@@ -156,9 +156,9 @@ export function RentalGuidePage() {
   }
 
   const columns: Column<GuideRow | TermRow>[] = [
-    { header: "Title", accessorKey: "title", className: "font-medium text-center" },
-    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon", className: "text-center" } as unknown as Column<GuideRow | TermRow>] : []),
     { header: "Sort Order", accessorKey: "sort_order", className: "text-center" },
+    ...(activeTab === "guides" ? [{ header: "Title", accessorKey: "title", className: "font-medium text-center" } as unknown as Column<GuideRow | TermRow>] : []),
+    ...(activeTab === "terms" ? [{ header: "Icon", accessorKey: "icon", className: "text-center" } as unknown as Column<GuideRow | TermRow>] : []),
     {
       header: "Status",
       className: "text-center",
@@ -261,13 +261,15 @@ export function RentalGuidePage() {
         maxWidth="2xl"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <FormInput
-            name="title"
-            control={control}
-            label="Title"
-            required
-            maxLength={100}
-          />
+          {activeTab === "guides" && (
+            <FormInput
+              name="title"
+              control={control}
+              label="Title"
+              required
+              maxLength={100}
+            />
+          )}
 
           <FormTextarea
             name="bodyOrDescription"
@@ -276,7 +278,7 @@ export function RentalGuidePage() {
             required
             maxLength={2000}
             rows={5}
-            helperText={activeTab === "terms" ? "The short description for the term." : "Markdown formatting is allowed."}
+            helperText={activeTab === "terms" ? "The short description for the term." : "Wrap text in ** to make them boldly pop with color!"}
           />
 
           {activeTab === "terms" && (

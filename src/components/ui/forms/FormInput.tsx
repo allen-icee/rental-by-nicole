@@ -9,7 +9,7 @@ type FormInputProps<T extends FieldValues> = {
   helperText?: string;
   placeholder?: string;
   required?: boolean;
-  type?: "text" | "number" | "email" | "password" | "url" | "date" | "datetime-local";
+  type?: "text" | "number" | "email" | "password" | "url" | "date" | "datetime-local" | "time";
   maxLength?: number;
   min?: number;
   max?: number;

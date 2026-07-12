@@ -10,6 +10,8 @@ type NavItem = { path: string; label: string; icon: string; exact?: boolean; sub
 
 const navItems: NavItem[] = [
   { path: "/admin", label: "Dashboard", icon: "mdi:view-dashboard-outline", exact: true },
+  { path: "/admin/sales", label: "Sales Tracker", icon: "mdi:chart-line" },
+  { path: "/admin/schedule", label: "Schedule", icon: "mdi:calendar-month-outline" },
   {
     path: "#",
     label: "Catalogue Management",
@@ -20,12 +22,10 @@ const navItems: NavItem[] = [
       { path: "/admin/tags", label: "Tags", icon: "mdi:tag-outline" },
     ]
   },
-  { path: "/admin/guides", label: "Rental Guides", icon: "mdi:book-open-page-variant-outline" },
-  { path: "/admin/faqs", label: "FAQs", icon: "mdi:frequently-asked-questions" },
   { path: "/admin/reviews", label: "Reviews", icon: "mdi:star-outline" },
   { path: "/admin/inquiries", label: "Inquiries", icon: "mdi:email-outline" },
-  { path: "/admin/sales", label: "Sales Tracker", icon: "mdi:chart-line" },
-  { path: "/admin/schedule", label: "Schedule", icon: "mdi:calendar-month-outline" },
+  { path: "/admin/faqs", label: "FAQs", icon: "mdi:frequently-asked-questions" },
+  { path: "/admin/guides", label: "Rental Guidelines", icon: "mdi:book-open-page-variant-outline" },
   { path: "/admin/settings", label: "Website Settings", icon: "mdi:cog-outline" },
 ];
 
@@ -115,14 +115,17 @@ export function AdminLayout() {
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-brand-background text-pink-950">
       
-      <header className="flex items-center justify-between bg-white p-4 shadow-soft lg:hidden">
+      <header className="flex items-center justify-between bg-white p-4 shadow-soft z-20 lg:hidden relative">
         <div className="font-display text-xl font-bold text-brand-accent">RbN Admin</div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="rounded-lg p-2 text-brand-primary hover:bg-pink-50"
-        >
-          <Icon icon={isMobileMenuOpen ? "mdi:close" : "mdi:menu"} className="size-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          <AdminNotificationBell />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="rounded-lg p-2 text-brand-primary hover:bg-pink-50"
+          >
+            <Icon icon={isMobileMenuOpen ? "mdi:close" : "mdi:menu"} className="size-6" />
+          </button>
+        </div>
       </header>
 
       <aside
@@ -131,8 +134,9 @@ export function AdminLayout() {
         }`}
       >
         <div className="flex h-full flex-col">
-          <div className="hidden items-center justify-center p-6 lg:flex">
-            <span className="font-display text-2xl font-bold text-brand-accent text-center">Rental by Nicole</span>
+          <div className="hidden items-center justify-between p-6 lg:flex">
+            <span className="font-display text-xl font-bold text-brand-accent">Rental by Nicole</span>
+            <AdminNotificationBell align="left" />
           </div>
 
           <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto" data-lenis-prevent="true">
@@ -170,11 +174,6 @@ export function AdminLayout() {
       )}
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen relative">
-        <div className="sticky top-0 z-20 flex justify-end px-4 py-3 sm:px-6 lg:px-8 pointer-events-none">
-          <div className="pointer-events-auto flex items-center gap-3 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-soft border border-pink-100">
-            <AdminNotificationBell />
-          </div>
-        </div>
         <div className="flex-1 overflow-y-auto" data-lenis-prevent="true">
           <div className="mx-auto w-full max-w-[1600px] px-4 pb-12 pt-2 md:px-8 lg:px-10">
             <Outlet />

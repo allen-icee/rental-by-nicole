@@ -43,7 +43,7 @@ export function useFittings() {
       const { data, error } = await supabase
         .from("fittings")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
       if (error) throw error;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (data as any[]).map(mapToFitting);

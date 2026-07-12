@@ -4,7 +4,7 @@ import { useNotifications, NotificationItem } from "@/features/notifications/use
 import { formatDateManila } from "@/utils/date-utils";
 import { Link } from "react-router-dom";
 
-export function AdminNotificationBell() {
+export function AdminNotificationBell({ align = "right" }: { align?: "left" | "right" }) {
   const { notifications, unreadCount, markAllAsRead, markAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -56,7 +56,7 @@ export function AdminNotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-pink-100 z-50 overflow-hidden flex flex-col max-h-[80vh]">
+        <div className={`absolute ${align === "right" ? "right-0" : "left-0"} mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-pink-100 z-50 overflow-hidden flex flex-col max-h-[80vh]`}>
           <div className="p-4 border-b border-pink-50 flex items-center justify-between bg-pink-50/50">
             <h3 className="font-bold text-pink-950 flex items-center gap-2">
               Notifications

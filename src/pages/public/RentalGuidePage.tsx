@@ -42,6 +42,17 @@ export function RentalGuidePage() {
     return () => observer.disconnect();
   }, [terms.length, guides.length]);
 
+  const parseBoldText = (text: string) => {
+    if (!text) return text;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-black text-[#d11275]">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   const gridClasses = [
     "md:col-start-1 md:row-start-1", "md:col-start-2 md:row-start-1", "md:col-start-3 md:row-start-1", // 0,1,2
     "md:col-start-3 md:row-start-2", "md:col-start-2 md:row-start-2", "md:col-start-1 md:row-start-2", // 3,4,5
@@ -136,12 +147,12 @@ export function RentalGuidePage() {
           <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
               {guides.map((section, index) => (
                 <ScrollReveal as="article" key={section.title} delay={index * 100} once={true} className="flex h-full">
-                  <PrincessPlaqueCard delay={`${index * 0.2}s`} className="!p-6 w-full flex flex-col">
-                    <h3 className="font-['Pacifico'] text-lg md:text-xl font-bold z-10 tracking-wide mt-2 text-white drop-shadow-md">
+                  <PrincessPlaqueCard delay={`${index * 0.2}s`} variant="light" className="!p-8 w-full flex flex-col">
+                    <h3 className="font-['Pacifico'] text-xl font-bold z-10 tracking-wide mt-2 text-[#d11275] drop-shadow-sm w-full text-center">
                       {section.title}
                     </h3>
-                    <p className="mt-2 text-white font-medium drop-shadow-sm leading-relaxed text-[11px] md:text-xs z-10 whitespace-pre-line flex-1">
-                      {section.body}
+                    <p className="mt-4 text-[#4A0E4E] font-sans font-medium leading-loose text-[13px] md:text-sm z-10 whitespace-pre-line flex-1 w-full text-left text-justify">
+                      {parseBoldText(section.body)}
                     </p>
                   </PrincessPlaqueCard>
                 </ScrollReveal>

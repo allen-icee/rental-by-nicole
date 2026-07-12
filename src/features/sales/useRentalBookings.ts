@@ -62,7 +62,7 @@ export function useRentalBookings() {
       const { data, error } = await supabase
         .from("rental_bookings")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
       if (error) throw error;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (data as any[]).map(mapToRentalBooking);

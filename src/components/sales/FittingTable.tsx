@@ -188,6 +188,102 @@ function InlineCustomerAutocomplete({
   );
 }
 
+export function getFittingStatusColor(status: string) {
+  switch (status) {
+    case "Scheduled": return "bg-blue-100 text-blue-800";
+    case "Completed": return "bg-green-100 text-green-800";
+    case "No Show": return "bg-yellow-100 text-yellow-800";
+    case "Cancelled": return "bg-red-100 text-red-800";
+    default: return "bg-gray-50 text-gray-600";
+  }
+}
+
+function InlineColorSelect({ 
+  value, 
+  onChange, 
+  options, 
+  getColor 
+}: { 
+  value: string; 
+  onChange: (v: string) => void; 
+  options: string[]; 
+  getColor: (v: string) => string; 
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  const updateRect = () => { if (containerRef.current) setRect(containerRef.current.getBoundingClientRect()); };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateRect();
+      const handleScroll = () => updateRect();
+      window.addEventListener('scroll', handleScroll, true);
+      return () => window.removeEventListener('scroll', handleScroll, true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        containerRef.current && !containerRef.current.contains(target) &&
+        (!menuRef.current || !menuRef.current.contains(target))
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const menu = isOpen && rect ? (
+    <div
+      ref={menuRef}
+      className="absolute z-[100] w-48 bg-white rounded-xl shadow-barbie border border-pink-100 overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-100"
+      style={{
+        top: rect.bottom + 4,
+        left: rect.left,
+        maxHeight: '300px'
+      }}
+      data-lenis-prevent="true"
+    >
+      <div className="overflow-y-auto scrollbar-hide overscroll-contain flex flex-col gap-1" data-lenis-prevent="true">
+        {options.map(o => {
+          const isSelected = value === o;
+          return (
+            <div
+              key={o}
+              onClick={() => { onChange(o); setIsOpen(false); }}
+              className={`px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer flex justify-between items-center transition-all ${isSelected ? getColor(o) : 'hover:bg-pink-50 text-pink-950'}`}
+            >
+              <span className="truncate">{o}</span>
+              {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
+      >
+        <span className="block truncate">
+          {value}
+        </span>
+        <Icon icon="mdi:chevron-down" className="size-3 opacity-50 shrink-0 ml-1" />
+      </button>
+      {menu && createPortal(menu, document.body)}
+    </div>
+  );
+}
+
 function parsePackageDistribution(packageType: string | undefined | null, customerCount: number = 1) {
   if (!packageType) return { Standard: customerCount, Unlimited: 0 };
   if (packageType === 'Standard') return { Standard: customerCount, Unlimited: 0 };
@@ -406,7 +502,7 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
     await createFitting.mutateAsync({
       bookingNumber: newTrk,
       date: new Date().toISOString().slice(0, 10),
-      time: "",
+      time: null,
       representativeName: "",
       customerCount: 1,
       packageType: "Standard",
@@ -509,16 +605,12 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
                     ₱{(fitting.fee ?? 0).toFixed(2)}
                   </td>
                   <td className="px-2 py-2 border border-pink-100 text-center">
-                    <select 
+                    <InlineColorSelect 
                       value={fitting.status || "Scheduled"} 
-                      onChange={(e) => handleInlineUpdate(fitting.id as string, "status", e.target.value, fitting)}
-                      className="w-full bg-transparent outline-none border border-transparent hover:border-pink-200 rounded px-1 py-1 text-xs font-semibold"
-                    >
-                      <option value="Scheduled">Scheduled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="No Show">No Show</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
+                      onChange={(v) => handleInlineUpdate(fitting.id as string, "status", v, fitting)}
+                      options={["Scheduled", "Completed", "No Show", "Cancelled"]}
+                      getColor={getFittingStatusColor}
+                    />
                   </td>
                   <td className="px-2 py-2 border border-pink-100 text-center">
                     <button onClick={() => confirmDelete(fitting.id as string)} className="text-red-400 hover:text-red-600 transition-colors">

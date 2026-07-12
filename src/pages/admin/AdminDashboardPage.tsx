@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   PieChart, Pie, Cell, Legend 
 } from "recharts";
-import * as XLSX from "xlsx";
+
 import { useRentalMetrics } from "../../features/sales/useRentalMetrics";
 import { usePageViews } from "../../features/analytics/usePageViews";
 import { CustomDropdown } from "../../components/ui/CustomDropdown";
@@ -140,24 +140,6 @@ export function AdminDashboardPage() {
     });
   }, []);
 
-  const handleExportExcel = () => {
-    if (!metrics || !metrics.filteredRentals) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const dataToExport = metrics.filteredRentals.map((r: any) => ({
-      "Tracking Number": r.bookingNumber || r.tracking_number,
-      "Date": formatDateManila((r.startDate || r.date) as string, "yyyy-MM-dd"),
-      "Customer Name": r.customerName || r.customer_name,
-      "Total Income": r.total || r.total_income,
-      "Status": r.status,
-      "Payment Method": r.paymentMethod || r.payment_method
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sales Data");
-    XLSX.writeFile(wb, `Sales_Export_${formatDateManila(getManilaDate(), "yyyy-MM-dd")}.xlsx`);
-  };
 
   const dynamicYears = useMemo(() => {
     if (!metrics || !metrics.allRentals) return [{ value: "all", label: "All Years" }];
@@ -297,13 +279,7 @@ export function AdminDashboardPage() {
                 )}
               </div>
             </div>
-            <button
-              onClick={handleExportExcel}
-              className="flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-soft transition-all hover:-translate-y-0.5 hover:bg-green-700 w-full sm:w-auto shrink-0"
-            >
-              <Icon icon="mdi:microsoft-excel" className="size-5" />
-              Export to XLSX
-            </button>
+
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">

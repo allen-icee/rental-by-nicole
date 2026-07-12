@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { useFittings } from "@/features/sales/useFittings";
 import { useRentalBookings } from "@/features/sales/useRentalBookings";
@@ -34,12 +34,24 @@ export function SchedulePage() {
   const { data: fittings } = useFittings();
   const { data: rentals } = useRentalBookings();
 
-  const [view, setView] = useState<View>(Views.MONTH);
+  const [view, setView] = useState<View>(() => {
+    return typeof window !== 'undefined' && window.innerWidth < 768 ? Views.AGENDA : Views.MONTH;
+  });
   const [date, setDate] = useState(() => {
     const m = getManilaDate();
     return new Date(m.getFullYear(), m.getMonth(), m.getDate());
   });
   const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && view === Views.MONTH) {
+        setView(Views.AGENDA);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [view]);
 
   const events = useMemo(() => {
     const evts: AppEvent[] = [];
@@ -184,7 +196,7 @@ export function SchedulePage() {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-soft border border-pink-100 h-[700px] font-sans">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-soft border border-pink-100 h-[600px] sm:h-[700px] font-sans">
         <Calendar
           localizer={localizer}
           events={events}
