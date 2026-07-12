@@ -927,7 +927,7 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       <InlineColorSelect 
                         value={rental.paymentMethod || "Cash"} 
                         onChange={(v) => handleInlineUpdate(rental.id as string, "paymentMethod", v, rental)}
-                        options={["Cash", "GCash", "BDO", "Bank"]}
+                        options={["Cash", "GCash", "Bank"]}
                         getColor={getPaymentColor}
                       />
                     </td>

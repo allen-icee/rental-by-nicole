@@ -240,7 +240,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-pink-100 pt-4 mt-4">
           <FormSelect name="pickupMode" control={control} label="Mode" searchable={false} options={[{value:"Pick Up", label:"Pick Up"}, {value:"Delivery", label:"Delivery"}, {value:"Courier", label:"Courier"}]} getColor={getModeColor} />
-          <FormSelect name="paymentMethod" control={control} label="Payment" searchable={false} options={[{ value: "Cash", label: "Cash" }, { value: "GCash", label: "GCash" }, { value: "BDO", label: "BDO" }, { value: "Bank", label: "Bank" }]} getColor={getPaymentColor} />
+          <FormSelect name="paymentMethod" control={control} label="Payment" searchable={false} options={[{ value: "Cash", label: "Cash" }, { value: "GCash", label: "GCash" }, { value: "Bank", label: "Bank" }]} getColor={getPaymentColor} />
           <FormInput name="downPayment" control={control} type="number" min={0} label="Downpayment" />
           <FormInput name="securityDeposit" control={control} type="number" min={0} label="Sec. Deposit" />
         </div>
