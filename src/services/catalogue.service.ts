@@ -52,6 +52,7 @@ export async function getCatalogueData(): Promise<CatalogueData> {
       supabase
         .from("catalog_items")
         .select("id,category_id,name,slug,description,availability_status,featured,is_new_arrival,price_display,reel_url")
+        .is("archived_at", null)
         .order("name", { ascending: true }),
       supabase
         .from("fittings")
@@ -139,12 +140,10 @@ export async function getCatalogueData(): Promise<CatalogueData> {
             return r.start_date <= todayStr && r.end_date >= todayStr;
           }).length;
       
-          const remainingQuantity = totalInventory - currentlyRented;
           let computedAvailabilityStatus = "";
-          if (totalInventory === 0) {
+          
+          if (item.availability_status === "unavailable") {
             computedAvailabilityStatus = "Unavailable";
-          } else if (remainingQuantity <= 0) {
-            computedAvailabilityStatus = "Fully Booked Today";
           } else if (activeRentals.length > 0) {
             computedAvailabilityStatus = "Available (See reserved dates)";
           } else {

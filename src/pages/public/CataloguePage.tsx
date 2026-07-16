@@ -126,17 +126,35 @@ export function CataloguePage() {
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
-    return catalogueData.items.filter((item) => {
-      const matchesSearch =
-        !normalizedSearch ||
-        [item.name, item.description, item.category, ...item.tags]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedSearch);
+    const filtered = catalogueData.items.filter((item) => {
       const matchesCategory = category === "All" || item.category === category;
       const matchesTag = tag === "All" || item.tags.includes(tag);
+      if (!matchesCategory || !matchesTag) return false;
 
-      return matchesSearch && matchesCategory && matchesTag;
+      if (!normalizedSearch) return true;
+
+      const matchesName = item.name.toLowerCase().includes(normalizedSearch);
+      const matchesCatOrTag = [item.category, ...item.tags].join(" ").toLowerCase().includes(normalizedSearch);
+      const matchesDescription = item.description.toLowerCase().includes(normalizedSearch);
+
+      return matchesName || matchesCatOrTag || matchesDescription;
+    });
+
+    if (!normalizedSearch) return filtered;
+
+    // Sort by relevance: Name matches first, Category/Tag matches second, Description matches last
+    return filtered.sort((a, b) => {
+      const aName = a.name.toLowerCase().includes(normalizedSearch);
+      const bName = b.name.toLowerCase().includes(normalizedSearch);
+      if (aName && !bName) return -1;
+      if (!aName && bName) return 1;
+
+      const aCat = [a.category, ...a.tags].join(" ").toLowerCase().includes(normalizedSearch);
+      const bCat = [b.category, ...b.tags].join(" ").toLowerCase().includes(normalizedSearch);
+      if (aCat && !bCat) return -1;
+      if (!aCat && bCat) return 1;
+
+      return 0; // fallback to description match
     });
   }, [catalogueData.items, category, search, tag]);
 

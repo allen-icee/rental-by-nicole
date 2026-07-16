@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../../lib/supabase/client";
 import { useRentalBookings, useCreateRentalBooking, useUpdateRentalBooking, useDeleteRentalBooking } from "../../features/sales/useRentalBookings";
 import { useRentals } from "../../features/sales/useRentals";
-import { parseManilaDate, formatDateManila } from "../../utils/date-utils";
+import { parseManilaDate, formatDateManila, getManilaDate } from "../../utils/date-utils";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
 import { calculateDownPayment, calculateEndDate } from "../../utils/sales-calculations";
 import { useToast } from "@/components/ui/toast-context";
@@ -56,8 +56,7 @@ function EditableCell({ value, onBlur, type = "text", placeholder = "", min, max
 
   const displayValue = () => {
     if (type === "date" && !isEditing && local) {
-      const d = new Date(local);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`;
+      return formatDateManila(local, "MM/dd/yy");
     }
     return local;
   };
@@ -595,7 +594,7 @@ function InlineColorSelect({
 function computeAutoStatus(status: string, startDate: string, endDate: string | null | undefined): string {
   if (status === "Cancelled" || status === "Returned") return status;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = formatDateManila(getManilaDate(), "yyyy-MM-dd");
 
   if (status === "Reserved" && today >= startDate) {
     return "Ready for Pickup";
@@ -653,17 +652,8 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
   const dresses = (catalogItems || []).filter(i => !i.categories || i.categories.classification === 'Dress');
   const accessories = (catalogItems || []).filter(i => i.categories?.classification === 'Accessory');
 
-  // Automatic State Machine Evaluation
-  useEffect(() => {
-    if (!rentals) return;
-    rentals.forEach((r) => {
-      const newStatus = computeAutoStatus(r.status, r.startDate, r.endDate);
-      if (newStatus !== r.status && r.id) {
-        updateRental.mutate({ id: r.id, status: newStatus as any });
-      }
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rentals]);
+  // Automatic status updates have been removed per client request.
+  // The system now merely provides suggestions in the UI instead of mutating automatically.
 
   const filteredRentals = (rentals || []).filter(r => {
     const d = new Date(r.startDate);
@@ -712,25 +702,26 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
       }
     }
 
-    // Auto-calculate end date
+    // Auto-calculate end date while preserving duration
     if (field === 'startDate') {
       const sDate = val;
-      updates.endDate = calculateEndDate(sDate as string, 2);
+      const currentDurationDays = rental.endDate && rental.startDate ? 
+        Math.round((new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 
+        (rental.rentalDays || 2);
+      updates.endDate = calculateEndDate(sDate as string, Math.max(1, currentDurationDays));
     }
 
-    // Auto-calculate financial fields
-    const newDressId = field === 'dressId' ? val : rental.dressId;
-    const newAccs = field === 'accessories' ? val : (rental.accessories || []);
-    
-    const dressPrice = newDressId ? (dresses.find(d => d.id === newDressId)?.price || 0) : 0;
-    const accsCost = (newAccs as any[]).reduce((sum, a) => sum + (a.price || 0), 0);
-    
-    // Total is strictly Dress Price + Accessory Total
-    const subtotal = dressPrice + accsCost;
-    updates.subtotal = subtotal;
-    updates.total = subtotal;
-
+    // Auto-calculate financial fields ONLY when relevant items change
     if (field === 'dressId' || field === 'accessories') {
+      const newDressId = field === 'dressId' ? val : rental.dressId;
+      const newAccs = field === 'accessories' ? val : (rental.accessories || []);
+      
+      const dressPrice = newDressId ? (catalogItems?.find(d => d.id === newDressId)?.price || 0) : 0;
+      const accsCost = (newAccs as any[]).reduce((sum, a) => sum + (Number(a.price) || 0), 0);
+      
+      const subtotal = dressPrice + accsCost;
+      updates.subtotal = subtotal;
+      updates.total = subtotal;
       updates.downPayment = calculateDownPayment(subtotal);
     }
 
@@ -739,13 +730,25 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
 
   const handleInlineUpdate = async (id: string, field: string, val: any, rental: RentalBooking) => {
     // Collision detection
-    if (field === 'dressId' || field === 'startDate' || field === 'endDate') {
+    if (field === 'dressId' || field === 'startDate' || field === 'endDate' || field === 'sizeId') {
       const sDate = field === 'startDate' ? val : rental.startDate;
       const newDressId = field === 'dressId' ? val : rental.dressId;
-      const eDate = field === 'endDate' ? val : (field === 'startDate' ? calculateEndDate(sDate as string, 2) : rental.endDate);
+      const newSizeId = field === 'sizeId' ? val : rental.sizeId;
+      
+      const currentDurationDays = rental.endDate && rental.startDate ? 
+        Math.round((new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 
+        (rental.rentalDays || 2);
+        
+      const eDate = field === 'endDate' ? val : (field === 'startDate' ? calculateEndDate(sDate as string, Math.max(1, currentDurationDays)) : rental.endDate);
+
+      // Validate date logic
+      if (new Date(eDate).getTime() < new Date(sDate).getTime()) {
+        showToast({ tone: "error", title: "Invalid Date", message: "Return date cannot be earlier than Picked Up date." });
+        return;
+      }
 
       if (newDressId) {
-        const { data: overlapping } = await supabase
+        let query = supabase
           .from('rental_bookings')
           .select('id, start_date, end_date')
           .eq('dress_id', newDressId)
@@ -754,6 +757,12 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
           .neq('status', 'Returned')
           .lte('start_date', eDate)
           .gte('end_date', sDate);
+          
+        if (newSizeId) {
+          query = query.eq('size_id', newSizeId);
+        }
+        
+        const { data: overlapping } = await query;
         
         if (overlapping && overlapping.length > 0) {
           setPendingUpdate({ id, field, val, rental });
@@ -974,12 +983,19 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
                       />
                     </td>
                     <td className="px-2 py-2 border border-pink-100 text-center">
-                      <InlineColorSelect 
-                        value={rental.status || "Reserved"} 
-                        onChange={(v) => handleInlineUpdate(rental.id as string, "status", v, rental)}
-                        options={["Pending", "Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]}
-                        getColor={getStatusColor}
-                      />
+                      <div className="flex flex-col gap-1 items-center">
+                        <InlineColorSelect 
+                          value={rental.status || "Reserved"} 
+                          onChange={(v) => handleInlineUpdate(rental.id as string, "status", v, rental)}
+                          options={["Pending", "Reserved", "Ready for Pickup", "Picked Up", "Due Today", "Overdue", "Returned", "Cancelled"]}
+                          getColor={getStatusColor}
+                        />
+                        {computeAutoStatus(rental.status, rental.startDate, rental.endDate) !== rental.status && (
+                          <span className="text-[9px] font-medium text-brand-accent uppercase tracking-wider bg-pink-50 px-1.5 py-0.5 rounded-full border border-pink-200">
+                            Suggest: {computeAutoStatus(rental.status, rental.startDate, rental.endDate)}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-2 py-2 font-bold text-green-600 border border-pink-100 text-center bg-green-50/30">
                       ₱{(rental.total ?? 0).toFixed(2)}
