@@ -200,7 +200,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
           <FormInput name="time" control={control} type="time" label="Time" />
           <FormInput name="rentalDays" control={control} type="number" min={1} label="Rental Days" required />
           <div className="sm:col-span-3">
-            <FormInput name="customerName" control={control} label="Customer Name" placeholder="e.g. Maria Theresa" list="customers-list" required />
+            <FormInput name="customerName" control={control} label="Customer Name" placeholder="Enter Name" list="customers-list" required />
             <datalist id="customers-list">
               {Array.from(new Set(customers?.map(c => c.name) || [])).map(name => (
                 <option key={name} value={name} />

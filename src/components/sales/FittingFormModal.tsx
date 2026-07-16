@@ -109,7 +109,7 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <FormInput name="representativeName" control={control} label="Representative Name" placeholder="e.g. Maria Theresa" list="fitting-customers-list" required />
+            <FormInput name="representativeName" control={control} label="Representative Name" placeholder="Enter Name" list="fitting-customers-list" required />
             <datalist id="fitting-customers-list">
               {Array.from(new Set(customers?.map(c => c.name) || [])).map(name => (
                 <option key={name} value={name} />
