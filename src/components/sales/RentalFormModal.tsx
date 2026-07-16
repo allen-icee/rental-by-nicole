@@ -8,7 +8,7 @@ import { FormSelect } from "@/components/ui/forms/FormSelect";
 import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { useCreateRentalBooking, useRentalBookings } from "../../features/sales/useRentalBookings";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
-import { calculateEndDate, calculateDownPayment } from "../../utils/sales-calculations";
+import { calculateEndDate, calculateRentalFinancials } from "../../utils/sales-calculations";
 import { useToast } from "@/components/ui/toast-context";
 import { Icon } from "@iconify/react";
 import { getModeColor, getPaymentColor, getStatusColor } from "./RentalTable";
@@ -59,7 +59,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     defaultValues: {
       customerName: "",
       startDate: new Date().toISOString().slice(0, 10),
-      time: "",
+      time: "10:00",
       rentalDays: 2,
       dressId: "",
       sizeId: "",
@@ -80,10 +80,11 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   const watchDressId = watch("dressId");
   const watchAccessories = watch("accessories");
 
-  const dressPrice = watchDressId ? (dresses.find((d: any) => d.id === watchDressId)?.price || 0) : 0;
-  const accsCost = watchAccessories.reduce((sum, a) => sum + (Number(a.price) || 0), 0);
-  const subtotal = dressPrice + accsCost;
-  const recommendedDownPayment = calculateDownPayment(subtotal);
+  const { subtotal, downPayment: recommendedDownPayment } = calculateRentalFinancials({
+    dressId: watchDressId,
+    accessories: watchAccessories,
+    catalogItems: catalogItems || []
+  });
 
   useEffect(() => {
     setValue("downPayment", recommendedDownPayment);
@@ -105,7 +106,7 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
       reset({
         customerName: "",
         startDate: new Date().toISOString().slice(0, 10),
-        time: "",
+        time: "10:00",
         rentalDays: 2,
         dressId: "",
         sizeId: "",
@@ -161,6 +162,19 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         };
       }).filter(a => a.id);
 
+      const financials = calculateRentalFinancials({
+        dressId: data.dressId,
+        accessories: accList,
+        catalogItems: catalogItems || [],
+        manualDownPayment: data.downPayment
+      });
+
+      const isSecDepEmpty = data.securityDeposit === null || data.securityDeposit === undefined || String(data.securityDeposit).trim() === "";
+      const parsedSecDep = Number(data.securityDeposit);
+      const safeSecDep = isSecDepEmpty || isNaN(parsedSecDep)
+        ? financials.securityDeposit 
+        : parsedSecDep;
+
       await createRental.mutateAsync({
         bookingNumber,
         startDate: data.startDate,
@@ -171,13 +185,13 @@ export function RentalFormModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         dressId: data.dressId,
         sizeId: data.sizeId || null,
         accessories: accList,
-        subtotal,
-        downPayment: data.downPayment,
-        securityDeposit: data.securityDeposit,
+        subtotal: financials.subtotal,
+        downPayment: financials.downPayment,
+        securityDeposit: safeSecDep,
         damageCharge: 0,
         lateFee: 0,
-        refundAmount: data.securityDeposit,
-        total: subtotal,
+        refundAmount: safeSecDep,
+        total: financials.total,
         status: data.status,
         pickupMode: data.pickupMode,
         paymentMethod: data.paymentMethod

@@ -8,6 +8,7 @@ import { FormSubmitButton } from "@/components/ui/forms/FormSubmitButton";
 import { useCreateFitting, useFittings } from "../../features/sales/useFittings";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
 import { useToast } from "@/components/ui/toast-context";
+import { calculateFittingFinancials } from "../../utils/sales-calculations";
 import { getFittingStatusColor } from "./FittingTable";
 
 interface FittingFormInputs {
@@ -29,7 +30,7 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
   const { control, handleSubmit, reset, watch, setValue, formState: { isSubmitting, isDirty, isValid, isSubmitSuccessful } } = useForm<FittingFormInputs>({
     defaultValues: {
       date: new Date().toISOString().slice(0, 10),
-      time: "",
+      time: "10:00",
       representativeName: "",
       customerCount: 1,
       fee: 150,
@@ -41,14 +42,15 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
 
   // Keep fee synced
   useEffect(() => {
-    setValue("fee", customerCount * 150);
+    const { fee } = calculateFittingFinancials({ customerCount });
+    setValue("fee", fee);
   }, [customerCount, setValue]);
 
   useEffect(() => {
     if (isOpen) {
       reset({
         date: new Date().toISOString().slice(0, 10),
-        time: "",
+        time: "10:00",
         representativeName: "",
         customerCount: 1,
         fee: 150,
@@ -85,6 +87,11 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
       }, 0) || 0;
       const bookingNumber = `FIT-${lastNum + 1}`;
 
+      const financials = calculateFittingFinancials({ 
+        customerCount: data.customerCount, 
+        manualFee: data.fee 
+      });
+
       await createFitting.mutateAsync({
         bookingNumber,
         date: data.date,
@@ -92,8 +99,8 @@ export function FittingFormModal({ isOpen, onClose }: { isOpen: boolean; onClose
         representativeCustomerId: customerId,
         representativeName: customerName,
         customerCount: data.customerCount,
-        fee: data.fee,
-        total: data.fee,
+        fee: financials.fee,
+        total: financials.total,
         status: data.status
       } as any);
 

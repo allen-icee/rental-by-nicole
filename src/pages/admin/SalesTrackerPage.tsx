@@ -12,6 +12,7 @@ import { FittingFormModal } from "../../components/sales/FittingFormModal";
 import { RentalFormModal } from "../../components/sales/RentalFormModal";
 import { getManilaDate, parseManilaDate, formatDateManila } from "../../utils/date-utils";
 import { supabase } from "../../lib/supabase/client";
+import { calculateRentalFinancials } from "../../utils/sales-calculations";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => ({ value: (i + 1).toString(), label: m }));
 
@@ -238,6 +239,21 @@ export function SalesTrackerPage() {
           const dressIdStr = row["Dress ID"] || dressNameMap.get((row["Dress"] || "").toString().toLowerCase().trim()) || null;
           const sizeIdStr = row["Size ID"] || sizeNameMap.get((row["Size"] || "").toString().toLowerCase().trim()) || null;
 
+          const parsedSubtotal = parseCurrency(row["Subtotal"]) || parseCurrency(row["Total"]) || 0;
+          const parsedDownPayment = parseCurrency(row["Down Payment"]) || 0;
+          const parsedTotal = parseCurrency(row["Total"]) || 0;
+
+          // Run through the centralized calculation to ensure logical consistency
+          const financials = calculateRentalFinancials({
+            dressId: dressIdStr,
+            accessories: accImport,
+            // catalogItems are omitted here for performance so we don't fetch all catalog items just for an import,
+            // we trust the Excel manual totals but enforce the logical consistency bounds via manual overrides:
+            manualSubtotal: parsedSubtotal,
+            manualDownPayment: parsedDownPayment,
+            manualTotal: parsedTotal
+          });
+
           await createRental.mutateAsync({
             bookingNumber: bNum,
             startDate: startDateStr,
@@ -248,13 +264,13 @@ export function SalesTrackerPage() {
             dressId: dressIdStr,
             sizeId: sizeIdStr,
             accessories: accImport,
-            subtotal: parseCurrency(row["Subtotal"]) || parseCurrency(row["Total"]) || 0,
-            downPayment: parseCurrency(row["Down Payment"]) || 0,
+            subtotal: financials.subtotal,
+            downPayment: financials.downPayment,
             securityDeposit: parseCurrency(row["Security Deposit"]) || 200,
             damageCharge: parseCurrency(row["Damage Charge"]) || 0,
             lateFee: parseCurrency(row["Late Fee"]) || 0,
             refundAmount: parseCurrency(row["Refund"]) || 0,
-            total: parseCurrency(row["Total"]) || 0,
+            total: financials.total,
             pickupMode: row["Mode"] || row["Pickup Mode"] || "Pick Up",
             paymentMethod: row["Payment"] || "Cash",
             status: row["Status"] || "Reserved",

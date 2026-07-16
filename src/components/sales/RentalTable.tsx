@@ -7,7 +7,7 @@ import { useRentalBookings, useCreateRentalBooking, useUpdateRentalBooking, useD
 import { useRentals } from "../../features/sales/useRentals";
 import { parseManilaDate, formatDateManila, getManilaDate } from "../../utils/date-utils";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
-import { calculateDownPayment, calculateEndDate } from "../../utils/sales-calculations";
+import { calculateRentalFinancials, calculateEndDate } from "../../utils/sales-calculations";
 import { useToast } from "@/components/ui/toast-context";
 import { ConfirmModal } from "@/components/admin/AdminModal";
 import type { RentalBooking } from "../../types/sales";
@@ -716,13 +716,15 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
       const newDressId = field === 'dressId' ? val : rental.dressId;
       const newAccs = field === 'accessories' ? val : (rental.accessories || []);
       
-      const dressPrice = newDressId ? (catalogItems?.find(d => d.id === newDressId)?.price || 0) : 0;
-      const accsCost = (newAccs as any[]).reduce((sum, a) => sum + (Number(a.price) || 0), 0);
+      const financials = calculateRentalFinancials({
+        dressId: newDressId,
+        accessories: newAccs as any[],
+        catalogItems: catalogItems || []
+      });
       
-      const subtotal = dressPrice + accsCost;
-      updates.subtotal = subtotal;
-      updates.total = subtotal;
-      updates.downPayment = calculateDownPayment(subtotal);
+      updates.subtotal = financials.subtotal;
+      updates.total = financials.total;
+      updates.downPayment = financials.downPayment;
     }
 
     updateRental.mutate({ id, ...updates });
@@ -787,6 +789,8 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
     const today = new Date().toISOString().slice(0, 10);
     const endDate = calculateEndDate(today, 2);
 
+    const defaultFinancials = calculateRentalFinancials({});
+
     await createRental.mutateAsync({
       bookingNumber: newTrk,
       startDate: today,
@@ -794,13 +798,13 @@ export function RentalTable({ filterYear, filterMonth, filterDay, searchQuery }:
       rentalDays: 2,
       endDate: endDate,
       customerName: "",
-      subtotal: 0,
-      downPayment: 0,
-      securityDeposit: 200,
+      subtotal: defaultFinancials.subtotal,
+      downPayment: defaultFinancials.downPayment,
+      securityDeposit: defaultFinancials.securityDeposit,
       damageCharge: 0,
       lateFee: 0,
-      refundAmount: 200,
-      total: 0,
+      refundAmount: defaultFinancials.securityDeposit,
+      total: defaultFinancials.total,
       status: "Reserved",
       paymentMethod: "Cash",
       pickupMode: "Pick Up",
