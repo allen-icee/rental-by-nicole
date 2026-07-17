@@ -82,7 +82,9 @@ export function CataloguePage() {
           showToast({
             tone: "info",
             title: "Demo catalogue",
-            message: "Supabase is not returning live catalogue items yet."
+            message: data.errorDetail 
+              ? `Supabase Error: ${data.errorDetail}`
+              : "Supabase is not returning live catalogue items yet."
           });
         }
       }
@@ -236,10 +238,17 @@ export function CataloguePage() {
                 Open any item to view measurements and availability.
               </p>
               {catalogueData.source === "fallback" && !loading ? (
-                <p className="mt-4 rounded-2xl bg-white p-4 text-sm font-semibold text-brand-accent shadow-soft">
-                  Demo catalogue is showing until the Supabase migration and live
-                  catalogue records are added.
-                </p>
+                <div className="mt-4 rounded-2xl bg-white p-4 text-sm font-semibold text-brand-accent shadow-soft text-left">
+                  <p>
+                    Demo catalogue is showing until the Supabase migration and live
+                    catalogue records are added.
+                  </p>
+                  {catalogueData.errorDetail && (
+                    <div className="mt-2 rounded-xl bg-red-50 p-3 text-xs font-mono text-red-600 break-words border border-red-100">
+                      <strong>Error Details:</strong> {catalogueData.errorDetail}
+                    </div>
+                  )}
+                </div>
               ) : null}
               
               <div className="mt-8 flex flex-col items-center justify-center gap-3 w-full max-w-2xl relative z-40">

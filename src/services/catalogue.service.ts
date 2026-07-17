@@ -9,6 +9,7 @@ export type CatalogueData = {
   categories: string[];
   tags: string[];
   source: "supabase" | "fallback";
+  errorDetail?: string;
 };
 
 type CategoryRow = { id: string; name: string };
@@ -184,16 +185,26 @@ export async function getCatalogueData(): Promise<CatalogueData> {
     };
   } catch (error) {
     console.warn("Using fallback catalogue data because Supabase is not ready.", error);
-    return fallbackCatalogueData();
+    return fallbackCatalogueData(error);
   }
 }
 
-function fallbackCatalogueData(): CatalogueData {
+function fallbackCatalogueData(error?: any): CatalogueData {
+  let errorDetail = "Unknown Error";
+  if (error instanceof Error) {
+    errorDetail = `${error.name}: ${error.message}`;
+  } else if (typeof error === "string") {
+    errorDetail = error;
+  } else if (error && typeof error === "object") {
+    errorDetail = JSON.stringify(error);
+  }
+  
   return {
     items: fallbackItems,
     categories: fallbackCategories,
     tags: fallbackTags,
-    source: "fallback"
+    source: "fallback",
+    errorDetail: error ? errorDetail : undefined
   };
 }
 
