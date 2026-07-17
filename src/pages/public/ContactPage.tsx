@@ -36,7 +36,7 @@ export function ContactPage() {
     }
   });
 
-  const [itemOptions, setItemOptions] = useState<{label: string; value: string}[]>([]);
+  const [itemOptions, setItemOptions] = useState<{ label: string; value: string }[]>([]);
 
   useEffect(() => {
     getCatalogueData().then(({ items }) => {
@@ -178,17 +178,17 @@ export function ContactPage() {
                 <div className="grid gap-6">
                   <div>
                     <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Your Name</label>
-                    <input 
+                    <input
                       id="name"
-                      {...register("name", { required: "Name is required", minLength: { value: 2, message: "Name must be at least 2 characters" } })} 
+                      {...register("name", { required: "Name is required", minLength: { value: 2, message: "Name must be at least 2 characters" } })}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           document.getElementById('email')?.focus();
                         }
                       }}
-                      className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.name ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`} 
-                      placeholder="e.g. Maria Theresa" 
+                      className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.name ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`}
+                      placeholder="Enter Name"
                     />
                     {errors.name && <p className="mt-2 ml-2 text-xs font-semibold text-red-500">{errors.name.message}</p>}
                   </div>
@@ -196,18 +196,18 @@ export function ContactPage() {
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-brand-accent ml-2">Email Address</label>
-                  <input 
+                  <input
                     id="email"
-                    {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Please enter a valid email address" } })} 
+                    {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Please enter a valid email address" } })}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         document.getElementById('message')?.focus();
                       }
                     }}
-                    className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`} 
-                    type="email" 
-                    placeholder="maria@example.com" 
+                    className={`w-full rounded-2xl border-2 bg-white/40 shadow-inner px-6 py-4 text-sm font-medium text-pink-950 placeholder-pink-950/40 transition-all focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-white/60 focus:border-brand-primary'}`}
+                    type="email"
+                    placeholder="email@example.com"
                   />
                   {errors.email && <p className="mt-2 ml-2 text-xs font-semibold text-red-500">{errors.email.message}</p>}
                 </div>
@@ -230,7 +230,7 @@ export function ContactPage() {
                   className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary hover:bg-brand-accent px-8 py-5 text-sm font-bold tracking-widest uppercase text-white shadow-[0_0_12px_rgba(255,255,255,0.6)] transition-all hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Sending Inquiry..." : "Send Inquiry"}
-                  <div 
+                  <div
                     className="w-6 h-6 bg-white"
                     style={{
                       WebkitMaskImage: 'url(/assets/svg/barbie.svg)',

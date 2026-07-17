@@ -372,7 +372,7 @@ export function TestimonialsPage() {
                       minLength={2}
                       maxLength={50}
                       type="text"
-                      placeholder="e.g. Maria Theresa"
+                      placeholder="Enter Name"
                       className="w-full rounded-xl border-2 border-white/60 bg-white/40 px-4 py-2.5 text-sm text-pink-950 shadow-inner transition-all focus:border-brand-primary focus:bg-white/80 focus:outline-none focus:shadow-crystal focus:ring-4 focus:ring-brand-primary/10"
                     />
                   </div>
