@@ -76,12 +76,13 @@ export function calculateEndDate(
 
 export interface RentalCalculationInput {
   dressId?: string | null;
-  accessories?: any[]; 
+  accessories?: any[];
   catalogItems?: any[];
   manualSubtotal?: number;
   manualDownPayment?: number;
   manualTotal?: number;
   securityDeposit?: number;
+  status?: string;
 }
 
 export interface RentalCalculationOutput {
@@ -100,9 +101,21 @@ export function calculateRentalFinancials({
   manualSubtotal,
   manualDownPayment,
   manualTotal,
-  securityDeposit = 200
+  securityDeposit = 200,
+  status
 }: RentalCalculationInput): RentalCalculationOutput {
-  
+
+  if (status === 'Cancelled') {
+    return {
+      dressPrice: 0,
+      accessoriesCost: 0,
+      subtotal: 0,
+      downPayment: 0,
+      total: 0,
+      securityDeposit: 0
+    };
+  }
+
   let dressPrice = 0;
   if (dressId) {
     const dress = catalogItems.find(item => item.id === dressId);
@@ -127,7 +140,7 @@ export function calculateRentalFinancials({
   }
 
   let subtotal = dressPrice + accessoriesCost;
-  
+
   if (subtotal === 0 && manualSubtotal != null) {
     subtotal = manualSubtotal;
   }
@@ -137,13 +150,13 @@ export function calculateRentalFinancials({
 
   if (manualTotal != null && manualTotal > 0) {
     total = manualTotal;
-    if (subtotal < total) subtotal = total; 
+    if (subtotal < total) subtotal = total;
   }
-  
+
   if (manualDownPayment != null && manualDownPayment > 0) {
     downPayment = manualDownPayment;
   }
-  
+
   if (total < downPayment) {
     total = downPayment * 2;
     if (subtotal < total) subtotal = total;

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../lib/supabase/client";
 import type { RentalBooking } from "../../types/sales";
+import { calculateRentalFinancials } from "../../utils/sales-calculations";
 
 // Mapper utility
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,18 +77,55 @@ export function useCreateRentalBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (booking: Partial<RentalBooking>) => {
+      let dbPayload = mapToDb(booking);
+
+      let catalogItems = queryClient.getQueryData(["catalog_items_minimal"]) as any[];
+      if (!catalogItems) {
+        const { data, error } = await supabase.from("catalog_items").select("id, name, price, categories(classification)");
+        if (error) throw error;
+        catalogItems = data;
+      }
+
+      let financials = calculateRentalFinancials({
+        dressId: dbPayload.dress_id,
+        accessories: dbPayload.accessories || [],
+        catalogItems: catalogItems || [],
+        status: dbPayload.status,
+        manualSubtotal: booking.subtotal,
+        manualDownPayment: booking.downPayment,
+        manualTotal: booking.total,
+      });
+
+      if (dbPayload.status !== 'Cancelled' && financials.total === 0 && dbPayload.dress_id && booking.total === undefined) {
+         throw new Error("Unable to determine catalog pricing. Cannot save rental with 0 value.");
+      }
+
+      dbPayload.subtotal = financials.subtotal;
+      dbPayload.down_payment = financials.downPayment;
+      dbPayload.total = financials.total;
+      
+      if (dbPayload.security_deposit === undefined || dbPayload.security_deposit === null) {
+         dbPayload.security_deposit = financials.securityDeposit;
+      }
+
       const { data, error } = await supabase
         .from("rental_bookings")
-        .insert([mapToDb(booking)])
+        .insert([dbPayload])
         .select()
         .single();
       if (error) throw error;
       return mapToRentalBooking(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(["rentalBookings"], (old: any) => {
+        if (!old) return [data];
+        return [...old, data];
+      });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
+    }
   });
 }
 
@@ -95,19 +133,86 @@ export function useUpdateRentalBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<RentalBooking> & { id: string }) => {
+      const isFinancialUpdate = 
+        updates.dressId !== undefined || 
+        updates.accessories !== undefined || 
+        updates.status !== undefined ||
+        updates.subtotal !== undefined ||
+        updates.downPayment !== undefined ||
+        updates.total !== undefined ||
+        updates.securityDeposit !== undefined;
+
+      const { data: current, error: fetchErr } = await supabase.from("rental_bookings").select("*").eq("id", id).single();
+      if (fetchErr) throw fetchErr;
+
+      const mergedDb = { ...current, ...mapToDb(updates) };
+
+      if (isFinancialUpdate) {
+        let catalogItems = queryClient.getQueryData(["catalog_items_minimal"]) as any[];
+        if (!catalogItems) {
+          const { data, error } = await supabase.from("catalog_items").select("id, name, price, categories(classification)");
+          if (error) throw error;
+          catalogItems = data;
+        }
+
+        let financials = calculateRentalFinancials({
+          dressId: mergedDb.dress_id,
+          accessories: mergedDb.accessories || [],
+          catalogItems: catalogItems || [],
+          status: mergedDb.status,
+          manualSubtotal: updates.subtotal,
+          manualDownPayment: updates.downPayment,
+          manualTotal: updates.total,
+        });
+
+        if (mergedDb.status !== 'Cancelled' && financials.total === 0 && mergedDb.dress_id && updates.total === undefined) {
+           throw new Error("Unable to determine catalog pricing. Cannot safely complete financial calculation.");
+        }
+
+        mergedDb.subtotal = financials.subtotal;
+        mergedDb.down_payment = financials.downPayment;
+        mergedDb.total = financials.total;
+        
+        if (updates.securityDeposit === undefined && financials.securityDeposit !== undefined) {
+          mergedDb.security_deposit = financials.securityDeposit;
+        }
+      } else {
+        if (updates.securityDeposit !== undefined) {
+          mergedDb.security_deposit = updates.securityDeposit;
+        }
+      }
+
       const { data, error } = await supabase
         .from("rental_bookings")
-        .update(mapToDb(updates))
+        .update(mergedDb)
         .eq("id", id)
         .select()
         .single();
       if (error) throw error;
       return mapToRentalBooking(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
+    onMutate: async ({ id, ...updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["rentalBookings"] });
+      const previousRentals = queryClient.getQueryData(["rentalBookings"]);
+      queryClient.setQueryData(["rentalBookings"], (old: any) => {
+        if (!old) return old;
+        return old.map((r: any) => r.id === id ? { ...r, ...updates } : r);
+      });
+      return { previousRentals };
+    },
+    onError: (err, newRental, context) => {
+      queryClient.setQueryData(["rentalBookings"], context?.previousRentals);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["rentalBookings"], (old: any) => {
+        if (!old) return old;
+        return old.map((r: any) => r.id === data.id ? data : r);
+      });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
+    }
   });
 }
 
@@ -118,9 +223,23 @@ export function useDeleteRentalBooking() {
       const { error } = await supabase.from("rental_bookings").delete().eq("id", id);
       if (error) throw error;
     },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["rentalBookings"] });
+      const previousRentals = queryClient.getQueryData(["rentalBookings"]);
+      queryClient.setQueryData(["rentalBookings"], (old: any) => {
+        if (!old) return old;
+        return old.filter((r: any) => r.id !== id);
+      });
+      return { previousRentals };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(["rentalBookings"], context?.previousRentals);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["rentalBookings"] });
+    }
   });
 }

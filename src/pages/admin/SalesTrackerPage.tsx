@@ -74,8 +74,7 @@ export function SalesTrackerPage() {
         "Customer": f.representativeName || "",
         "People": f.customerCount,
         "Status": f.status,
-        "Fee": f.fee != null ? `₱${f.fee.toFixed(2)}` : "₱0.00",
-        "Total": f.total != null ? `₱${f.total.toFixed(2)}` : "₱0.00"
+        "Fee": f.fee != null ? `₱${f.fee.toFixed(2)}` : "₱0.00"
       }));
     } else {
       const dressMap = new Map<string, string>();
@@ -123,12 +122,7 @@ export function SalesTrackerPage() {
           "Mode": r.pickupMode,
           "Payment": r.paymentMethod,
           "Status": r.status,
-          "Total": r.total != null ? `₱${r.total.toFixed(2)}` : "₱0.00",
-          "Days": r.rentalDays,
-          "Subtotal": r.subtotal != null ? `₱${r.subtotal.toFixed(2)}` : "₱0.00",
-          "Damage Charge": r.damageCharge != null ? `₱${r.damageCharge.toFixed(2)}` : "₱0.00",
-          "Late Fee": r.lateFee != null ? `₱${r.lateFee.toFixed(2)}` : "₱0.00",
-          "Refund": r.refundAmount != null ? `₱${r.refundAmount.toFixed(2)}` : "₱0.00"
+          "Total": r.total != null ? `₱${r.total.toFixed(2)}` : "₱0.00"
         };
       });
     }
@@ -243,17 +237,6 @@ export function SalesTrackerPage() {
           const parsedDownPayment = parseCurrency(row["Down Payment"]) || 0;
           const parsedTotal = parseCurrency(row["Total"]) || 0;
 
-          // Run through the centralized calculation to ensure logical consistency
-          const financials = calculateRentalFinancials({
-            dressId: dressIdStr,
-            accessories: accImport,
-            // catalogItems are omitted here for performance so we don't fetch all catalog items just for an import,
-            // we trust the Excel manual totals but enforce the logical consistency bounds via manual overrides:
-            manualSubtotal: parsedSubtotal,
-            manualDownPayment: parsedDownPayment,
-            manualTotal: parsedTotal
-          });
-
           await createRental.mutateAsync({
             bookingNumber: bNum,
             startDate: startDateStr,
@@ -264,13 +247,13 @@ export function SalesTrackerPage() {
             dressId: dressIdStr,
             sizeId: sizeIdStr,
             accessories: accImport,
-            subtotal: financials.subtotal,
-            downPayment: financials.downPayment,
+            subtotal: parsedSubtotal,
+            downPayment: parsedDownPayment,
             securityDeposit: parseCurrency(row["Security Deposit"]) || 200,
             damageCharge: parseCurrency(row["Damage Charge"]) || 0,
             lateFee: parseCurrency(row["Late Fee"]) || 0,
             refundAmount: parseCurrency(row["Refund"]) || 0,
-            total: financials.total,
+            total: parsedTotal,
             pickupMode: row["Mode"] || row["Pickup Mode"] || "Pick Up",
             paymentMethod: row["Payment"] || "Cash",
             status: row["Status"] || "Reserved",

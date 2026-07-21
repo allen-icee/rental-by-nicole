@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFittings, useCreateFitting, useUpdateFitting, useDeleteFitting } from "../../features/sales/useFittings";
 import { useCustomers, useCreateCustomer } from "../../features/customers/useCustomers";
 import { useToast } from "@/components/ui/toast-context";
@@ -9,187 +10,11 @@ import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase/client";
 import { Pagination } from "@/components/ui/Pagination";
 
-// Helpers for inline edit
-function EditableCell({ value, onBlur, type = "text", placeholder = "", min, max, className = "" }: any) {
-  const [local, setLocal] = useState(value || "");
-  const [isEditing, setIsEditing] = useState(false);
-  useEffect(() => setLocal(value || ""), [value]);
-
-  const displayValue = () => {
-    if (type === "date" && !isEditing && local) {
-      const d = new Date(local);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`;
-    }
-    return local;
-  };
-
-  const input = (
-    <input
-      type={isEditing && type === "date" ? "date" : type === "date" ? "text" : type}
-      value={isEditing || type !== "date" ? local : displayValue()}
-      placeholder={placeholder}
-      onFocus={() => setIsEditing(true)}
-      onChange={(e) => setLocal(e.target.value)}
-      onBlur={() => {
-        setIsEditing(false);
-        let finalVal = local;
-        if (type === "number") {
-          let num = Number(local);
-          if (isNaN(num)) num = value;
-          if (min !== undefined && num < min) num = min;
-          if (max !== undefined && num > max) num = max;
-          finalVal = String(num);
-          setLocal(finalVal);
-        }
-        if (finalVal !== (value || "")) onBlur(finalVal);
-      }}
-      min={min}
-      max={max}
-      className={`w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-2 py-1 text-xs rounded outline-none transition-all ${className} ${type === 'date' && !isEditing ? 'pr-6' : ''}`}
-    />
-  );
-
-  if (type === "date" && !isEditing) {
-    return (
-      <div className="relative w-full">
-        {input}
-        <Icon icon="mdi:calendar-blank" className="absolute right-2 top-1/2 -translate-y-1/2 size-3 text-pink-950/40 pointer-events-none" />
-      </div>
-    );
-  }
-
-  return input;
-}
-
-function InlineCustomerAutocomplete({ 
-  value, 
-  onSelect, 
-  placeholder 
-}: { 
-  value: string; 
-  onSelect: (name: string, id: string | null) => void;
-  placeholder: string;
-}) {
-  const [local, setLocal] = useState(value || "");
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-
-  const { data: customers } = useCustomers();
-  const createCustomer = useCreateCustomer();
-
-  useEffect(() => setLocal(value || ""), [value]);
-
-  const updateRect = () => {
-    if (containerRef.current) {
-      setRect(containerRef.current.getBoundingClientRect());
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updateRect();
-      const handleScroll = () => updateRect();
-      window.addEventListener('scroll', handleScroll, true);
-      return () => window.removeEventListener('scroll', handleScroll, true);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      if (
-        containerRef.current && !containerRef.current.contains(target) &&
-        (!menuRef.current || !menuRef.current.contains(target))
-      ) {
-        setIsOpen(false);
-        if (local !== value) {
-          // Auto create/save on click outside if changed
-          if (local.trim()) {
-            handleSaveNewOrExisting(local.trim());
-          } else {
-            setLocal(value || ""); // Revert
-          }
-        }
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, local, value]);
-
-  const handleSaveNewOrExisting = async (name: string) => {
-    const existing = customers?.find(c => c.name.toLowerCase() === name.toLowerCase());
-    if (existing) {
-      onSelect(existing.name, existing.id);
-    } else {
-      // Create new
-      try {
-        const newC = await createCustomer.mutateAsync(name);
-        onSelect(newC.name, newC.id);
-      } catch {
-        // If error, just use name
-        onSelect(name, null);
-      }
-    }
-    setIsOpen(false);
-  };
-
-  const filtered = Array.from(new Map((customers?.filter(c => c.name.toLowerCase().includes(local.toLowerCase())) || []).map(c => [c.name.toLowerCase(), c])).values());
-
-  const menu = isOpen && rect ? (
-    <div
-      ref={menuRef}
-      style={{ position: "fixed", top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 200), zIndex: 99999 }}
-      className="max-h-64 overflow-y-auto flex flex-col bg-white border border-pink-100 shadow-barbie rounded-xl p-1"
-      data-lenis-prevent="true"
-    >
-      {filtered.map(c => (
-        <div
-          key={c.id}
-          onClick={() => {
-            setLocal(c.name);
-            onSelect(c.name, c.id);
-            setIsOpen(false);
-          }}
-          className="flex items-center gap-2 p-2 text-xs hover:bg-pink-50 cursor-pointer rounded-lg"
-        >
-          <span>{c.name}</span>
-        </div>
-      ))}
-      {local.trim() && !filtered.find(c => c.name.toLowerCase() === local.toLowerCase()) && (
-        <div
-          onClick={() => handleSaveNewOrExisting(local.trim())}
-          className="flex items-center gap-2 p-2 text-xs text-brand-primary font-semibold hover:bg-pink-50 cursor-pointer rounded-lg"
-        >
-          <Icon icon="mdi:plus" /> Create "{local}"
-        </div>
-      )}
-    </div>
-  ) : null;
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <input
-        type="text"
-        value={local}
-        onChange={e => setLocal(e.target.value)}
-        onFocus={() => setIsOpen(true)}
-        placeholder={placeholder}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSaveNewOrExisting(local.trim());
-          }
-        }}
-        className="w-full bg-transparent border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-2 py-1 text-xs rounded outline-none transition-all"
-      />
-      {menu && createPortal(menu, document.body)}
-    </div>
-  );
-}
-
+import {
+  EditableCell,
+  InlineCustomerAutocomplete,
+  InlineColorSelect
+} from "@/components/ui/table/InlineComponents";
 export function getFittingStatusColor(status: string) {
   switch (status) {
     case "Scheduled": return "bg-blue-100 text-blue-700";
@@ -200,94 +25,6 @@ export function getFittingStatusColor(status: string) {
   }
 }
 
-function InlineColorSelect({ 
-  value, 
-  onChange, 
-  options, 
-  getColor 
-}: { 
-  value: string; 
-  onChange: (v: string) => void; 
-  options: string[]; 
-  getColor: (v: string) => string; 
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-
-  const updateRect = () => { if (containerRef.current) setRect(containerRef.current.getBoundingClientRect()); };
-
-  useEffect(() => {
-    if (isOpen) {
-      updateRect();
-      const handleScroll = () => updateRect();
-      window.addEventListener('scroll', handleScroll, true);
-      return () => window.removeEventListener('scroll', handleScroll, true);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      if (
-        containerRef.current && !containerRef.current.contains(target) &&
-        (!menuRef.current || !menuRef.current.contains(target))
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const menu = isOpen && rect ? (
-    <div
-      ref={menuRef}
-      className="absolute z-[100] w-48 bg-white rounded-xl shadow-barbie border border-pink-100 overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-100"
-      style={{
-        top: rect.bottom + 4,
-        left: rect.left,
-        maxHeight: '300px'
-      }}
-      data-lenis-prevent="true"
-    >
-      <div className="overflow-y-auto scrollbar-hide overscroll-contain flex flex-col gap-1" data-lenis-prevent="true">
-        {options.map(o => {
-          const isSelected = value === o;
-          return (
-            <div
-              key={o}
-              onClick={() => { onChange(o); setIsOpen(false); }}
-              className="px-2 py-1.5 cursor-pointer hover:bg-gray-50 flex items-center transition-colors"
-            >
-              <div className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold inline-flex items-center gap-2 ${getColor(o)}`}>
-                 <span>{o}</span>
-                 {isSelected && <Icon icon="mdi:check" className="size-3 shrink-0" />}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  ) : null;
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full border border-transparent hover:border-pink-200 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent px-1 py-1 text-xs rounded outline-none transition-all flex items-center justify-between font-semibold ${getColor(value)}`}
-      >
-        <span className="block truncate">
-          {value}
-        </span>
-        <Icon icon="mdi:chevron-down" className="size-3 opacity-50 shrink-0 ml-1" />
-      </button>
-      {menu && createPortal(menu, document.body)}
-    </div>
-  );
-}
-
 
 
 export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }: { filterYear: string, filterMonth: string, filterDay: string, searchQuery: string }) {
@@ -296,6 +33,10 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
   const createFitting = useCreateFitting();
   const updateFitting = useUpdateFitting();
   const deleteFitting = useDeleteFitting();
+  const queryClient = useQueryClient();
+
+  const pendingUpdatesRef = useRef<Record<string, any>>({});
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -367,7 +108,28 @@ export function FittingTable({ filterYear, filterMonth, filterDay, searchQuery }
       updates = fieldOrUpdates; // object
     }
 
-    updateFitting.mutate({ id, ...updates });
+    // Optimistically update UI immediately
+    queryClient.setQueryData(["fittings"], (old: any) => {
+      if (!old) return old;
+      return old.map((f: any) => f.id === id ? { ...f, ...updates } : f);
+    });
+
+    // Queue for debounced save
+    pendingUpdatesRef.current[id] = {
+      ...(pendingUpdatesRef.current[id] || {}),
+      ...updates
+    };
+
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    
+    debounceTimerRef.current = setTimeout(() => {
+      const pending = pendingUpdatesRef.current;
+      pendingUpdatesRef.current = {};
+      
+      Object.entries(pending).forEach(([rowId, rowUpdates]) => {
+        updateFitting.mutate({ id: rowId, ...rowUpdates });
+      });
+    }, 800);
   };
 
   const handleAddInlineRow = async () => {

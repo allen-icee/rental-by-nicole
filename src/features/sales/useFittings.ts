@@ -61,10 +61,16 @@ export function useCreateFitting() {
       if (error) throw error;
       return mapToFitting(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fittings"] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(["fittings"], (old: any) => {
+        if (!old) return [data];
+        return [...old, data];
+      });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["fittings"] });
+    }
   });
 }
 
@@ -81,10 +87,28 @@ export function useUpdateFitting() {
       if (error) throw error;
       return mapToFitting(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fittings"] });
+    onMutate: async ({ id, ...updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["fittings"] });
+      const previousFittings = queryClient.getQueryData(["fittings"]);
+      queryClient.setQueryData(["fittings"], (old: any) => {
+        if (!old) return old;
+        return old.map((f: any) => f.id === id ? { ...f, ...updates } : f);
+      });
+      return { previousFittings };
+    },
+    onError: (err, newFitting, context) => {
+      queryClient.setQueryData(["fittings"], context?.previousFittings);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["fittings"], (old: any) => {
+        if (!old) return old;
+        return old.map((f: any) => f.id === data.id ? data : f);
+      });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["fittings"] });
+    }
   });
 }
 
@@ -95,9 +119,23 @@ export function useDeleteFitting() {
       const { error } = await supabase.from("fittings").delete().eq("id", id);
       if (error) throw error;
     },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["fittings"] });
+      const previousFittings = queryClient.getQueryData(["fittings"]);
+      queryClient.setQueryData(["fittings"], (old: any) => {
+        if (!old) return old;
+        return old.filter((f: any) => f.id !== id);
+      });
+      return { previousFittings };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(["fittings"], context?.previousFittings);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fittings"] });
       queryClient.invalidateQueries({ queryKey: ["metrics"] });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["fittings"] });
+    }
   });
 }
